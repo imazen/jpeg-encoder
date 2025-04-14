@@ -4,10 +4,13 @@ use alloc::vec;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
 
+#[cfg(feature = "std")]
+use std::eprintln;
+
 // Constants ported from adaptive_quantization.cc
-const K_MASK_MULTIPLIER: f32 = 0.855;
-const K_EDGE_MULTIPLIER: f32 = 0.6;
-const K_BORDER_MULTIPLIER: f32 = 0.125;
+// const K_MASK_MULTIPLIER: f32 = 0.855;
+// const K_EDGE_MULTIPLIER: f32 = 0.6;
+// const K_BORDER_MULTIPLIER: f32 = 0.125;
 
 // Gamma-related constant from ComputePreErosion
 const MATCH_GAMMA_OFFSET: f32 = 0.019; // Note: Jpegli divides by kInputScaling (255.0), applied at usage.

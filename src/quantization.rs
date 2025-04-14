@@ -1,5 +1,7 @@
 use alloc::boxed::Box;
 use core::num::NonZeroU16;
+use alloc::vec;
+use alloc::vec::Vec;
 
 /// # Quantization table used for encoding
 ///
@@ -270,34 +272,8 @@ fn distance_to_scale(distance: f32, k: usize) -> f32 {
     }
 }
 
-const SHIFT: u32 = 2 * 8 - 1;
-
-fn compute_reciprocal(divisor: u32) -> (i32, i32) {
-    if divisor <= 1 {
-        return (1, 0);
-    }
-
-    let mut reciprocals = (1 << SHIFT) / divisor;
-    let fractional = (1 << SHIFT) % divisor;
-
-    // Correction for rounding errors in division
-    let mut correction = divisor / 2;
-
-    if fractional != 0 {
-        if fractional <= correction {
-            correction += 1;
-        } else {
-            reciprocals += 1;
-        }
-    }
-
-    (reciprocals as i32, correction as i32)
-}
-
 pub struct QuantizationTable {
     table: [NonZeroU16; 64],
-    reciprocals: [i32; 64],
-    corrections: [i32; 64],
 }
 
 impl QuantizationTable {
@@ -312,15 +288,14 @@ impl QuantizationTable {
     }
 
     // Helper function to apply scaling factor to a base table
-    fn transform_table(base_table: &[u16; 64], scale_factor: u32) -> [NonZeroU16; 64] {
+    fn transform_standard_table(base_table: &[u16; 64], scale_factor: u32) -> [NonZeroU16; 64] {
         let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
         for (i, &v) in base_table.iter().enumerate() {
             let val = (v as u32 * scale_factor + 50) / 100;
             // Clamp to valid JPEG quant value range (1-255 for baseline)
-            // Note: JPEG allows up to 65535 for non-baseline, but we scale to 8-bit here.
             let val_clamped = val.clamp(1, 255) as u16;
-            // Table values are pre-multiplied by 8 for the FDCT scaling used in this crate.
-            q_table[i] = NonZeroU16::new(val_clamped << 3).unwrap();
+            // Store the raw, unshifted quant value.
+            q_table[i] = NonZeroU16::new(val_clamped).unwrap_or(NonZeroU16::new(1).unwrap());
         }
         q_table
     }
@@ -337,12 +312,12 @@ impl QuantizationTable {
         let table_data = match q_type {
             QuantizationTableType::StandardAnnexK => {
                 if is_luma {
-                    QuantizationTable::transform_table(
+                    QuantizationTable::transform_standard_table(
                         &DEFAULT_LUMA_TABLES[q_type.index()],
                         scale_factor,
                     )
                 } else {
-                    QuantizationTable::transform_table(
+                    QuantizationTable::transform_standard_table(
                         &DEFAULT_CHROMA_TABLES[q_type.index()],
                         scale_factor,
                     )
@@ -373,63 +348,20 @@ impl QuantizationTable {
                  }
                  q_table
             },
-            table => {
-                let table = if is_luma {
-                    &DEFAULT_LUMA_TABLES[table.index()]
-                } else {
-                    &DEFAULT_CHROMA_TABLES[table.index()]
-                };
-                Self::get_with_quality(table, quality)
-            }
+            other_type => {
+                 // Handle other standard table types (Flat, MsSsim, etc.)
+                 let base_table = if is_luma {
+                     &DEFAULT_LUMA_TABLES[other_type.index()]
+                 } else {
+                     &DEFAULT_CHROMA_TABLES[other_type.index()]
+                 };
+                 QuantizationTable::transform_standard_table(base_table, scale_factor)
+             }
         };
-
-        let mut reciprocals = [0i32; 64];
-        let mut corrections = [0i32; 64];
-
-        for i in 0..64 {
-            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
-            reciprocals[i] = reciprocal;
-            corrections[i] = correction;
-        }
 
         QuantizationTable {
-            table: table_data, // Store the final NonZeroU16 table
+            table: table_data,
         }
-    }
-
-    fn get_user_table(table: &[u16; 64]) -> [NonZeroU16; 64] {
-        let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
-        for (i, &v) in table.iter().enumerate() {
-            q_table[i] = match NonZeroU16::new(v.clamp(1, 2 << 10) << 3) {
-                Some(v) => v,
-                None => panic!("Invalid quantization table value: {}", v),
-            };
-        }
-        q_table
-    }
-
-    fn get_with_quality(table: &[u16; 64], quality: u8) -> [NonZeroU16; 64] {
-        let quality = quality.clamp(1, 100) as u32;
-
-        let scale = if quality < 50 {
-            5000 / quality
-        } else {
-            200 - quality * 2
-        };
-
-        let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
-
-        for (i, &v) in table.iter().enumerate() {
-            let v = v as u32;
-
-            let v = (v * scale + 50) / 100;
-
-            let v = v.clamp(1, 255) as u16;
-
-            // Table values are premultiplied with 8 because dct is scaled by 8
-            q_table[i] = NonZeroU16::new(v << 3).unwrap();
-        }
-        q_table
     }
 
     /// Creates a new quantization table using Jpegli's distance-based scaling.
@@ -547,15 +479,15 @@ const K_ZERO_BIAS_MUL_YCBCR_LQ: [[f32; 64]; 3] = [
       0.4490, 0.7190, 0.6190, 0.3839, 0.3880, 0.6190, 0.6190, 0.6190,
       0.4490, 0.6190, 0.6187, 0.7160, 0.5860, 0.6190, 0.6204, 0.6190,
       0.6187, 0.6189, 0.6100, 0.6190, 0.4790, 0.6190, 0.6190, 0.3480 ],
-    // c = 1 (Cb)
-    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430,
-      1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430,
-      0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430,
-      1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430,
-      0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430,
-      0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430,
-      1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480,
-      0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430 ],
+    // c = 1 (Cb) - Re-formatted, adding trailing commas
+    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430,  //
+      1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430,  //
+      0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430,  //
+      1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430,  //
+      0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430,  //
+      0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430,  //
+      1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480,  //
+      0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, ], // Trailing comma added
     // c = 2 (Cr)
     [ 0.0000, 1.3190, 0.4308, 0.4460, 0.0661, 0.0660, 0.2660, 0.2960,
       1.3190, 0.3280, 0.3093, 0.0750, 0.0505, 0.1594, 0.3060, 0.2113,

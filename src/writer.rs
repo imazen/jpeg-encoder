@@ -255,7 +255,7 @@ impl<W: JfifWrite> JfifWriter<W> {
         self.write_u8(destination)?;
 
         for &v in ZIGZAG.iter() {
-            self.write_u8(table.get(v as usize))?;
+            self.write_u8(table.get_raw(v as usize) as u8)?;
         }
 
         Ok(())

@@ -1,16 +1,19 @@
-use crate::fdct::fdct;
-use crate::huffman::{CodingClass, HuffmanTable};
-use crate::image_buffer::*;
-use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance};
-use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
-use crate::{Density, EncodingError};
-
 use alloc::vec;
 use alloc::vec::Vec;
 
+// Keep only imports from *other* modules
+use crate::huffman::{CodingClass, HuffmanTable};
+use crate::image_buffer::*;
+use crate::marker::Marker;
+use crate::adaptive_quantization::compute_adaptive_quant_field;
+use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance, compute_zero_bias_tables};
+use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
+use crate::{EncodingError};
+use crate::fdct::fdct; // Import fdct specifically
+use crate::Density; // Add import for Density from lib.rs
+
 #[cfg(feature = "std")]
-use std::io::BufWriter;
+use std::{io::BufWriter, eprintln};
 
 #[cfg(feature = "std")]
 use std::fs::File;
@@ -584,7 +587,7 @@ impl<W: JfifWrite> Encoder<W> {
                 QuantizationTable::new_with_quality(
                     &self.quantization_tables[1],
                     self.quality,
-                    false, // is_luma
+                    false, // is_chroma
                     is_yuv420,
                     force_baseline,
                 ),
@@ -596,8 +599,8 @@ impl<W: JfifWrite> Encoder<W> {
 
         // --- Compute Zero Bias Tables --- 
         let num_components = self.components.len();
-        (self.zero_bias_offsets, self.zero_bias_multipliers) = 
-            crate::quantization::compute_zero_bias_tables(distance, num_components);
+        (self.zero_bias_offsets, self.zero_bias_multipliers) =
+            compute_zero_bias_tables(distance, num_components);
         // Ensure tables have the correct size
         assert_eq!(self.zero_bias_offsets.len(), num_components);
         assert_eq!(self.zero_bias_multipliers.len(), num_components);
@@ -1430,8 +1433,11 @@ pub(crate) trait Operations {
             // Ensure divisor is not zero, though table values should be >= 1
             if divisor == 0 { continue; }
 
-            // Standard quantization with rounding
-            let mut q_coeff = (value + divisor.copysign(value) / 2) / divisor;
+            // Standard quantization with rounding: round(value / divisor)
+            // Add half of the divisor (with the sign of the value) before truncating division.
+            // Ensure floating point division for copysign
+            let half_divisor_signed = (divisor as f32 / 2.0).copysign(value as f32) as i32;
+            let mut q_coeff = (value + half_divisor_signed) / divisor;
 
             // Jpegli-style adaptive quantization thresholding (approximated)
             // Apply only to AC coefficients (i > 0)

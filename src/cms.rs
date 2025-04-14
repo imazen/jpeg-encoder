@@ -73,8 +73,8 @@ impl ColorProfile {
             spot_color_names: Vec::new(),
         };
         let profile = Profile::new_srgb();
-        let icc_data = profile.save_to_icc_bytes()
-            .map_err(|e| EncodingError::CmsError(format!("Failed to save sRGB profile: {}", e)))?;
+        let icc_data = profile.icc()
+            .map_err(|e| EncodingError::CmsError(format!("Failed to get sRGB profile ICC: {}", e)))?.to_vec();
         Ok(ColorProfile {
             icc: icc_data,
             internal: Some(internal),
@@ -97,8 +97,8 @@ impl ColorProfile {
             )
             .map_err(|e| EncodingError::CmsError(format!("Failed to create linear sRGB profile: {}", e)))?;
 
-        profile.icc = linear_profile.save_to_icc_bytes()
-            .map_err(|e| EncodingError::CmsError(format!("Failed to save linear sRGB profile: {}", e)))?;
+        profile.icc = linear_profile.icc()
+            .map_err(|e| EncodingError::CmsError(format!("Failed to save linear sRGB profile: {}", e)))?.to_vec();
 
         Ok(profile)
     }
@@ -120,8 +120,8 @@ impl ColorProfile {
             )
              .map_err(|e| EncodingError::CmsError(format!("Failed to create gray profile: {}", e)))?;
 
-        let icc_data = gray_profile.save_to_icc_bytes()
-             .map_err(|e| EncodingError::CmsError(format!("Failed to save gray profile: {}", e)))?;
+        let icc_data = gray_profile.icc()
+             .map_err(|e| EncodingError::CmsError(format!("Failed to save gray profile: {}", e)))?.to_vec();
 
          Ok(ColorProfile {
             icc: icc_data,
@@ -313,7 +313,7 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
     let profile = Profile::new_icc(icc_data)
         .map_err(|e| EncodingError::CmsError(format!("Failed to parse ICC profile: {}", e.to_string())))?;
 
-    let class = profile.profile_class_signature();
+    let class = profile.class_signature();
     let color_space_sig = profile.color_space();
     let pcs = profile.pcs(); // Profile Connection Space
 
@@ -331,15 +331,15 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
         primaries: None,
         transfer_function: TfType::Unknown,
         is_cmyk: color_space_sig == ColorSpaceSignature::CmykData,
-        rendering_intent: profile.rendering_intent(),
+        rendering_intent: profile.header_rendering_intent(),
         spot_color_names: Vec::new(), // TODO: Extract spot colors if needed
     };
 
     // Only extract detailed fields for display/input/output/color space classes
-    if class == ProfileClassSignature::DisplayInputDevice || class == ProfileClassSignature::InputDevice || class == ProfileClassSignature::OutputDevice || class == ProfileClassSignature::ColorSpaceConversion {
-        if let Some(wp_tag_data) = profile.tag_data(TagSignature::MediaWhitePointTag).ok() {
-            if let Ok(xyz) = Tag::read_xyz(&wp_tag_data) {
-                 if let Some(xyy) = CIExyY::from_xyz(&xyz) {
+    if class == ProfileClassSignature::Display || class == ProfileClassSignature::Input || class == ProfileClassSignature::Output || class == ProfileClassSignature::ColorSpace {
+        if let Some(wp_tag) = profile.tag(TagSignature::MediaWhitePointTag) {
+            if let Ok(xyz) = wp_tag.read_xyz() {
+                 if let Ok(xyy) = CIExyY::from(&xyz) {
                      encoding.white_point = Some(xyy);
                  } else {
                       log::warn!("ICC WP XYZ to xyY conversion failed, using D50 (PCS default)");
@@ -356,13 +356,13 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
         }
 
         if color_space_sig == ColorSpaceSignature::RgbData {
-            let r_tag_data = profile.tag_data(TagSignature::RedColorantTag).ok();
-            let g_tag_data = profile.tag_data(TagSignature::GreenColorantTag).ok();
-            let b_tag_data = profile.tag_data(TagSignature::BlueColorantTag).ok();
+            let r_tag = profile.tag(TagSignature::RedColorantTag);
+            let g_tag = profile.tag(TagSignature::GreenColorantTag);
+            let b_tag = profile.tag(TagSignature::BlueColorantTag);
 
-            if let (Some(r_data), Some(g_data), Some(b_data)) = (r_tag_data, g_tag_data, b_tag_data) {
-                 if let (Ok(r_xyz), Ok(g_xyz), Ok(b_xyz)) = (Tag::read_xyz(&r_data), Tag::read_xyz(&g_data), Tag::read_xyz(&b_data)) {
-                    if let (Some(r_xyy), Some(g_xyy), Some(b_xyy)) = (CIExyY::from_xyz(&r_xyz), CIExyY::from_xyz(&g_xyz), CIExyY::from_xyz(&b_xyz)) {
+            if let (Some(r_data), Some(g_data), Some(b_data)) = (r_tag, g_tag, b_tag) {
+                 if let (Ok(r_xyz), Ok(g_xyz), Ok(b_xyz)) = (r_data.read_xyz(), g_data.read_xyz(), b_data.read_xyz()) {
+                    if let (Ok(r_xyy), Ok(g_xyy), Ok(b_xyy)) = (CIExyY::from(&r_xyz), CIExyY::from(&g_xyz), CIExyY::from(&b_xyz)) {
                          encoding.primaries = Some(CIExyYTRIPLE {
                              Red: r_xyy,
                              Green: g_xyy,
@@ -380,14 +380,14 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
 
     // Determine Transfer Function (TRC)
     let trc_tag_sig = match color_space_sig {
-         ColorSpaceSignature::GrayData => TagSignature::GrayTRCTag,
-         ColorSpaceSignature::RgbData => TagSignature::GreenTRCTag, // Green is often representative for RGB
-         _ => TagSignature::Unknown, // No TRC for CMYK etc.
+         ColorSpaceSignature::GrayData => Some(TagSignature::GrayTRCTag),
+         ColorSpaceSignature::RgbData => Some(TagSignature::GreenTRCTag), // Green is often representative for RGB
+         _ => None,
     };
 
-    if trc_tag_sig != TagSignature::Unknown {
-        if let Some(trc_tag_data) = profile.tag_data(trc_tag_sig).ok() {
-             if let Ok(curve) = Tag::read_curve(&trc_tag_data) {
+    if let Some(sig) = trc_tag_sig {
+        if let Some(trc_tag) = profile.tag(sig) {
+             if let Ok(curve) = trc_tag.read_curve(Context::new()) {
                  if curve.is_linear() {
                      encoding.transfer_function = TfType::Linear;
                  } else {
@@ -422,10 +422,10 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
                       }
                  }
              } else {
-                  log::warn!("Failed to read curve from TRC tag ({:?})", trc_tag_sig);
+                  log::warn!("Failed to read curve from TRC tag ({:?})", sig);
              }
          } else {
-              log::warn!("TRC tag ({:?}) not found", trc_tag_sig);
+              log::warn!("TRC tag ({:?}) not found", sig);
              // Default based on colorspace if TRC missing
              if color_space_sig == ColorSpaceSignature::RgbData { encoding.transfer_function = TfType::SRGB; }
              else if color_space_sig == ColorSpaceSignature::GrayData { encoding.transfer_function = TfType::Gamma(2200); }
@@ -523,7 +523,7 @@ mod tests {
     #[test]
     fn test_set_fields_from_known_icc() {
         let srgb_profile = Profile::new_srgb();
-        let icc_data = srgb_profile.save_to_icc_bytes().unwrap();
+        let icc_data = srgb_profile.icc().unwrap().to_vec();
         let internal = set_fields_from_icc(&icc_data).unwrap();
 
         assert_eq!(internal.channels, 3);

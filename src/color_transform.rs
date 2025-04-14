@@ -122,8 +122,16 @@ pub fn grayscale_to_rgb(planes: &mut [Vec<f32>], num_pixels: usize) {
         // Avoid panic if planes are too small (shouldn't happen in normal use)
         return;
     }
-    planes[1][..num_pixels].copy_from_slice(&planes[0][..num_pixels]);
-    planes[2][..num_pixels].copy_from_slice(&planes[0][..num_pixels]);
+    // Use split_at_mut to avoid simultaneous borrows
+    let (plane0_slice, rest) = planes.split_at_mut(1);
+    let plane0 = &plane0_slice[0]; // Immutable borrow of plane 0 is fine now
+    
+    let (plane1_slice, plane2_slice) = rest.split_at_mut(1);
+    let plane1 = &mut plane1_slice[0];
+    let plane2 = &mut plane2_slice[0];
+
+    plane1[..num_pixels].copy_from_slice(&plane0[..num_pixels]);
+    plane2[..num_pixels].copy_from_slice(&plane0[..num_pixels]);
 }
 
 // --- Plane-based YCbCr conversion ---

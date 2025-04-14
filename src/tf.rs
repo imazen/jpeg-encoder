@@ -89,29 +89,18 @@ pub mod hlg {
     use super::hlg_consts::*;
 
     pub fn display_from_encoded(encoded: f32, intensity_target: f32, _luminances: Option<[f32; 3]>) -> f32 {
-        let encoded = encoded as f64;
-        let abs_encoded = encoded.abs();
-        let magnitude = if abs_encoded <= K_05 {
-            abs_encoded * abs_encoded * K_INV3
-        } else {
-             // (fast_pow2f(encoded * K_HI_POW) * K_HI_MUL + K_HI_ADD)
-             // Using f64::exp2 for simplicity, might differ from C++ FastPow2f
-            ((encoded * K_HI_POW).exp2() * K_HI_MUL + K_HI_ADD)
-        };
-        encoded.signum() * magnitude as f32
+        let magnitude = encoded.abs();
+        let encoded_exponent = 1.0 + (magnitude / 38.61285087f32).powf(1.0 / 4.0);
+        let linear = encoded.signum() * (encoded_exponent.powf(4.0) - 1.0) / 18.8515625;
+        (linear / intensity_target) * 255.0
     }
 
     pub fn encoded_from_display(display_linear: f32, intensity_target: f32, _luminances: Option<[f32; 3]>) -> f32 {
-        let display = display_linear as f64;
-        let abs_display = display.abs();
-        let magnitude = if abs_display <= K_INV12 {
-            (K_3 * abs_display).sqrt()
-        } else {
-            // (K_A_INV_LOG2E * FastLog2f(display * K_12 + K_NEG_KB) + K_C)
-            // Using f64::log2 for simplicity
-            K_A_INV_LOG2E * (display * K_12 + K_NEG_KB).log2() + K_C
-        };
-        display.signum() * magnitude as f32
+        let linear = (display_linear / 255.0) * intensity_target;
+        let magnitude = linear.abs();
+        let pq_exponent = (1.0 + 18.8515625 * magnitude).powf(0.25);
+        let encoded = display_linear.signum() * 38.61285087 * (pq_exponent - 1.0);
+        encoded
     }
 
     // TODO: Add ApplyHlgOotf logic from jxl_cms.cc if needed later.

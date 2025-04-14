@@ -246,7 +246,8 @@ impl<W: JfifWrite> Encoder<W> {
     /// be changed with [set_sampling_factor](Encoder::set_sampling_factor).
     /// Default quantization uses standard Annex K tables.
     /// Assumes sRGB input profile by default.
-    pub fn new(w: W, quality: u8) -> Encoder<W> {
+    /// Returns an EncoderResult because ColorProfile creation can fail.
+    pub fn new(w: W, quality: u8) -> EncoderResult<Encoder<W>> {
         let huffman_tables = [
             (
                 HuffmanTable::default_luma_dc(),
@@ -273,14 +274,14 @@ impl<W: JfifWrite> Encoder<W> {
         let jpegli_distance = Some(quality_to_distance(quality));
         let (zero_bias_offsets, zero_bias_multipliers) = compute_zero_bias_tables(jpegli_distance.unwrap());
 
-        Encoder {
+        let encoder = Encoder {
             writer: JfifWriter::new(w),
             density: Density::default(),
             quality,
             jpegli_distance,
 
-            input_profile: Some(ColorProfile::srgb()), // Default to sRGB input
-            internal_color_profile: ColorProfile::linear_srgb(), // Default internal target is Linear sRGB
+            input_profile: Some(ColorProfile::srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?),
+            internal_color_profile: ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?,
             cms_state: None,
             intensity_target: 255.0, // Default intensity target
             xyb_mode: false,
@@ -298,7 +299,8 @@ impl<W: JfifWrite> Encoder<W> {
             zero_bias_offsets: zero_bias_offsets,
             zero_bias_multipliers: zero_bias_multipliers,
             use_float_dct: false,
-        }
+        };
+        Ok(encoder)
     }
 
     /// Sets the quality value for the encoder.
@@ -350,21 +352,23 @@ impl<W: JfifWrite> Encoder<W> {
 
      /// Enables or disables the Jpegli XYB color space mode.
     /// When enabled, internal processing happens in XYB.
-    pub fn set_xyb_mode(&mut self, enabled: bool) {
+    /// Returns an EncoderResult because ColorProfile creation can fail.
+    pub fn set_xyb_mode(&mut self, enabled: bool) -> EncoderResult<()> {
         self.xyb_mode = enabled;
         // Set internal target profile based on mode
         if enabled {
             // Need a way to represent XYB profile internally for CMS setup?
             // For now, we know conversion happens *after* CMS to linear sRGB.
-             self.internal_color_profile = ColorProfile::linear_srgb();
+             self.internal_color_profile = ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?;
              // Precompute XYB matrix if not done already
              if self.premul_absorb.is_none() {
                  self.premul_absorb = Some(xyb::compute_premul_absorb(self.intensity_target));
              }
         } else {
-             self.internal_color_profile = ColorProfile::linear_srgb();
+             self.internal_color_profile = ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?;
         }
         self.cms_state = None; // Invalidate previous CMS state
+        Ok(())
     }
 
     /// Set pixel density for the image
@@ -615,9 +619,29 @@ impl<W: JfifWrite> Encoder<W> {
 
         // Determine quantization tables (Jpegli distance or standard quality)
         let distance = self.jpegli_distance.unwrap_or_else(|| quality_to_distance(self.quality));
+        
+        // Determine is_yuv420 based on sampling factor
+        let is_yuv420 = match self.sampling_factor {
+            SamplingFactor::F_2_2 | SamplingFactor::R_4_2_0 => true,
+            _ => false,
+        };
+
         let q_tables = [
-            QuantizationTable::new(self.quantization_tables[0], distance, 0, false)?,
-            QuantizationTable::new(self.quantization_tables[1], distance, 1, false)?,
+            // Use correct QuantizationTable constructor based on whether distance is set
+            if self.jpegli_distance.is_some() {
+                // Correct args: distance, is_luma, is_yuv420, force_baseline
+                QuantizationTable::new_with_jpegli_distance(distance, true, is_yuv420, false)
+            } else {
+                // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
+                QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true, is_yuv420, false)
+            },
+            if self.jpegli_distance.is_some() {
+                // Correct args: distance, is_luma, is_yuv420, force_baseline
+                QuantizationTable::new_with_jpegli_distance(distance, false, is_yuv420, false)
+            } else {
+                // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
+                QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false, is_yuv420, false)
+            },
         ];
 
         // --- Adaptive Quantization Field Calculation (if enabled) ---
@@ -637,11 +661,11 @@ impl<W: JfifWrite> Encoder<W> {
             let y_plane_idx = match target_cs {
                 ColorSpaceSignature::GrayData | ColorSpaceSignature::RgbData => 0, // Use Gray or R for RGB
                 // Add other cases if internal target can be different (e.g. YCbCr)
-                _ => return Err(EncodingError::Other("AQ requires Gray or RGB target profile".into())),
+                _ => return Err(EncodingError::CmsError("AQ requires Gray or RGB target profile".into())),
             };
 
             if y_plane_idx >= temp_f32_planes.len() {
-                return Err(EncodingError::Other("Could not get plane for AQ".into()));
+                return Err(EncodingError::CmsError("Could not get plane for AQ".into()));
             }
 
             // Input to AQ should be scaled [0, 1]
@@ -672,7 +696,7 @@ impl<W: JfifWrite> Encoder<W> {
         // Apply post-CMS transforms (XYB, YCbCr) if needed
         if self.xyb_mode {
             if temp_f32_planes.len() < 3 {
-                return Err(EncodingError::Other("XYB needs 3 planes".into()));
+                return Err(EncodingError::CmsError("XYB needs 3 planes".into()));
             }
             if let Some(premul) = self.premul_absorb {
                 // Process row by row for XYB conversion
@@ -703,7 +727,7 @@ impl<W: JfifWrite> Encoder<W> {
                     num_pixels_total
                 );
             } else {
-                 return Err(EncodingError::Other("XYB enabled but constants missing".into()));
+                 return Err(EncodingError::CmsError("XYB enabled but constants missing".into()));
             }
         } else if color == JpegColorType::Ycbcr || color == JpegColorType::Ycck {
              // Apply YCbCr conversion if needed (i.e., if input was RGB/Gray and target wasn't XYB)
@@ -716,7 +740,7 @@ impl<W: JfifWrite> Encoder<W> {
             )?.color_space;
              if target_cs == ColorSpaceSignature::RgbData { // Convert RGB planes to YCbCr
                  if temp_f32_planes.len() < 3 {
-                     return Err(EncodingError::Other("YCbCr conversion needs 3 planes".into()));
+                     return Err(EncodingError::CmsError("YCbCr conversion needs 3 planes".into()));
                  }
                  color_transform::rgb_to_ycbcr_planes(
                      &mut temp_f32_planes[0],
@@ -1215,7 +1239,7 @@ mod tests {
     fn test_encode_jpegli_distance() {
         // Test Jpegli distance mode (with default int DCT, no AQ)
         let (data, width, height, color_type) = create_test_image(16, 16);
-        let mut encoder = Encoder::new(Vec::new(), 90); // Initial quality doesn't matter
+        let mut encoder = Encoder::new(Vec::new(), 90);
         encoder.set_jpegli_distance(1.0);
         assert!(encoder.encode(&data, width, height, color_type).is_ok());
     }
@@ -1338,7 +1362,7 @@ fn image_to_f32_planes<I: ImageBuffer>(
     let width = image.width() as usize;
     let height = image.height() as usize;
     let num_pixels = width * height;
-    let num_components = image.get_num_components(); // Use correct method
+    let num_components = image.get_jpeg_color_type().get_num_components();
 
     let mut initial_planes: Vec<Vec<f32>> = vec![vec![0.0; num_pixels]; num_components];
 
@@ -1346,7 +1370,7 @@ fn image_to_f32_planes<I: ImageBuffer>(
     for y in 0..height {
         for x in 0..width {
             let pixel_idx = y * width + x;
-            let pixel_values = image.get_pixel_f32(x, y)?; // Use f32 method
+            let pixel_values = image.get_pixel_f32(x, y)?;
             for c in 0..num_components {
                 initial_planes[c][pixel_idx] = pixel_values.get(c).copied().unwrap_or(0.0);
             }

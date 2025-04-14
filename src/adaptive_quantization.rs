@@ -806,11 +806,8 @@ mod tests {
         let avg_mid: f32 = field_dist_mid.iter().sum::<f32>() / field_dist_mid.len() as f32;
         let avg_high: f32 = field_dist_high.iter().sum::<f32>() / field_dist_high.len() as f32;
 
-        println!("Avg AQ Field: Low Dist={}, Mid Dist={}, High Dist={}", avg_low, avg_mid, avg_high);
-
         // Expectation: Higher distance -> Less aggressive AQ -> Lower aq_strength offset values
         // The relationship might not be perfectly linear due to complex interactions.
-        // We check the trend.
         assert!(avg_low < avg_mid + 0.1, "Avg AQ strength did not increase from low to mid distance as expected");
         assert!(avg_mid < avg_high + 0.1, "Avg AQ strength did not increase from mid to high distance as expected");
         // Also check the overall range is plausible (similar to flat image test)

@@ -376,16 +376,16 @@ fn sub_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f
 }
 
 #[inline(always)]
-fn multiply<const N: usize>(coeff: &mut [f32]) {
-    // Corresponds to WcMultipliers<N>::kMultipliers
-    let multipliers = match N {
-        8 => &float_dct_constants::WC_MULTIPLIERS_8,
-        // Add WcMultipliers<4> if needed
-        _ => panic!("Unsupported N for multiply"),
-    };
-    for i in 0..(N / 2) {
+fn multiply<const N_HALF: usize>(
+    coeff_second_half: &mut [f32],
+    multipliers: &[f32]
+) {
+    // Check if multipliers array has enough elements
+    assert!(multipliers.len() >= N_HALF);
+    for i in 0..N_HALF {
          for k in 0..8 {
-            coeff[(N / 2 + i) * 8 + k] *= multipliers[i];
+            // Indexing relative to the start of the second half slice
+            coeff_second_half[i * 8 + k] *= multipliers[i];
         }
     }
 }
@@ -454,19 +454,25 @@ impl DCT1DImplTrait for DCT1DImpl<8> {
     #[inline(always)]
     fn compute(mem: &mut [f32]) { // mem is [f32; 64]
         let mut tmp = [0.0f32; 64];
+        {
+            let (tmp_first_half, tmp_second_half) = tmp.split_at_mut(32);
 
-        // First level recursion (N=8 -> N=4)
-        let (mem_first_half, mem_second_half) = mem.split_at_mut(32);
-        let (tmp_first_half, tmp_second_half) = tmp.split_at_mut(32);
+            // First level recursion (N=8 -> N=4)
+            let (mem_first_half, mem_second_half) = mem.split_at_mut(32);
 
-        add_reverse::<4>(mem_first_half, mem_second_half, tmp_first_half);
-        DCT1DImpl::<4>::compute(tmp_first_half); // Recursive call
+            add_reverse::<4>(mem_first_half, mem_second_half, tmp_first_half);
+            DCT1DImpl::<4>::compute(tmp_first_half); // Operates on tmp_first_half
 
-        sub_reverse::<4>(mem_first_half, mem_second_half, tmp_second_half);
-        multiply::<8>(&mut tmp);
-        DCT1DImpl::<4>::compute(tmp_second_half); // Recursive call
-        b::<4>(tmp_second_half); // N=4 means N/2 from C++
+            sub_reverse::<4>(mem_first_half, mem_second_half, tmp_second_half);
 
+            // Call multiply only on the second half, passing N/2 and multipliers
+            multiply::<4>(tmp_second_half, &float_dct_constants::WC_MULTIPLIERS_8);
+
+            // Second recursion operates on tmp_second_half
+            DCT1DImpl::<4>::compute(tmp_second_half);
+            b::<4>(tmp_second_half);
+        }
+        // tmp is fully available again here
         inverse_even_odd::<8>(&tmp, mem);
     }
 }

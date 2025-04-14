@@ -887,10 +887,9 @@ impl<W: JfifWrite> Encoder<W> {
 
                             let mut q_block = [0i16; 64];
 
-                            let comp_cols = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
-                            let comp_block_y = block_y * component.vertical_sampling_factor as usize + v_offset;
-                            let comp_block_x = block_x * component.horizontal_sampling_factor as usize + h_offset;
-                            let block_idx_in_comp = comp_block_y * comp_cols + comp_block_x;
+                            let _comp_h_blocks = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
+                            // Correct block index calculation for sequential processing
+                            let block_idx_in_comp = block_y * num_cols + block_x;
 
                             if self.use_float_dct {
                                 let mut pixels_f32 = [0.0f32; 64];
@@ -1170,9 +1169,9 @@ impl<W: JfifWrite> Encoder<W> {
             debug_assert!(cols > 0);
             debug_assert!(rows > 0);
 
-            // Allocate scratch space for float DCT if needed
-            let mut float_coeffs = if self.use_float_dct { [0.0f32; 64] } else { [0.0f32; 0] };
-            let mut scratch_space = if self.use_float_dct { [0.0f32; 64] } else { [0.0f32; 0] };
+            // Allocate scratch space for float DCT (always allocate, cost is minimal)
+            let mut float_coeffs = [0.0f32; 64];
+            let mut scratch_space = [0.0f32; 64];
 
             for block_y in 0..rows {
                 for block_x in 0..cols {
@@ -1186,7 +1185,7 @@ impl<W: JfifWrite> Encoder<W> {
                     );
 
                     let mut q_block = [0i16; 64];
-                    let comp_h_blocks = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
+                    let _comp_h_blocks = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
                     // Correct block index calculation for sequential processing
                     let block_idx_in_comp = block_y * cols + block_x;
 

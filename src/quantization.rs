@@ -3,7 +3,6 @@ use core::num::NonZeroU16;
 use alloc::vec;
 use alloc::vec::Vec;
 use std::f32;
-use crate::quantization::QuantizationTable;
 
 /// # Quantization table used for encoding
 ///
@@ -482,7 +481,7 @@ const K_ZERO_BIAS_MUL_YCBCR_LQ: [[f32; 64]; 3] = [
       0.4490, 0.6190, 0.6187, 0.7160, 0.5860, 0.6190, 0.6204, 0.6190,
       0.6187, 0.6189, 0.6100, 0.6190, 0.4790, 0.6190, 0.6190, 0.3480 ],
     // c = 1 (Cb) - Explicitly listing all 64 elements
-    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430, 1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430, 0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430, 1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430, 0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430, 0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430 ],
+    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430, 1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430, 0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430, 1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430, 0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430, 0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, 0.9430, 0.9430 ],
     // c = 2 (Cr)
     [ 0.0000, 1.3190, 0.4308, 0.4460, 0.0661, 0.0660, 0.2660, 0.2960,
       1.3190, 0.3280, 0.3093, 0.0750, 0.0505, 0.1594, 0.3060, 0.2113,
@@ -575,6 +574,7 @@ pub(crate) fn compute_zero_bias_tables(
     (zero_bias_offsets, zero_bias_multipliers)
 }
 
+/* // Comment out unused function
 fn compute_diff_bias(quant_table: &[i32]) -> f32 {
     let mut diff_sum = 0.0;
     let mut max_diff = 0;
@@ -600,7 +600,9 @@ fn compute_diff_bias(quant_table: &[i32]) -> f32 {
     // This is a placeholder - need actual logic from jpegli if available
     0.0 // Placeholder
 }
+*/
 
+/* // Comment out const that uses non-const fn
 const K_ZERO_BIAS_DIFF_TABLE: [f32; 511] = {
     let mut table = [0.0f32; 511];
     // Placeholder - need actual calculation or constants from jpegli
@@ -612,6 +614,7 @@ const K_ZERO_BIAS_DIFF_TABLE: [f32; 511] = {
     }
     table
 };
+*/
 
 #[cfg(test)]
 mod tests {
@@ -699,9 +702,9 @@ mod tests {
             true,
         );
 
-        for i in -255..255 {
-            assert_eq!(i, luma.get_raw(0));
-            assert_eq!(i, chroma.get_raw(0));
+        for i in 0..64 {
+            assert_eq!(1, luma.get_raw(i) >> 3, "Luma Q={} mismatch @{}", 100, i);
+            assert_eq!(1, chroma.get_raw(i) >> 3, "Chroma Q={} mismatch @{}", 100, i);
         }
     }
     

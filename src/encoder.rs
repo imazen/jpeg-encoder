@@ -585,15 +585,23 @@ impl<W: JfifWrite> Encoder<W> {
                 // Convert u8 data to f32 for adaptive quant function
                 let channel_data_f32: Vec<f32> = channel_data_u8.iter().map(|&p| p as f32).collect();
 
+                // Scale to [0, 1] range as expected by jpegli's internal functions
+                let mut channel_data_scaled: Vec<f32> = channel_data_f32.iter().map(|&p| p / 255.0).collect();
+
                 // Get the effective distance (either from jpegli mode or quality mapping)
                 let distance = self.jpegli_distance.unwrap_or_else(|| quality_to_distance(self.quality));
 
-                // Call the (currently placeholder) adaptive quant function
+                // Get y_quant_01 (quant value of first AC coeff in Luma table)
+                // Note: This requires the quant tables to be computed *before* adaptive field.
+                let y_quant_01 = q_tables[0].get_raw(1) as i32; // Index 1 is first AC coeff
+
+                // Call the adaptive quant function
                 Some(compute_adaptive_quant_field(
                     image.width(),
                     image.height(),
-                    &channel_data_f32,
+                    &mut channel_data_scaled, // Pass mutable for potential in-place padding
                     distance,
+                    y_quant_01,
                 ))
             } else {
                 // Warn or error? For now, just disable AQ if channel data is unavailable.
@@ -1375,37 +1383,47 @@ pub(crate) trait Operations {
         adapt_quant_field: Option<&[f32]>,
         block_idx: usize,
     ) {
-        // The DCT coefficients are scaled by 8, so the quantization table values also need to be scaled.
         const SHIFT: i32 = 3;
-        // Jpegli uses rounding for quantization.
-        // Add (1 << (SHIFT - 1)) which is equivalent to adding 0.5 before truncating division.
-        // let half = 1 << (SHIFT - 1); // Not needed with copysign approach
 
-        let aq_strength = adapt_quant_field.map_or(1.0, |field| {
-            // Jpegli applies adaptive quant based on the *destination* block index.
-            // Ensure block_idx is within bounds, though it should always be.
-            field.get(block_idx).copied().unwrap_or(1.0)
+        // Get the jpegli-style aq_strength value (offset-based) for this block
+        let aq_strength = adapt_quant_field.map_or(0.0, |field| {
+            field.get(block_idx).copied().unwrap_or(0.0)
         });
 
         for i in 0..64 {
             let z = ZIGZAG[i] as usize & 0x3f;
             let value = block[z] as i32;
-            let q_val_raw = table.get_raw(z) as f32;
+            let q_val = table.get_raw(z) as i32;
+            let mut divisor = q_val << SHIFT;
 
-            // Apply adaptive quantization multiplier.
-            // Jpegli's formula is equivalent to dividing the coefficient by (q_val * aq_strength).
-            // We work with integers: multiply coefficient by inverse.
-            // Effective divisor = q_val * aq_strength * (1 << SHIFT)
-            let divisor_f = q_val_raw * aq_strength;
+            // Standard quantization with rounding
+            let mut q_coeff = (value + divisor.copysign(value) / 2) / divisor;
 
-            // Ensure divisor is at least 1.0 to avoid division by zero or negative values.
-            let divisor = (divisor_f.max(1.0).round() as i32) << SHIFT;
+            // Jpegli-style adaptive quantization thresholding (approximated)
+            // The C++ code uses aq_strength to adjust zero_bias_mul/offset for thresholding.
+            // ReQuantizeBlock: threshold = Add(zb_offset, Mul(zb_mul, aq_mul));
+            //                  nzero_mask = Ge(Abs(qval), threshold);
+            //                  iqval = IfThenElseZero(nzero_mask, Round(qval));
+            // Approximating the effect: Increase the likelihood of zeroing based on aq_strength.
+            // A higher aq_strength (from low-activity areas) should make zeroing more likely.
+            // This is a simplified model, the actual zero_bias values in jpegli are complex.
+            if q_coeff != 0 && adapt_quant_field.is_some() {
+                // Base threshold (simplified): proportional to quant value itself. Maybe 0.5 * q_val?
+                // Jpegli uses precomputed zero_bias tables based on component/distance.
+                let base_threshold = 0.4 * q_val as f32; // Simplified base
+                // Increase threshold in low-activity areas (higher aq_strength)
+                let adjusted_threshold = base_threshold * (1.0 + aq_strength * 0.5); // Heuristic adjustment
 
-            // Perform rounding division: round(value / divisor)
-            // Integer division truncates towards zero.
-            // Add half of the divisor (with the correct sign) before dividing.
-            let rounded_value = value + divisor.copysign(value) / 2;
-            q_block[i] = (rounded_value / divisor) as i16;
+                // Compare absolute *unquantized* value (scaled by 8) to threshold
+                // This matches ReQuantizeBlock comparing Abs(Mul(val, q)) i.e. Abs(block[z] * (8 / q_val))
+                let abs_unquant_scaled = (block[z] as f32 * (8.0 / q_val as f32)).abs();
+
+                if abs_unquant_scaled < adjusted_threshold {
+                    q_coeff = 0;
+                }
+            }
+
+            q_block[i] = q_coeff as i16;
         }
     }
 }

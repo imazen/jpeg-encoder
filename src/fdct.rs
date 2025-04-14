@@ -353,20 +353,26 @@ fn add_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f
     // N_HALF corresponds to N / 2 in the C++ code
     // The C++ code operates on 8-element vectors per loop iteration.
     // This scalar version processes element by element within the rows.
+    assert_eq!(a_in2.len(), N_HALF * 8);
+    assert_eq!(a_out.len(), N_HALF * 8);
     for i in 0..N_HALF {
         for k in 0..8 {
-            // Access corresponding rows and reverse access for a_in2
-            a_out[i * 8 + k] = a_in1[i * 8 + k] + a_in2[(N_HALF * 2 - 1 - i) * 8 + k];
+            // Corrected index for a_in2 slice: (N_HALF - 1 - i) * 8 + k
+            let idx2 = (N_HALF - 1 - i) * 8 + k;
+            a_out[i * 8 + k] = a_in1[i * 8 + k] + a_in2[idx2];
         }
     }
 }
 
 fn sub_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f32]) {
     // N_HALF corresponds to N / 2 in the C++ code
+    assert_eq!(a_in2.len(), N_HALF * 8);
+    assert_eq!(a_out.len(), N_HALF * 8);
     for i in 0..N_HALF {
         for k in 0..8 {
-             // Access corresponding rows and reverse access for a_in2
-            a_out[i * 8 + k] = a_in1[i * 8 + k] - a_in2[(N_HALF * 2 - 1 - i) * 8 + k];
+             // Corrected index for a_in2 slice: (N_HALF - 1 - i) * 8 + k
+            let idx2 = (N_HALF - 1 - i) * 8 + k;
+            a_out[i * 8 + k] = a_in1[i * 8 + k] - a_in2[idx2];
         }
     }
 }

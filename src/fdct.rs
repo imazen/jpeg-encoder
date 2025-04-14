@@ -395,6 +395,10 @@ fn b<const N: usize>(coeff: &mut [f32]) {
     // N here corresponds to N/2 in the C++ B<N/2> call site context
     // (e.g. called with N=4 when processing N=8 DCT)
     let sqrt2 = float_dct_constants::SQRT2;
+
+    // Assert that the input slice has the expected length based on N (N rows of 8 elements)
+    assert_eq!(coeff.len(), N * 8, "Input slice length mismatch in fn b");
+
     for k in 0..8 {
         coeff[0 * 8 + k] = coeff[0 * 8 + k] * sqrt2 + coeff[1 * 8 + k];
     }

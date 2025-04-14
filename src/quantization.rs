@@ -667,9 +667,9 @@ mod tests {
             true,
         );
 
+        // Check that the raw values are 1 (for Q100)
         for &v in &q.table {
-            let v = v.get();
-            assert_eq!(v, 1 << 3);
+            assert_eq!(v.get(), 1, "Luma Q=100 raw value mismatch");
         }
 
         let q = QuantizationTable::new_with_quality(
@@ -679,9 +679,10 @@ mod tests {
             false,
             true,
         );
+
+        // Check that the raw values are 1 (for Q100)
         for &v in &q.table {
-            let v = v.get();
-            assert_eq!(v, 1 << 3);
+            assert_eq!(v.get(), 1, "Chroma Q=100 raw value mismatch");
         }
     }
 
@@ -702,9 +703,10 @@ mod tests {
             true,
         );
 
+        // Check that raw values are 1 (for Q100, standard Annex K)
         for i in 0..64 {
-            assert_eq!(1, luma.get_raw(i) >> 3, "Luma Q={} mismatch @{}", 100, i);
-            assert_eq!(1, chroma.get_raw(i) >> 3, "Chroma Q={} mismatch @{}", 100, i);
+            assert_eq!(1, luma.get_raw(i), "Luma Q={} mismatch @{}", 100, i);
+            assert_eq!(1, chroma.get_raw(i), "Chroma Q={} mismatch @{}", 100, i);
         }
     }
     

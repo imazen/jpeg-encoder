@@ -206,6 +206,70 @@ static DEFAULT_CHROMA_TABLES: [[u16; 64]; 10] = [
     ]
 ];
 
+// --- Start Jpegli Constants ---
+
+// Base quantization tables ported from jpegli quant.cc (kBaseQuantMatrixYCbCr)
+// Luma table (first 64 values)
+const JPEGLI_DEFAULT_LUMA_QTABLE_F32: [f32; 64] = [
+    1.2397409, 1.7227115, 2.9212167, 2.8127374, 3.3398197, 3.4636038, 3.8409152, 3.8695600,
+    1.7227115, 2.0928894, 2.8456761, 2.7045068, 3.4407674, 3.1662324, 4.0252087, 4.0353245,
+    2.9212167, 2.8456761, 2.9587404, 3.3862949, 3.6195238, 3.9046280, 3.7578358, 4.0496073,
+    2.8127374, 2.7045068, 3.3862949, 3.1295824, 3.7035120, 4.3547106, 4.2037473, 3.9457080,
+    3.3398197, 3.4407674, 3.6195238, 3.7035120, 4.0587358, 4.8218517, 4.8176765, 4.1348114,
+    3.4636038, 3.1662324, 3.9046280, 4.3547106, 4.8218517, 5.3049545, 5.0859237, 4.6540699,
+    3.8409152, 4.0252087, 3.7578358, 4.2037473, 4.8176765, 5.0859237, 5.2007284, 5.1318064,
+    3.8695600, 4.0353245, 4.0496073, 3.9457080, 4.1348114, 4.6540699, 5.1318064, 5.3104744,
+];
+// Chroma table (second 64 values from kBaseQuantMatrixYCbCr - assuming Cb=Cr)
+const JPEGLI_DEFAULT_CHROMA_QTABLE_F32: [f32; 64] = [
+    1.4173750, 3.4363859, 3.7492752, 4.2684789, 4.8839750, 5.1342621, 5.3053384, 5.2941780,
+    3.4363859, 3.3934350, 3.7151461, 4.4069610, 5.0667987, 5.0575762, 5.3007593, 5.2948112,
+    3.7492752, 3.7151461, 4.0639019, 4.7990928, 5.0091391, 5.1409049, 5.2947245, 5.2915106,
+    4.2684789, 4.4069610, 4.7990928, 4.7969780, 5.1343479, 5.1429081, 5.3214135, 5.4269948,
+    4.8839750, 5.0667987, 5.0091391, 5.1343479, 5.2924175, 5.2911520, 5.4630551, 5.5700078,
+    5.1342621, 5.0575762, 5.1409049, 5.1429081, 5.2911520, 5.3632350, 5.5484371, 5.5723948,
+    5.3053384, 5.3007593, 5.2947245, 5.3214135, 5.4630551, 5.5484371, 5.5720239, 5.5726733,
+    5.2941780, 5.2948112, 5.2915106, 5.4269948, 5.5700078, 5.5723948, 5.5726733, 5.5728049,
+];
+
+// Other constants ported from jpegli quant.cc
+const K_GLOBAL_SCALE_YCBCR: f32 = 1.73966010;
+const K_420_GLOBAL_SCALE: f32 = 1.22; // Applied when YUV420
+const K_420_RESCALE: [f32; 64] = [
+    0.4093, 0.3209, 0.3477, 0.3333, 0.3144, 0.2823, 0.3214, 0.3354,
+    0.3209, 0.3111, 0.3489, 0.2801, 0.3059, 0.3119, 0.4135, 0.3445,
+    0.3477, 0.3489, 0.3586, 0.3257, 0.2727, 0.3754, 0.3369, 0.3484,
+    0.3333, 0.2801, 0.3257, 0.3020, 0.3515, 0.3410, 0.3971, 0.3839,
+    0.3144, 0.3059, 0.2727, 0.3515, 0.3105, 0.3397, 0.2716, 0.3836,
+    0.2823, 0.3119, 0.3754, 0.3410, 0.3397, 0.3212, 0.3203, 0.0726,
+    0.3214, 0.4135, 0.3369, 0.3971, 0.2716, 0.3203, 0.0798, 0.0553,
+    0.3354, 0.3445, 0.3484, 0.3839, 0.3836, 0.0726, 0.0553, 0.3368,
+];
+const K_EXPONENT: [f32; 64] = [
+    1.00, 0.51, 0.67, 0.74, 1.00, 1.00, 1.00, 1.00,
+    0.51, 0.66, 0.69, 0.87, 1.00, 1.00, 1.00, 1.00,
+    0.67, 0.69, 0.84, 0.83, 0.96, 1.00, 1.00, 1.00,
+    0.74, 0.87, 0.83, 1.00, 1.00, 0.91, 0.91, 1.00,
+    1.00, 1.00, 0.96, 1.00, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+];
+const K_DIST0: f32 = 1.5; // Distance where non-linearity kicks in.
+
+// --- End Jpegli Constants ---
+
+// Helper function ported from jpegli DistanceToScale
+fn distance_to_scale(distance: f32, k: usize) -> f32 {
+    if distance < K_DIST0 {
+        distance
+    } else {
+        let exp = K_EXPONENT[k];
+        let mul = K_DIST0.powf(1.0 - exp);
+        (mul * distance.powf(exp)).max(0.5 * distance) // Max ensures scale doesn't decrease too much
+    }
+}
+
 const SHIFT: u32 = 2 * 8 - 1;
 
 fn compute_reciprocal(divisor: u32) -> (i32, i32) {
@@ -370,6 +434,59 @@ impl QuantizationTable {
         q_table
     }
 
+    /// Creates a new quantization table using Jpegli's distance-based scaling.
+    pub(crate) fn new_with_jpegli_distance(
+        distance: f32,
+        is_luma: bool,
+        is_yuv420: bool,
+        force_baseline: bool,
+    ) -> Self {
+        let base_table_f32 = if is_luma {
+            &JPEGLI_DEFAULT_LUMA_QTABLE_F32
+        } else {
+            &JPEGLI_DEFAULT_CHROMA_QTABLE_F32
+        };
+
+        let mut global_scale = K_GLOBAL_SCALE_YCBCR;
+        if is_yuv420 {
+            global_scale *= K_420_GLOBAL_SCALE;
+        }
+        // Note: Ignoring XYB mode and CICP transfer function scaling for now.
+
+        let quant_max = if force_baseline { 255 } else { 32767 };
+        let mut table_data = [NonZeroU16::new(1).unwrap(); 64];
+
+        for k in 0..64 {
+            let mut scale = global_scale;
+            scale *= distance_to_scale(distance.max(0.0), k);
+            if is_yuv420 && !is_luma { // Apply k420Rescale only for chroma in 420 mode
+                scale *= K_420_RESCALE[k];
+            }
+
+            let qval_f = scale * base_table_f32[k];
+            let qval = qval_f.round() as i32;
+            let qval_clamped = qval.clamp(1, quant_max) as u16;
+
+            // Apply the << 3 shift like in the standard transform_table
+            table_data[k] = NonZeroU16::new(qval_clamped << 3).unwrap_or(NonZeroU16::new(1 << 3).unwrap()); // Fallback if somehow 0
+        }
+
+        let mut reciprocals = [0i32; 64];
+        let mut corrections = [0i32; 64];
+
+        for i in 0..64 {
+            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
+            reciprocals[i] = reciprocal;
+            corrections[i] = correction;
+        }
+
+        QuantizationTable {
+            table: table_data,
+            reciprocals,
+            corrections,
+        }
+    }
+
     #[inline]
     pub fn get(&self, index: usize) -> u8 {
         (self.table[index].get() >> 3) as u8
@@ -412,66 +529,6 @@ pub fn quality_to_distance(quality: u8) -> f32 {
     }
 }
 
-// Base quantization tables ported from jpegli quant.cc (kBaseQuantMatrixYCbCr)
-// Luma table (first 64 values)
-const JPEGLI_DEFAULT_LUMA_QTABLE_F32: [f32; 64] = [
-    1.2397409, 1.7227115, 2.9212167, 2.8127374, 3.3398197, 3.4636038, 3.8409152, 3.8695600,
-    1.7227115, 2.0928894, 2.8456761, 2.7045068, 3.4407674, 3.1662324, 4.0252087, 4.0353245,
-    2.9212167, 2.8456761, 2.9587404, 3.3862949, 3.6195238, 3.9046280, 3.7578358, 4.0496073,
-    2.8127374, 2.7045068, 3.3862949, 3.1295824, 3.7035120, 4.3547106, 4.2037473, 3.9457080,
-    3.3398197, 3.4407674, 3.6195238, 3.7035120, 4.0587358, 4.8218517, 4.8176765, 4.1348114,
-    3.4636038, 3.1662324, 3.9046280, 4.3547106, 4.8218517, 5.3049545, 5.0859237, 4.6540699,
-    3.8409152, 4.0252087, 3.7578358, 4.2037473, 4.8176765, 5.0859237, 5.2007284, 5.1318064,
-    3.8695600, 4.0353245, 4.0496073, 3.9457080, 4.1348114, 4.6540699, 5.1318064, 5.3104744,
-];
-// Chroma table (second 64 values from kBaseQuantMatrixYCbCr - assuming Cb=Cr)
-const JPEGLI_DEFAULT_CHROMA_QTABLE_F32: [f32; 64] = [
-    1.4173750, 3.4363859, 3.7492752, 4.2684789, 4.8839750, 5.1342621, 5.3053384, 5.2941780,
-    3.4363859, 3.3934350, 3.7151461, 4.4069610, 5.0667987, 5.0575762, 5.3007593, 5.2948112,
-    3.7492752, 3.7151461, 4.0639019, 4.7990928, 5.0091391, 5.1409049, 5.2947245, 5.2915106,
-    4.2684789, 4.4069610, 4.7990928, 4.7969780, 5.1343479, 5.1429081, 5.3214135, 5.4269948,
-    4.8839750, 5.0667987, 5.0091391, 5.1343479, 5.2924175, 5.2911520, 5.4630551, 5.5700078,
-    5.1342621, 5.0575762, 5.1409049, 5.1429081, 5.2911520, 5.3632350, 5.5484371, 5.5723948,
-    5.3053384, 5.3007593, 5.2947245, 5.3214135, 5.4630551, 5.5484371, 5.5720239, 5.5726733,
-    5.2941780, 5.2948112, 5.2915106, 5.4269948, 5.5700078, 5.5723948, 5.5726733, 5.5728049,
-];
-
-// Constants ported from jpegli quant.cc
-const K_GLOBAL_SCALE_YCBCR: f32 = 1.73966010;
-const K_420_GLOBAL_SCALE: f32 = 1.22; // Applied when YUV420
-const K_420_RESCALE: [f32; 64] = [
-    0.4093, 0.3209, 0.3477, 0.3333, 0.3144, 0.2823, 0.3214, 0.3354,
-    0.3209, 0.3111, 0.3489, 0.2801, 0.3059, 0.3119, 0.4135, 0.3445,
-    0.3477, 0.3489, 0.3586, 0.3257, 0.2727, 0.3754, 0.3369, 0.3484,
-    0.3333, 0.2801, 0.3257, 0.3020, 0.3515, 0.3410, 0.3971, 0.3839,
-    0.3144, 0.3059, 0.2727, 0.3515, 0.3105, 0.3397, 0.2716, 0.3836,
-    0.2823, 0.3119, 0.3754, 0.3410, 0.3397, 0.3212, 0.3203, 0.0726,
-    0.3214, 0.4135, 0.3369, 0.3971, 0.2716, 0.3203, 0.0798, 0.0553,
-    0.3354, 0.3445, 0.3484, 0.3839, 0.3836, 0.0726, 0.0553, 0.3368,
-];
-const K_EXPONENT: [f32; 64] = [
-    1.00, 0.51, 0.67, 0.74, 1.00, 1.00, 1.00, 1.00,
-    0.51, 0.66, 0.69, 0.87, 1.00, 1.00, 1.00, 1.00,
-    0.67, 0.69, 0.84, 0.83, 0.96, 1.00, 1.00, 1.00,
-    0.74, 0.87, 0.83, 1.00, 1.00, 0.91, 0.91, 1.00,
-    1.00, 1.00, 0.96, 1.00, 1.00, 1.00, 1.00, 1.00,
-    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
-    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
-    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
-];
-const K_DIST0: f32 = 1.5; // Distance where non-linearity kicks in.
-
-// Helper function ported from jpegli DistanceToScale
-fn distance_to_scale(distance: f32, k: usize) -> f32 {
-    if distance < K_DIST0 {
-        distance
-    } else {
-        let exp = K_EXPONENT[k];
-        let mul = K_DIST0.powf(1.0 - exp);
-        (mul * distance.powf(exp)).max(0.5 * distance) // Max ensures scale doesn't decrease too much
-    }
-}
-
 // New helper function to apply Jpegli distance scaling
 fn jpegli_transform_table(
     base_table_f32: &[f32; 64],
@@ -504,6 +561,48 @@ fn jpegli_transform_table(
         q_table[k] = NonZeroU16::new(qval_clamped << 3).unwrap_or(NonZeroU16::new(1 << 3).unwrap()); // Fallback if somehow 0
     }
     q_table
+}
+
+// TODO: Replace placeholder reference tables with actual values from cjpegli
+const REF_LUMA_D1_0: [u16; 64] = [
+    // Placeholder values - Replace with actual cjpegli output for distance=1.0
+     8, 16, 24, 24, 24, 32, 32, 32, 16, 16, 24, 24, 32, 24, 32, 32,
+    24, 24, 24, 32, 32, 32, 32, 32, 24, 24, 32, 24, 32, 40, 40, 32,
+    24, 32, 32, 32, 32, 40, 40, 32, 32, 24, 32, 40, 40, 40, 40, 40,
+    32, 32, 32, 32, 40, 40, 40, 40, 32, 32, 32, 32, 40, 40, 40, 40
+];
+const REF_CHROMA_D1_0: [u16; 64] = [
+    // Placeholder values - Replace with actual cjpegli output for distance=1.0
+     8, 24, 32, 32, 40, 40, 40, 40, 24, 24, 32, 40, 40, 40, 40, 40,
+    32, 32, 32, 40, 40, 40, 40, 40, 32, 40, 40, 40, 40, 40, 40, 40,
+    40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+    40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40
+];
+
+#[test]
+fn test_new_with_jpegli_distance_1_0() {
+    let is_yuv420 = false; // Assuming not 4:2:0 for simplicity
+    let force_baseline = true;
+
+    let luma_table = QuantizationTable::new_with_jpegli_distance(
+        1.0,
+        true, // is_luma
+        is_yuv420,
+        force_baseline,
+    );
+    let chroma_table = QuantizationTable::new_with_jpegli_distance(
+        1.0,
+        false, // is_luma
+        is_yuv420,
+        force_baseline,
+    );
+
+    let luma_table_u16: [u16; 64] = core::array::from_fn(|i| luma_table.table[i].get());
+    let chroma_table_u16: [u16; 64] = core::array::from_fn(|i| chroma_table.table[i].get());
+
+    // Compare against reference (remembering table values have << 3 shift)
+    assert_eq!(luma_table_u16, REF_LUMA_D1_0, "Luma table mismatch for distance 1.0");
+    assert_eq!(chroma_table_u16, REF_CHROMA_D1_0, "Chroma table mismatch for distance 1.0");
 }
 
 #[cfg(test)]

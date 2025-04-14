@@ -211,6 +211,9 @@ pub struct Encoder<W: JfifWrite> {
     optimize_huffman_table: bool,
 
     app_segments: Vec<(u8, Vec<u8>)>,
+
+    /// Whether to enable Jpegli-style adaptive quantization.
+    use_adaptive_quantization: bool,
 }
 
 impl<W: JfifWrite> Encoder<W> {
@@ -257,6 +260,7 @@ impl<W: JfifWrite> Encoder<W> {
             restart_interval: None,
             optimize_huffman_table: false,
             app_segments: Vec::new(),
+            use_adaptive_quantization: false, // Default to off
         }
     }
 
@@ -289,6 +293,9 @@ impl<W: JfifWrite> Encoder<W> {
         self.jpegli_distance = Some(distance.max(0.0));
         // We don't need to set self.quality or self.quantization_tables here,
         // as the encoding logic will use the distance directly.
+        // Adaptive quant should ideally be enabled automatically with jpegli distance,
+        // but we'll keep it explicit for now.
+        // self.use_adaptive_quantization = true; // Consider this default
     }
 
     /// Set pixel density for the image
@@ -571,6 +578,27 @@ impl<W: JfifWrite> Encoder<W> {
         let jpeg_color_type = image.get_jpeg_color_type();
         self.init_components(jpeg_color_type);
 
+        // --- Adaptive Quantization Field Calculation ---
+        let adapt_quant_field: Option<Vec<f32>> = if self.use_adaptive_quantization {
+            // Attempt to get the primary channel data (e.g., Luma)
+            if let Some(channel_data) = image.get_adaptive_quant_channel() {
+                // TODO: Replace placeholder call with actual implementation
+                Some(compute_adaptive_quant_field(
+                    image.width(),
+                    image.height(),
+                    &channel_data,
+                ))
+            } else {
+                // Warn or error? For now, just disable AQ if channel data is unavailable.
+                // Consider logging a warning here.
+                eprintln!("Warning: Could not get channel data for adaptive quantization. Disabling.");
+                None
+            }
+        } else {
+            None
+        };
+        // -----------------------------------------------
+
         self.writer.write_marker(Marker::SOI)?;
 
         self.writer.write_header(&self.density)?;
@@ -592,11 +620,11 @@ impl<W: JfifWrite> Encoder<W> {
         }
 
         if let Some(scans) = self.progressive_scans {
-            self.encode_image_progressive::<_, OP>(image, scans, &q_tables)?;
+            self.encode_image_progressive::<_, OP>(image, scans, &q_tables, adapt_quant_field.as_deref())?;
         } else if self.optimize_huffman_table || !self.sampling_factor.supports_interleaved() {
-            self.encode_image_sequential::<_, OP>(image, &q_tables)?;
+            self.encode_image_sequential::<_, OP>(image, &q_tables, adapt_quant_field.as_deref())?;
         } else {
-            self.encode_image_interleaved::<_, OP>(image, &q_tables)?;
+            self.encode_image_interleaved::<_, OP>(image, &q_tables, adapt_quant_field.as_deref())?;
         }
 
         self.writer.write_marker(Marker::EOI)?;
@@ -738,6 +766,7 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: I,
         q_tables: &[QuantizationTable; 2],
+        adapt_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
         self.write_frame_header(&image, q_tables)?;
         self.writer
@@ -812,10 +841,16 @@ impl<W: JfifWrite> Encoder<W> {
 
                             let mut q_block = [0i16; 64];
 
+                            let comp_h_blocks = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
+                            let block_idx_in_comp = (block_y * component.vertical_sampling_factor as usize + v_offset) * comp_h_blocks +
+                                                    (block_x * component.horizontal_sampling_factor as usize + h_offset);
+
                             OP::quantize_block(
                                 &block,
                                 &mut q_block,
                                 &q_tables[component.quantization_table as usize],
+                                adapt_quant_field,
+                                block_idx_in_comp,
                             );
 
                             self.writer.write_block(
@@ -851,8 +886,9 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: I,
         q_tables: &[QuantizationTable; 2],
+        adapt_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
+        let blocks = self.encode_blocks::<_, OP>(&image, q_tables, adapt_quant_field);
 
         if self.optimize_huffman_table {
             self.optimize_huffman_table(&blocks);
@@ -911,8 +947,9 @@ impl<W: JfifWrite> Encoder<W> {
         image: I,
         scans: u8,
         q_tables: &[QuantizationTable; 2],
+        adapt_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
+        let blocks = self.encode_blocks::<_, OP>(&image, q_tables, adapt_quant_field);
 
         if self.optimize_huffman_table {
             self.optimize_huffman_table(&blocks);
@@ -1018,6 +1055,7 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: &I,
         q_tables: &[QuantizationTable; 2],
+        adapt_quant_field: Option<&[f32]>,
     ) -> [Vec<[i16; 64]>; 4] {
         let width = image.width();
         let height = image.height();
@@ -1082,10 +1120,16 @@ impl<W: JfifWrite> Encoder<W> {
 
                     let mut q_block = [0i16; 64];
 
+                    let comp_h_blocks = ceil_div(usize::from(width), 8 * (max_h_sampling / component.horizontal_sampling_factor as usize));
+                    let block_idx_in_comp = (block_y * component.vertical_sampling_factor as usize + v_scale) * comp_h_blocks +
+                                            (block_x * component.horizontal_sampling_factor as usize + h_scale);
+
                     OP::quantize_block(
                         &block,
                         &mut q_block,
                         &q_tables[component.quantization_table as usize],
+                        adapt_quant_field,
+                        block_idx_in_comp,
                     );
 
                     blocks[i].push(q_block);
@@ -1238,6 +1282,17 @@ impl<W: JfifWrite> Encoder<W> {
             );
         }
     }
+
+    /// Enable or disable Jpegli-style adaptive quantization.
+    ///
+    /// This analyzes the image to apply spatially varying quantization,
+    /// potentially improving perceived quality for a given file size.
+    /// It may increase encoding time.
+    /// This is independent of the `set_jpegli_distance` setting,
+    /// though typically used with it.
+    pub fn set_adaptive_quantization(&mut self, enabled: bool) {
+        self.use_adaptive_quantization = enabled;
+    }
 }
 
 #[cfg(feature = "std")]
@@ -1307,10 +1362,44 @@ pub(crate) trait Operations {
     }
 
     #[inline(always)]
-    fn quantize_block(block: &[i16; 64], q_block: &mut [i16; 64], table: &QuantizationTable) {
+    fn quantize_block(
+        block: &[i16; 64],
+        q_block: &mut [i16; 64],
+        table: &QuantizationTable,
+        adapt_quant_field: Option<&[f32]>,
+        block_idx: usize,
+    ) {
+        // The DCT coefficients are scaled by 8, so the quantization table values also need to be scaled.
+        const SHIFT: i32 = 3;
+        // Jpegli uses rounding for quantization.
+        // Add (1 << (SHIFT - 1)) which is equivalent to adding 0.5 before truncating division.
+        // let half = 1 << (SHIFT - 1); // Not needed with copysign approach
+
+        let aq_strength = adapt_quant_field.map_or(1.0, |field| {
+            // Jpegli applies adaptive quant based on the *destination* block index.
+            // Ensure block_idx is within bounds, though it should always be.
+            field.get(block_idx).copied().unwrap_or(1.0)
+        });
+
         for i in 0..64 {
             let z = ZIGZAG[i] as usize & 0x3f;
-            q_block[i] = table.quantize(block[z], z);
+            let value = block[z] as i32;
+            let q_val_raw = table.get_raw(z) as f32;
+
+            // Apply adaptive quantization multiplier.
+            // Jpegli's formula is equivalent to dividing the coefficient by (q_val * aq_strength).
+            // We work with integers: multiply coefficient by inverse.
+            // Effective divisor = q_val * aq_strength * (1 << SHIFT)
+            let divisor_f = q_val_raw * aq_strength;
+
+            // Ensure divisor is at least 1.0 to avoid division by zero or negative values.
+            let divisor = (divisor_f.max(1.0).round() as i32) << SHIFT;
+
+            // Perform rounding division: round(value / divisor)
+            // Integer division truncates towards zero.
+            // Add half of the divisor (with the correct sign) before dividing.
+            let rounded_value = value + divisor.copysign(value) / 2;
+            q_block[i] = (rounded_value / divisor) as i16;
         }
     }
 }

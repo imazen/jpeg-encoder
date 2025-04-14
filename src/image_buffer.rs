@@ -95,6 +95,14 @@ pub trait ImageBuffer {
 
     /// Add color values for the row to color component buffers
     fn fill_buffers(&self, y: u16, buffers: &mut [Vec<u8>; 4]);
+
+    /// Returns the raw pixel data for the channel most relevant for adaptive quantization (usually Luma),
+    /// or None if not applicable or easily extractable.
+    /// The returned Vec should contain width*height bytes in row-major order.
+    fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+        // Default implementation returns None. Specific image types should override this.
+        None
+    }
 }
 
 pub(crate) struct GrayImage<'a>(pub &'a [u8], pub u16, pub u16);
@@ -118,6 +126,11 @@ impl<'a> ImageBuffer for GrayImage<'a> {
         for &pixel in line {
             buffers[0].push(pixel);
         }
+    }
+
+    fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+        // For grayscale, the single channel is the one we need.
+        Some(self.0.to_vec())
     }
 }
 
@@ -165,6 +178,16 @@ macro_rules! ycbcr_image {
                     buffers[2].push(cr);
                 }
             }
+
+            fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+                // Extract the Y channel from YCbCr.
+                let num_pixels = self.1 as usize * self.2 as usize;
+                let mut y_channel = Vec::with_capacity(num_pixels);
+                for i in 0..num_pixels {
+                    y_channel.push(self.0[i * 3]);
+                }
+                Some(y_channel)
+            }
         }
     };
 }
@@ -198,6 +221,16 @@ impl<'a> ImageBuffer for YCbCrImage<'a> {
             buffers[2].push(pixel[2]);
         }
     }
+
+    fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+        // Extract the Y channel directly.
+        let num_pixels = self.1 as usize * self.2 as usize;
+        let mut y_channel = Vec::with_capacity(num_pixels);
+        for i in 0..num_pixels {
+            y_channel.push(self.0[i * 3]);
+        }
+        Some(y_channel)
+    }
 }
 
 pub(crate) struct CmykImage<'a>(pub &'a [u8], pub u16, pub u16);
@@ -225,6 +258,10 @@ impl<'a> ImageBuffer for CmykImage<'a> {
             buffers[3].push(255 - pixel[3]);
         }
     }
+
+    // Adaptive quant for CMYK is less common, returning None for now.
+    // If needed, would likely use the K channel or a derived Luma.
+    // fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> { None }
 }
 
 pub(crate) struct CmykAsYcckImage<'a>(pub &'a [u8], pub u16, pub u16);
@@ -260,6 +297,16 @@ impl<'a> ImageBuffer for CmykAsYcckImage<'a> {
             buffers[3].push(k);
         }
     }
+
+    fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+        // Extract the Y channel directly from YCCK data.
+        let num_pixels = self.1 as usize * self.2 as usize;
+        let mut y_channel = Vec::with_capacity(num_pixels);
+        for i in 0..num_pixels {
+            y_channel.push(self.0[i * 4]);
+        }
+        Some(y_channel)
+    }
 }
 
 pub(crate) struct YcckImage<'a>(pub &'a [u8], pub u16, pub u16);
@@ -287,6 +334,16 @@ impl<'a> ImageBuffer for YcckImage<'a> {
             buffers[2].push(pixel[2]);
             buffers[3].push(pixel[3]);
         }
+    }
+
+    fn get_adaptive_quant_channel(&self) -> Option<Vec<u8>> {
+        // Extract the Y channel directly from YCCK data.
+        let num_pixels = self.1 as usize * self.2 as usize;
+        let mut y_channel = Vec::with_capacity(num_pixels);
+        for i in 0..num_pixels {
+            y_channel.push(self.0[i * 4]);
+        }
+        Some(y_channel)
     }
 }
 

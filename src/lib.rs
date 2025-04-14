@@ -41,6 +41,8 @@ mod image_buffer;
 mod marker;
 mod quantization;
 mod writer;
+mod density;
+mod adaptive_quantization;
 
 pub use encoder::{ColorType, Encoder, JpegColorType, SamplingFactor};
 pub use error::EncodingError;

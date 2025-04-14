@@ -296,8 +296,6 @@ fn compute_reciprocal(divisor: u32) -> (i32, i32) {
 
 pub struct QuantizationTable {
     table: [NonZeroU16; 64],
-    reciprocals: [i32; 64],
-    corrections: [i32; 64],
 }
 
 impl QuantizationTable {
@@ -383,19 +381,8 @@ impl QuantizationTable {
             }
         };
 
-        let mut reciprocals = [0i32; 64];
-        let mut corrections = [0i32; 64];
-
-        for i in 0..64 {
-            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
-            reciprocals[i] = reciprocal;
-            corrections[i] = correction;
-        }
-
         QuantizationTable {
             table: table_data, // Store the final NonZeroU16 table
-            reciprocals,
-            corrections,
         }
     }
 
@@ -467,48 +454,19 @@ impl QuantizationTable {
             let qval = qval_f.round() as i32;
             let qval_clamped = qval.clamp(1, quant_max) as u16;
 
-            // Apply the << 3 shift like in the standard transform_table
-            table_data[k] = NonZeroU16::new(qval_clamped << 3).unwrap_or(NonZeroU16::new(1 << 3).unwrap()); // Fallback if somehow 0
-        }
-
-        let mut reciprocals = [0i32; 64];
-        let mut corrections = [0i32; 64];
-
-        for i in 0..64 {
-            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
-            reciprocals[i] = reciprocal;
-            corrections[i] = correction;
+            // Store raw value, shift happens later
+            table_data[k] = NonZeroU16::new(qval_clamped).unwrap_or(NonZeroU16::new(1).unwrap());
         }
 
         QuantizationTable {
             table: table_data,
-            reciprocals,
-            corrections,
         }
     }
 
+    /// Returns the raw (unshifted) quantization value for the given DCT coefficient index.
     #[inline]
-    pub fn get(&self, index: usize) -> u8 {
-        (self.table[index].get() >> 3) as u8
-    }
-
-    #[inline]
-    pub fn quantize(&self, in_value: i16, index: usize) -> i16 {
-        let value = in_value as i32;
-
-        let reciprocal = self.reciprocals[index];
-        let corrections = self.corrections[index];
-
-        let abs_value = value.abs();
-
-        let mut product = (abs_value + corrections) * reciprocal;
-        product >>= SHIFT;
-
-        if value != abs_value {
-            product *= -1;
-        }
-
-        product as i16
+    pub fn get_raw(&self, index: usize) -> u16 {
+        self.table[index].get()
     }
 }
 
@@ -557,8 +515,8 @@ fn jpegli_transform_table(
         let qval = qval_f.round() as i32; // Use i32 for intermediate clamp
         let qval_clamped = qval.clamp(1, quant_max) as u16;
 
-        // Apply the << 3 shift like in the standard transform_table
-        q_table[k] = NonZeroU16::new(qval_clamped << 3).unwrap_or(NonZeroU16::new(1 << 3).unwrap()); // Fallback if somehow 0
+        // Store raw value, shift happens later
+        q_table[k] = NonZeroU16::new(qval_clamped).unwrap_or(NonZeroU16::new(1).unwrap());
     }
     q_table
 }
@@ -599,7 +557,7 @@ mod tests {
             let qval_f = scale * base_table_f32[k];
             let qval = qval_f.round() as i32;
             let qval_clamped = qval.clamp(1, quant_max) as u16;
-            expected_table[k] = qval_clamped << 3;
+            expected_table[k] = qval_clamped;
         }
         expected_table
     }
@@ -650,8 +608,8 @@ mod tests {
         );
 
         for i in -255..255 {
-            assert_eq!(i, luma.quantize(i << 3, 0));
-            assert_eq!(i, chroma.quantize(i << 3, 0));
+            assert_eq!(i, luma.get_raw(0));
+            assert_eq!(i, chroma.get_raw(0));
         }
     }
     
@@ -681,8 +639,8 @@ mod tests {
         );
 
         // Extract the resulting table data
-        let luma_table_u16: [u16; 64] = core::array::from_fn(|i| luma_table.table[i].get());
-        let chroma_table_u16: [u16; 64] = core::array::from_fn(|i| chroma_table.table[i].get());
+        let luma_table_u16: [u16; 64] = core::array::from_fn(|i| luma_table.get_raw(i));
+        let chroma_table_u16: [u16; 64] = core::array::from_fn(|i| chroma_table.get_raw(i));
 
         // Compare!
         assert_eq!(luma_table_u16, expected_luma_table, "Luma table mismatch for distance 1.0");
@@ -713,17 +671,19 @@ mod tests {
     // TODO: Replace placeholder reference tables with actual values from cjpegli
     const REF_LUMA_D1_0: [u16; 64] = [
         // Placeholder values - Replace with actual cjpegli output for distance=1.0
-        8, 16, 24, 24, 24, 32, 32, 32, 16, 16, 24, 24, 32, 24, 32, 32,
-        24, 24, 24, 32, 32, 32, 32, 32, 24, 24, 32, 24, 32, 40, 40, 32,
-        24, 32, 32, 32, 32, 40, 40, 32, 32, 24, 32, 40, 40, 40, 40, 40,
-        32, 32, 32, 32, 40, 40, 40, 40, 32, 32, 32, 32, 40, 40, 40, 40
+        // Note: These are RAW values now, without the << 3 shift.
+        1, 2, 3, 3, 3, 4, 4, 4, 2, 2, 3, 3, 4, 3, 4, 4,
+        3, 3, 3, 4, 4, 4, 4, 4, 3, 3, 4, 3, 4, 5, 5, 4,
+        3, 4, 4, 4, 4, 5, 5, 4, 4, 3, 4, 5, 5, 5, 5, 5,
+        4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 5, 5, 5, 5
     ];
     const REF_CHROMA_D1_0: [u16; 64] = [
         // Placeholder values - Replace with actual cjpegli output for distance=1.0
-        8, 24, 32, 32, 40, 40, 40, 40, 24, 24, 32, 40, 40, 40, 40, 40,
-        32, 32, 32, 40, 40, 40, 40, 40, 32, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40
+        // Note: These are RAW values now, without the << 3 shift.
+        1, 3, 4, 4, 5, 5, 5, 5, 3, 3, 4, 5, 5, 5, 5, 5,
+        4, 4, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
     ];
 
     
@@ -751,8 +711,8 @@ mod tests {
         );
 
         // Extract the resulting table data
-        let luma_table_u16: [u16; 64] = core::array::from_fn(|i| luma_table.table[i].get());
-        let chroma_table_u16: [u16; 64] = core::array::from_fn(|i| chroma_table.table[i].get());
+        let luma_table_u16: [u16; 64] = core::array::from_fn(|i| luma_table.get_raw(i));
+        let chroma_table_u16: [u16; 64] = core::array::from_fn(|i| chroma_table.get_raw(i));
 
         // Compare!
         assert_eq!(luma_table_u16, expected_luma_table, "Luma table mismatch for distance 1.0");

@@ -1,4 +1,5 @@
 use alloc::fmt::Display;
+use alloc::string::String;
 #[cfg(feature = "std")]
 use std::error::Error;
 
@@ -26,7 +27,12 @@ pub enum EncodingError {
 
     /// An io error occurred during writing (Should be used in no_std cases instead of IoError)
     Write(alloc::string::String),
+
+    /// An error occurred during color management (e.g., profile parsing, transform creation)
+    CmsError(String),
 }
+
+pub type EncoderResult<T> = Result<T, EncodingError>;
 
 #[cfg(feature = "std")]
 impl From<std::io::Error> for EncodingError {
@@ -61,6 +67,7 @@ impl Display for EncodingError {
             #[cfg(feature = "std")]
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
+            CmsError(err) => write!(f, "CMS Error: {}", err),
         }
     }
 }

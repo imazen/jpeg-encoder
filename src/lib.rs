@@ -42,6 +42,7 @@ mod marker;
 mod quantization;
 mod writer;
 mod adaptive_quantization;
+mod cms;
 
 pub use encoder::{ColorType, Encoder, JpegColorType, SamplingFactor};
 pub use error::EncodingError;

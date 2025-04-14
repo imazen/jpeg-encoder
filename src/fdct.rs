@@ -283,6 +283,43 @@ mod tests {
         fdct(&mut i2);
         assert_eq!(i2, OUTPUT2);
     }
+
+    #[test]
+    #[ignore] // Requires reference values from C++ jpegli
+    fn test_float_dct_basic() {
+        // Sample 8x8 block data (level-shifted: pixel_u8 as f32 - 128.0)
+        // Example: A simple gradient or constant block
+        let input_pixels: [f32; 64] = [
+            -128.0, -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,
+            -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,
+            -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,
+            -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,
+            -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,
+            -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,
+            -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,
+            -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,  96.0,
+        ]; // Replace with actual test data
+        let mut coeffs = [0.0f32; 64];
+        let mut scratch = [0.0f32; 64];
+
+        super::forward_dct_float(&input_pixels, &mut coeffs, &mut scratch);
+
+        // Reference coefficients obtained from running jpegli C++
+        // on the same input_pixels data.
+        let expected_coeffs: [f32; 64] = [
+            // Fill with reference values...
+            0.0; 64 // Placeholder
+        ];
+
+        // Compare coeffs with expected_coeffs (allow for small floating point differences)
+        let epsilon = 1e-4;
+        for i in 0..64 {
+            assert!((coeffs[i] - expected_coeffs[i]).abs() < epsilon,
+                "Mismatch at index {}: expected {}, got {}",
+                 i, expected_coeffs[i], coeffs[i]);
+        }
+    }
+
 }
 
 // Constants and functions for Jpegli Float DCT implementation
@@ -499,39 +536,4 @@ pub fn forward_dct_float(pixels: &[f32; 64], coefficients: &mut [f32; 64], scrat
 
     // 4. Transpose back
     transpose_8x8_block(scratch_space, coefficients);
-}
-
-
-#[cfg(test)]
-mod tests {
-
-// ... existing tests ...
-
-    // TODO: Add tests for forward_dct_float
-    // Requires reference values from jpegli C++ implementation for a known input block.
-    // Example:
-    // #[test]
-    // fn test_float_dct_basic() {
-    //     let input_pixels: [f32; 64] = [
-    //         // Sample 8x8 block data (level-shifted)
-    //         // e.g., (pixel_u8 as f32) - 128.0
-    //         // Fill with realistic values...
-    //     ];
-    //     let mut coeffs = [0.0f32; 64];
-    //     let mut scratch = [0.0f32; 64];
-    //
-    //     forward_dct_float(&input_pixels, &mut coeffs, &mut scratch);
-    //
-    //     let expected_coeffs: [f32; 64] = [
-    //          // Reference coefficients obtained from running jpegli C++
-    //          // on the same input_pixels data.
-    //          // Fill with reference values...
-    //     ];
-    //
-    //     // Compare coeffs with expected_coeffs (allow for small floating point differences)
-    //     for i in 0..64 {
-    //         assert!((coeffs[i] - expected_coeffs[i]).abs() < 1e-4, "Mismatch at index {}", i);
-    //     }
-    // }
-
 }

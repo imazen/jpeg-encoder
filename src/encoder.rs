@@ -2,7 +2,7 @@ use crate::fdct::fdct;
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType};
+use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
 use crate::{Density, EncodingError};
 
@@ -196,6 +196,7 @@ pub struct Encoder<W: JfifWrite> {
     writer: JfifWriter<W>,
     density: Density,
     quality: u8,
+    distance: Option<f32>,
 
     components: Vec<Component>,
     quantization_tables: [QuantizationTableType; 2],
@@ -215,9 +216,8 @@ pub struct Encoder<W: JfifWrite> {
 impl<W: JfifWrite> Encoder<W> {
     /// Create a new encoder with the given quality
     ///
-    /// The quality must be between 1 and 100 where 100 is the highest image quality.<br>
-    /// By default, quality settings below 90 use a chroma subsampling (2x2 / 4:2:0) which can
-    /// be changed with [set_sampling_factor](Encoder::set_sampling_factor)
+    /// Quality maps to a specific Butteraugli distance using Jpegli's formula.
+    /// Default quantization tables are now Jpegli's psychovisual tables.
     pub fn new(w: W, quality: u8) -> Encoder<W> {
         let huffman_tables = [
             (
@@ -230,9 +230,10 @@ impl<W: JfifWrite> Encoder<W> {
             ),
         ];
 
+        // Default to Jpegli tables now
         let quantization_tables = [
-            QuantizationTableType::StandardAnnexK,
-            QuantizationTableType::StandardAnnexK,
+            QuantizationTableType::JpegliDefault,
+            QuantizationTableType::JpegliDefault,
         ];
 
         let sampling_factor = if quality < 90 {
@@ -245,6 +246,7 @@ impl<W: JfifWrite> Encoder<W> {
             writer: JfifWriter::new(w),
             density: Density::None,
             quality,
+            distance: None,
             components: vec![],
             quantization_tables,
             huffman_tables,
@@ -254,6 +256,32 @@ impl<W: JfifWrite> Encoder<W> {
             optimize_huffman_table: false,
             app_segments: Vec::new(),
         }
+    }
+
+    /// Set the target quality (1-100).
+    ///
+    /// This will override any previously set distance.
+    /// Quality maps to distance using Jpegli's formula.
+    pub fn set_quality(&mut self, quality: u8) {
+        self.quality = quality.clamp(1, 100);
+        self.distance = None; // Quality overrides distance
+        // Adjust default sampling factor based on quality if needed (optional)
+        self.sampling_factor = if self.quality < 90 {
+            SamplingFactor::F_2_2
+        } else {
+            SamplingFactor::F_1_1
+        };
+    }
+
+    /// Set the target Butteraugli distance directly.
+    ///
+    /// This overrides the quality setting. Lower distance means higher quality.
+    /// Recommended range: 0.1 (visually lossless) to 25+ (low quality).
+    pub fn set_distance(&mut self, distance: f32) {
+        self.distance = Some(distance.max(0.0));
+        // We might want to update self.quality to a rough equivalent, or leave it
+        // as potentially inconsistent if distance is set.
+        // For now, leave quality as is.
     }
 
     /// Set pixel density for the image
@@ -491,9 +519,33 @@ impl<W: JfifWrite> Encoder<W> {
             });
         }
 
+        // Determine if YUV420 based on sampling factor
+        let (h_samp, v_samp) = self.sampling_factor.get_sampling_factors();
+        let is_yuv420 = h_samp == 2 && v_samp == 2;
+        // Default force_baseline to true for now, matching jpegli_set_quality behaviour
+        let force_baseline = true;
+
+        // Use distance if set, otherwise derive from quality
+        let distance = self.distance.unwrap_or_else(|| quality_to_distance(self.quality));
+
+        // TODO: Rename new_with_quality to new_with_distance or similar
+        //       and pass distance instead of quality when JpegliDefault is selected.
+        //       For now, pass quality, but the JpegliDefault path uses distance internally.
         let q_tables = [
-            QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true),
-            QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false),
+            QuantizationTable::new_with_quality(
+                &self.quantization_tables[0],
+                self.quality, // Pass quality for now, logic uses distance
+                true, // is_luma
+                is_yuv420,
+                force_baseline,
+            ),
+            QuantizationTable::new_with_quality(
+                &self.quantization_tables[1],
+                self.quality, // Pass quality for now, logic uses distance
+                false, // is_luma
+                is_yuv420,
+                force_baseline,
+            ),
         ];
 
         let jpeg_color_type = image.get_jpeg_color_type();

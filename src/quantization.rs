@@ -265,6 +265,8 @@ impl QuantizationTable {
         q_type: &QuantizationTableType,
         quality: u8,
         is_luma: bool,
+        is_yuv420: bool,
+        force_baseline: bool,
     ) -> QuantizationTable {
         let scale_factor = QuantizationTable::get_scale_factor(quality);
 
@@ -283,29 +285,29 @@ impl QuantizationTable {
                 }
             }
             QuantizationTableType::JpegliDefault => {
-                // Placeholder for Phase 2
-                if is_luma {
-                    QuantizationTable::transform_table(
-                        &DEFAULT_LUMA_TABLES[q_type.index()], // Use standard for now
-                        scale_factor,
-                    )
+                let distance = quality_to_distance(quality);
+                let base_table_f32 = if is_luma {
+                    &JPEGLI_DEFAULT_LUMA_QTABLE_F32
                 } else {
-                    QuantizationTable::transform_table(
-                        &DEFAULT_CHROMA_TABLES[q_type.index()], // Use standard for now
-                        scale_factor,
-                    )
-                }
+                    &JPEGLI_DEFAULT_CHROMA_QTABLE_F32
+                };
+                jpegli_transform_table(
+                    base_table_f32,
+                    distance,
+                    is_luma,
+                    is_yuv420,
+                    force_baseline,
+                )
             }
             QuantizationTableType::Custom(table) => {
                 // Custom tables are assumed to be already scaled and ready to use.
-                // We still need to convert them to NonZeroU16 and apply the << 3 shift.
+                // Convert to NonZeroU16 and apply the << 3 shift.
                 let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
                 for (i, &v) in table.iter().enumerate() {
                      let val_clamped = v.clamp(1, 255);
                      q_table[i] = NonZeroU16::new(val_clamped << 3).unwrap();
                  }
                  q_table
-                 //TODO: Why not keep using Self::get_user_table(table)? It clamped to 2 << 10, not 255.
             },
             table => {
                 let table = if is_luma {
@@ -434,6 +436,76 @@ const JPEGLI_DEFAULT_CHROMA_QTABLE_F32: [f32; 64] = [
     5.2941780, 5.2948112, 5.2915106, 5.4269948, 5.5700078, 5.5723948, 5.5726733, 5.5728049,
 ];
 
+// Constants ported from jpegli quant.cc
+const K_GLOBAL_SCALE_YCBCR: f32 = 1.73966010;
+const K_420_GLOBAL_SCALE: f32 = 1.22; // Applied when YUV420
+const K_420_RESCALE: [f32; 64] = [
+    0.4093, 0.3209, 0.3477, 0.3333, 0.3144, 0.2823, 0.3214, 0.3354,
+    0.3209, 0.3111, 0.3489, 0.2801, 0.3059, 0.3119, 0.4135, 0.3445,
+    0.3477, 0.3489, 0.3586, 0.3257, 0.2727, 0.3754, 0.3369, 0.3484,
+    0.3333, 0.2801, 0.3257, 0.3020, 0.3515, 0.3410, 0.3971, 0.3839,
+    0.3144, 0.3059, 0.2727, 0.3515, 0.3105, 0.3397, 0.2716, 0.3836,
+    0.2823, 0.3119, 0.3754, 0.3410, 0.3397, 0.3212, 0.3203, 0.0726,
+    0.3214, 0.4135, 0.3369, 0.3971, 0.2716, 0.3203, 0.0798, 0.0553,
+    0.3354, 0.3445, 0.3484, 0.3839, 0.3836, 0.0726, 0.0553, 0.3368,
+];
+const K_EXPONENT: [f32; 64] = [
+    1.00, 0.51, 0.67, 0.74, 1.00, 1.00, 1.00, 1.00,
+    0.51, 0.66, 0.69, 0.87, 1.00, 1.00, 1.00, 1.00,
+    0.67, 0.69, 0.84, 0.83, 0.96, 1.00, 1.00, 1.00,
+    0.74, 0.87, 0.83, 1.00, 1.00, 0.91, 0.91, 1.00,
+    1.00, 1.00, 0.96, 1.00, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 0.91, 1.00, 1.00, 1.00, 1.00,
+    1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+];
+const K_DIST0: f32 = 1.5; // Distance where non-linearity kicks in.
+
+// Helper function ported from jpegli DistanceToScale
+fn distance_to_scale(distance: f32, k: usize) -> f32 {
+    if distance < K_DIST0 {
+        distance
+    } else {
+        let exp = K_EXPONENT[k];
+        let mul = K_DIST0.powf(1.0 - exp);
+        (mul * distance.powf(exp)).max(0.5 * distance) // Max ensures scale doesn't decrease too much
+    }
+}
+
+// New helper function to apply Jpegli distance scaling
+fn jpegli_transform_table(
+    base_table_f32: &[f32; 64],
+    distance: f32,
+    is_luma: bool,
+    is_yuv420: bool,
+    force_baseline: bool, // To determine max quant value
+) -> [NonZeroU16; 64] {
+    let mut global_scale = K_GLOBAL_SCALE_YCBCR;
+    if is_yuv420 {
+        global_scale *= K_420_GLOBAL_SCALE;
+    }
+    // Note: We are ignoring XYB mode and CICP transfer function scaling for now.
+
+    let quant_max = if force_baseline { 255 } else { 32767 };
+    let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
+
+    for k in 0..64 {
+        let mut scale = global_scale;
+        scale *= distance_to_scale(distance, k);
+        if is_yuv420 && !is_luma { // Apply k420Rescale only for chroma in 420 mode
+            scale *= K_420_RESCALE[k];
+        }
+
+        let qval_f = scale * base_table_f32[k];
+        let qval = qval_f.round() as i32; // Use i32 for intermediate clamp
+        let qval_clamped = qval.clamp(1, quant_max) as u16;
+
+        // Apply the << 3 shift like in the standard transform_table
+        q_table[k] = NonZeroU16::new(qval_clamped << 3).unwrap_or(NonZeroU16::new(1 << 3).unwrap()); // Fallback if somehow 0
+    }
+    q_table
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -441,38 +513,31 @@ mod tests {
 
     #[test]
     fn test_new_100() {
-        let q = QuantizationTable::new_with_quality(&QuantizationTableType::Default, 100, true);
+        let q = QuantizationTable::new_with_quality(
+            &QuantizationTableType::StandardAnnexK,
+            100,
+            true,
+            false,
+            true,
+        );
 
         for &v in &q.table {
             let v = v.get();
             assert_eq!(v, 1 << 3);
         }
 
-        let q = QuantizationTable::new_with_quality(&QuantizationTableType::Default, 100, false);
-        for &v in &q.table {
-            let v = v.get();
-            assert_eq!(v, 1 << 3);
-        }
-    }
-
-    
-    #[test]
-    fn test_new_100_annexk() {
-        let q = QuantizationTable::new_with_quality(&QuantizationTableType::StandardAnnexK, 100, true);
-
-        for &v in &q.table {
-            let v = v.get();
-            assert_eq!(v, 1 << 3);
-        }
-
-        let q = QuantizationTable::new_with_quality(&QuantizationTableType::StandardAnnexK, 100, false);
-
+        let q = QuantizationTable::new_with_quality(
+            &QuantizationTableType::StandardAnnexK,
+            100,
+            false,
+            false,
+            true,
+        );
         for &v in &q.table {
             let v = v.get();
             assert_eq!(v, 1 << 3);
         }
     }
-
 
     #[test]
     fn test_new_100_quantize_annexk() {
@@ -480,25 +545,20 @@ mod tests {
             &QuantizationTableType::StandardAnnexK,
             100,
             true,
+            false,
+            true,
         );
         let chroma = QuantizationTable::new_with_quality(
             &QuantizationTableType::StandardAnnexK,
             100,
             false,
+            false,
+            true,
         );
 
         for i in -255..255 {
             assert_eq!(i, luma.quantize(i << 3, 0));
             assert_eq!(i, chroma.quantize(i << 3, 0));
-        }
-    }
-
-    #[test]
-    fn test_new_100_quantize() {
-        let q = QuantizationTable::new_with_quality(&QuantizationTableType::Default, 100, true);
-
-        for i in -255..255 {
-            assert_eq!(i, q.quantize(i << 3, 0));
         }
     }
 

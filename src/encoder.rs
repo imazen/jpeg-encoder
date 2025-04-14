@@ -581,16 +581,22 @@ impl<W: JfifWrite> Encoder<W> {
         // --- Adaptive Quantization Field Calculation ---
         let adapt_quant_field: Option<Vec<f32>> = if self.use_adaptive_quantization {
             // Attempt to get the primary channel data (e.g., Luma)
-            if let Some(channel_data) = image.get_adaptive_quant_channel() {
-                // TODO: Replace placeholder call with actual implementation
+            if let Some(channel_data_u8) = image.get_adaptive_quant_channel() {
+                // Convert u8 data to f32 for adaptive quant function
+                let channel_data_f32: Vec<f32> = channel_data_u8.iter().map(|&p| p as f32).collect();
+
+                // Get the effective distance (either from jpegli mode or quality mapping)
+                let distance = self.jpegli_distance.unwrap_or_else(|| quality_to_distance(self.quality));
+
+                // Call the (currently placeholder) adaptive quant function
                 Some(compute_adaptive_quant_field(
                     image.width(),
                     image.height(),
-                    &channel_data,
+                    &channel_data_f32,
+                    distance,
                 ))
             } else {
                 // Warn or error? For now, just disable AQ if channel data is unavailable.
-                // Consider logging a warning here.
                 eprintln!("Warning: Could not get channel data for adaptive quantization. Disabling.");
                 None
             }

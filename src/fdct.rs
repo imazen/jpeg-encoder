@@ -340,7 +340,6 @@ mod float_dct_constants {
     pub const INV_8: f32 = 1.0 / 8.0;
 }
 
-#[inline(always)]
 fn transpose_8x8_block(input: &[f32; 64], output: &mut [f32; 64]) {
     // Basic scalar transpose
     for i in 0..8 {
@@ -350,7 +349,6 @@ fn transpose_8x8_block(input: &[f32; 64], output: &mut [f32; 64]) {
     }
 }
 
-#[inline(always)]
 fn add_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f32]) {
     // N_HALF corresponds to N / 2 in the C++ code
     // The C++ code operates on 8-element vectors per loop iteration.
@@ -363,8 +361,6 @@ fn add_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f
     }
 }
 
-
-#[inline(always)]
 fn sub_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f32]) {
     // N_HALF corresponds to N / 2 in the C++ code
     for i in 0..N_HALF {
@@ -375,7 +371,6 @@ fn sub_reverse<const N_HALF: usize>(a_in1: &[f32], a_in2: &[f32], a_out: &mut [f
     }
 }
 
-#[inline(always)]
 fn multiply<const N_HALF: usize>(
     coeff_second_half: &mut [f32],
     multipliers: &[f32]
@@ -390,7 +385,6 @@ fn multiply<const N_HALF: usize>(
     }
 }
 
-#[inline(always)]
 fn b<const N: usize>(coeff: &mut [f32]) {
     // N here corresponds to N/2 in the C++ B<N/2> call site context
     // (e.g. called with N=4 when processing N=8 DCT)
@@ -409,8 +403,6 @@ fn b<const N: usize>(coeff: &mut [f32]) {
     }
 }
 
-
-#[inline(always)]
 fn inverse_even_odd<const N: usize>(a_in: &[f32], a_out: &mut [f32]) {
     for i in 0..(N / 2) {
         for k in 0..8 {
@@ -432,14 +424,12 @@ trait DCT1DImplTrait {
 struct DCT1DImpl<const N: usize>;
 
 impl DCT1DImplTrait for DCT1DImpl<1> {
-    #[inline(always)]
     fn compute(_mem: &mut [f32]) {
         // Base case: N=1 DCT is identity
     }
 }
 
 impl DCT1DImplTrait for DCT1DImpl<2> {
-    #[inline(always)]
     fn compute(mem: &mut [f32]) {
         // Operates on two rows (16 elements total)
         for k in 0..8 {
@@ -455,7 +445,6 @@ impl DCT1DImplTrait for DCT1DImpl<2> {
 // Needs explicit specialization or handling for N=4, N=8 etc.
 // Let's implement N=8 directly based on the recursive calls.
 impl DCT1DImplTrait for DCT1DImpl<8> {
-    #[inline(always)]
     fn compute(mem: &mut [f32]) { // mem is [f32; 64]
         let mut tmp = [0.0f32; 64];
         {
@@ -474,7 +463,6 @@ impl DCT1DImplTrait for DCT1DImpl<8> {
 
             // Second recursion operates on tmp_second_half
             DCT1DImpl::<4>::compute(tmp_second_half);
-            b::<4>(tmp_second_half);
         }
         // tmp is fully available again here
         inverse_even_odd::<8>(&tmp, mem);
@@ -483,7 +471,6 @@ impl DCT1DImplTrait for DCT1DImpl<8> {
 
 // We need DCT1DImpl<4> for the recursion
 impl DCT1DImplTrait for DCT1DImpl<4> {
-     #[inline(always)]
      fn compute(mem: &mut [f32]) { // mem is [f32; 32]
         let mut tmp = [0.0f32; 32];
 
@@ -502,8 +489,6 @@ impl DCT1DImplTrait for DCT1DImpl<4> {
     }
 }
 
-
-#[inline(always)]
 fn dct_1d(pixels: &[f32], output: &mut [f32]) {
     // Assumes pixels is 64 element row/column block, output is 64 element block
     // Performs 8 parallel 1D DCTs of size 8
@@ -524,7 +509,6 @@ fn dct_1d(pixels: &[f32], output: &mut [f32]) {
          output[i] = tmp[i] * mul;
     }
 }
-
 
 /// Performs a forward DCT on an 8x8 block using floating-point arithmetic
 /// based on the jpegli implementation.

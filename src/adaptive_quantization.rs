@@ -38,6 +38,28 @@ const K_MASK_OFFSET3: f32 = 2.1925739705298404;
 const K_MASK_OFFSET4: f32 = 0.25 * K_MASK_OFFSET3;
 const K_MASK_MUL0: f32 = 0.74760422233706747;
 
+struct PerBlockModulations {
+    scale: f32,
+    bias_y: f32,
+    bias_x: f32,
+    _distance: f32, // Add underscore
+}
+
+impl PerBlockModulations {
+    /// Calculates modulations based on input block data.
+    fn compute(
+        // ... function arguments ...
+    ) -> Self {
+        // ... function body ...
+        Self {
+            scale: 0.0, // Example initialization
+            bias_y: 0.0,
+            bias_x: 0.0,
+            _distance: 0.0, // Ensure field is initialized (value doesn't matter if unused)
+        }
+    }
+}
+
 // --- Helper Functions --- 
 
 /// Simple 1D Gaussian kernel generation.

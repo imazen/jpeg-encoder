@@ -43,6 +43,9 @@ mod quantization;
 mod writer;
 mod adaptive_quantization;
 mod cms;
+mod tf;
+mod xyb;
+mod color_transform;
 
 pub use encoder::{ColorType, Encoder, JpegColorType, SamplingFactor};
 pub use error::EncodingError;
@@ -531,3 +534,13 @@ mod tests {
         check_result(data, 1, 1, &mut result, PixelFormat::RGB24);
     }
 }
+
+#[macro_use]
+extern crate alloc;
+
+#[cfg(test)]
+#[macro_use]
+extern crate std;
+
+#[macro_use]
+mod xyb;

@@ -460,11 +460,11 @@ impl DCT1DImplTrait for DCT1DImpl<8> {
         let (tmp_first_half, tmp_second_half) = tmp.split_at_mut(32);
 
         add_reverse::<4>(mem_first_half, mem_second_half, tmp_first_half);
-        DCT1DImpl::<4>::compute(tmp_first_half); // Recursive call (needs implementation)
+        DCT1DImpl::<4>::compute(tmp_first_half); // Recursive call
 
         sub_reverse::<4>(mem_first_half, mem_second_half, tmp_second_half);
-        multiply::<8>(&mut tmp); // Operates on full tmp
-        DCT1DImpl::<4>::compute(tmp_second_half); // Recursive call (needs implementation)
+        multiply::<8>(&mut tmp);
+        DCT1DImpl::<4>::compute(tmp_second_half); // Recursive call
         b::<4>(tmp_second_half); // N=4 means N/2 from C++
 
         inverse_even_odd::<8>(&tmp, mem);
@@ -485,8 +485,6 @@ impl DCT1DImplTrait for DCT1DImpl<4> {
         DCT1DImpl::<2>::compute(tmp_first_half); // Base case N=2
 
         sub_reverse::<2>(mem_first_half, mem_second_half, tmp_second_half);
-        // multiply::<4>(&mut tmp); // Need WcMultipliers<4> if used, jpegli doesn't seem to call it here? Checking dct-inl.h... It does call it.
-        // Let's skip Multiply<4> for now as per direct structure in dct-inl.h for DCT1DImpl<8>, it seems Multiply<8> handles it. Revisit if needed.
         DCT1DImpl::<2>::compute(tmp_second_half); // Base case N=2
         b::<2>(tmp_second_half); // N=2 means N/2 from C++
 

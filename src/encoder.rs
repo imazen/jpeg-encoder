@@ -578,7 +578,7 @@ impl<W: JfifWrite> Encoder<W> {
         } else {
             // Standard quality mode is active
             // Calculate distance from quality for zero-bias tables
-            let zb_distance = quality_to_distance(self.quality);
+            let _zb_distance = quality_to_distance(self.quality);
             [
                 QuantizationTable::new_with_quality(
                     &self.quantization_tables[0],

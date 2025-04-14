@@ -2,6 +2,8 @@ use alloc::boxed::Box;
 use core::num::NonZeroU16;
 use alloc::vec;
 use alloc::vec::Vec;
+use std::f32;
+use crate::quantization::QuantizationTable;
 
 /// # Quantization table used for encoding
 ///
@@ -480,7 +482,7 @@ const K_ZERO_BIAS_MUL_YCBCR_LQ: [[f32; 64]; 3] = [
       0.4490, 0.6190, 0.6187, 0.7160, 0.5860, 0.6190, 0.6204, 0.6190,
       0.6187, 0.6189, 0.6100, 0.6190, 0.4790, 0.6190, 0.6190, 0.3480 ],
     // c = 1 (Cb) - Explicitly listing all 64 elements
-    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430, 1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430, 0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430, 1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430, 0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430, 0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430 ],
+    [ 0.0000, 1.1640, 0.9373, 1.1319, 0.8016, 0.9136, 1.1530, 0.9430, 1.1640, 0.9188, 0.9160, 1.1980, 1.1830, 0.9758, 0.9430, 0.9430, 0.9373, 0.9160, 0.8430, 1.1720, 0.7083, 0.9430, 0.9430, 0.9430, 1.1319, 1.1980, 1.1720, 1.1490, 0.8547, 0.9430, 0.9430, 0.9430, 0.8016, 1.1830, 0.7083, 0.8547, 0.9430, 0.9430, 0.9430, 0.9430, 0.9136, 0.9758, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 1.1530, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430, 0.9430, 0.9430, 0.9430, 0.9430, 0.9480, 0.9430 ],
     // c = 2 (Cr)
     [ 0.0000, 1.3190, 0.4308, 0.4460, 0.0661, 0.0660, 0.2660, 0.2960,
       1.3190, 0.3280, 0.3093, 0.0750, 0.0505, 0.1594, 0.3060, 0.2113,
@@ -547,11 +549,10 @@ pub(crate) fn compute_zero_bias_tables(
         }
     }
 
-    // YCbCr specific logic (only if num_components is 3)
-    if num_components == 3 {
-        const DIST_HQ: f32 = 1.0;
-        const DIST_LQ: f32 = 3.0;
-        let mix0 = ((distance - DIST_HQ) / (DIST_LQ - DIST_HQ)).clamp(0.0, 1.0);
+    // Apply jpegli zero bias logic if distance is appropriate
+    if distance >= 0.1 {
+        let log_dist_ac = (distance / 0.3).log2().clamp(-1.0, 1.0);
+        let mix0 = ((log_dist_ac + 1.0) * 0.5).max(0.0);
         let mix1 = 1.0 - mix0;
 
         for c in 0..num_components {
@@ -562,9 +563,9 @@ pub(crate) fn compute_zero_bias_tables(
                 zero_bias_offsets[c][k] =
                     if k == 0 {
                          K_ZERO_BIAS_OFFSET_YCBCR_DC[c]
-                     } else {
+                    } else {
                          K_ZERO_BIAS_OFFSET_YCBCR_AC[c]
-                     };
+                    };
             }
         }
     }
@@ -573,6 +574,44 @@ pub(crate) fn compute_zero_bias_tables(
 
     (zero_bias_offsets, zero_bias_multipliers)
 }
+
+fn compute_diff_bias(quant_table: &[i32]) -> f32 {
+    let mut diff_sum = 0.0;
+    let mut max_diff = 0;
+
+    for i in 1..64 {
+        let current = quant_table[i];
+        let neighbors = [
+            if i >= 8 { quant_table[i - 8] } else { 0 }, // Top
+            if i < 56 { quant_table[i + 8] } else { 0 }, // Bottom
+            if i % 8 != 0 { quant_table[i - 1] } else { 0 }, // Left
+            if i % 8 != 7 { quant_table[i + 1] } else { 0 }, // Right
+        ];
+
+        for neighbor in neighbors.iter().filter(|&&n| n > 0) {
+            let diff = (current - neighbor).abs();
+            diff_sum += diff as f32;
+            max_diff = max_diff.max(diff);
+        }
+    }
+
+    // Example calculation - adjust based on visual inspection or tuning
+    // (0.003 * diff_sum * 0.1 * max_diff as f32).clamp(0.0, 1.0)
+    // This is a placeholder - need actual logic from jpegli if available
+    0.0 // Placeholder
+}
+
+const K_ZERO_BIAS_DIFF_TABLE: [f32; 511] = {
+    let mut table = [0.0f32; 511];
+    // Placeholder - need actual calculation or constants from jpegli
+    // Simplified linear ramp for testing
+    let mut i: i32 = -255; // Use i32 for signed range
+    while i <= 255 {
+        table[(i + 255) as usize] = (i.abs() as f32 / 255.0).powf(0.7);
+        i += 1;
+    }
+    table
+};
 
 #[cfg(test)]
 mod tests {

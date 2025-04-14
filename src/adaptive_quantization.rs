@@ -483,7 +483,7 @@ fn hf_modulation_scalar(
     current_val: f32
 ) -> f32 {
     let mut sum_abs_diff = 0.0;
-    let start_idx = y * width + x;
+    let _start_idx = y * width + x;
 
     for dy in 0..8 {
         let current_row_idx = (y + dy).clamp(0, height - 1) * width;

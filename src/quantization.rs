@@ -296,6 +296,8 @@ fn compute_reciprocal(divisor: u32) -> (i32, i32) {
 
 pub struct QuantizationTable {
     table: [NonZeroU16; 64],
+    reciprocals: [i32; 64],
+    corrections: [i32; 64],
 }
 
 impl QuantizationTable {
@@ -380,6 +382,15 @@ impl QuantizationTable {
                 Self::get_with_quality(table, quality)
             }
         };
+
+        let mut reciprocals = [0i32; 64];
+        let mut corrections = [0i32; 64];
+
+        for i in 0..64 {
+            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
+            reciprocals[i] = reciprocal;
+            corrections[i] = correction;
+        }
 
         QuantizationTable {
             table: table_data, // Store the final NonZeroU16 table

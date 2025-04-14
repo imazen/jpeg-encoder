@@ -463,6 +463,7 @@ impl DCT1DImplTrait for DCT1DImpl<8> {
 
             // Second recursion operates on tmp_second_half
             DCT1DImpl::<4>::compute(tmp_second_half);
+            b::<4>(&mut tmp[32..64]); // Re-enable call
         }
         // tmp is fully available again here
         inverse_even_odd::<8>(&tmp, mem);

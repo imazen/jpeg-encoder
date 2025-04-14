@@ -1,7 +1,10 @@
 // Ported from lib/cms/transfer_functions-inl.h and jxl_cms_internal.h
 
-use crate::error::{EncoderError, EncoderResult};
+use crate::error::{EncoderError, EncoderResult, EncodingError};
 use alloc::vec::Vec;
+use alloc::string::ToString;
+
+pub use super::cms::TfType;
 
 // Mirroring jxl_cms_internal.h
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,6 +13,18 @@ pub enum ExtraTF {
     kPQ,
     kHLG,
     kSRGB,
+}
+
+// Maps TfType from cms.rs to ExtraTF
+pub fn get_extra_tf(tf: TfType, _channels: u32, _inverse: bool) -> ExtraTF {
+    // Inverse flag is not used currently, logic is split between
+    // before_transform (linearizing) and after_transform (applying target TF)
+    match tf {
+        TfType::PQ => ExtraTF::kPQ,
+        TfType::HLG => ExtraTF::kHLG,
+        TfType::SRGB | TfType::Gamma(_) => ExtraTF::kSRGB, // Treat Gamma as sRGB for now
+        TfType::Linear | TfType::Unknown => ExtraTF::kNone,
+    }
 }
 
 // --- Constants (ported from C++ headers) ---
@@ -73,7 +88,7 @@ mod srgb_consts {
 pub mod hlg {
     use super::hlg_consts::*;
 
-    pub fn display_from_encoded(encoded: f32) -> f32 {
+    pub fn display_from_encoded(encoded: f32, intensity_target: f32, _luminances: Option<[f32; 3]>) -> f32 {
         let encoded = encoded as f64;
         let abs_encoded = encoded.abs();
         let magnitude = if abs_encoded <= K_05 {
@@ -86,8 +101,8 @@ pub mod hlg {
         encoded.signum() * magnitude as f32
     }
 
-    pub fn encoded_from_display(display: f32) -> f32 {
-        let display = display as f64;
+    pub fn encoded_from_display(display_linear: f32, intensity_target: f32, _luminances: Option<[f32; 3]>) -> f32 {
+        let display = display_linear as f64;
         let abs_display = display.abs();
         let magnitude = if abs_display <= K_INV12 {
             (K_3 * abs_display).sqrt()
@@ -165,29 +180,25 @@ pub mod srgb {
 pub fn before_transform(
     tf: ExtraTF,
     intensity_target: f32,
-    input_buf: &[f32],
-    output_buf: &mut [f32],
+    input_buf: &mut [f32], // Changed to mutable
 ) -> EncoderResult<()> {
-    if input_buf.len() != output_buf.len() {
-        return Err(EncoderError::CmsError("before_transform buffer size mismatch".to_string()));
-    }
+    if input_buf.is_empty() { return Ok(()); }
+
     match tf {
-        ExtraTF::kNone => Err(EncoderError::CmsError("before_transform called with kNone".to_string())),
+        ExtraTF::kNone => {}, // No-op
         ExtraTF::kPQ => {
-            for (i, &val) in input_buf.iter().enumerate() {
-                output_buf[i] = pq::display_from_encoded(val, intensity_target);
+            for val in input_buf {
+                *val = pq::display_from_encoded(*val, intensity_target);
             }
-        }
+        },
         ExtraTF::kHLG => {
-            for (i, &val) in input_buf.iter().enumerate() {
-                output_buf[i] = hlg::display_from_encoded(val);
+            for val in input_buf {
+                *val = hlg::display_from_encoded(*val, intensity_target, None); // Luminances not used here
             }
-             // TODO: Apply HLG OOTF if needed (needs luminances, target intensity)
-            // See ApplyHlgOotf in jxl_cms.cc
-        }
+        },
         ExtraTF::kSRGB => {
-            for (i, &val) in input_buf.iter().enumerate() {
-                output_buf[i] = srgb::display_from_encoded(val);
+            for val in input_buf {
+                *val = srgb::display_from_encoded(*val);
             }
         }
     }
@@ -200,28 +211,31 @@ pub fn after_transform(
     intensity_target: f32,
     buffer: &mut [f32], // Operates in-place
 ) -> EncoderResult<()> {
-     match tf {
-        ExtraTF::kNone => Err(EncoderError::CmsError("after_transform called with kNone".to_string())),
+    if buffer.is_empty() { return Ok(()); }
+
+    match tf {
+        ExtraTF::kNone => {}, // No-op
         ExtraTF::kPQ => {
-            for val in buffer.iter_mut() {
+            for val in buffer {
                 *val = pq::encoded_from_display(*val, intensity_target);
             }
-        }
+        },
         ExtraTF::kHLG => {
-             // TODO: Apply inverse HLG OOTF if needed
-            for val in buffer.iter_mut() {
-                *val = hlg::encoded_from_display(*val);
+            for val in buffer {
+                 *val = hlg::encoded_from_display(*val, intensity_target, None);
             }
-        }
+        },
         ExtraTF::kSRGB => {
-            for val in buffer.iter_mut() {
-                *val = srgb::encoded_from_display(*val);
+            for val in buffer {
+                 *val = srgb::encoded_from_display(*val);
             }
         }
     }
     Ok(())
 }
 
+// TODO: Implement HLG OOTF application if needed (separate function?)
+// pub fn apply_hlg_ootf(buffer: &mut [f32], luminances: Option<[f32; 3]>, intensity_target: f32) { ... }
 
 // --- Tests ---
 #[cfg(test)]
@@ -293,8 +307,8 @@ mod tests {
     fn test_hlg_roundtrip() {
         let values = [0.0, 0.01, 0.1, 0.5, 0.9, 1.0, 1.2]; // HLG domain extends slightly > 1.0
         for v_display in values {
-            let encoded = hlg::encoded_from_display(v_display);
-            let decoded = hlg::display_from_encoded(encoded);
+            let encoded = hlg::encoded_from_display(v_display, 1.0, None);
+            let decoded = hlg::display_from_encoded(encoded, 1.0, None);
             assert_approx_eq(v_display, decoded, TOLERANCE);
         }
     }
@@ -302,14 +316,14 @@ mod tests {
     #[test]
     fn test_hlg_known_values() {
         // Values from ITU-R BT.2100-2 Table 6
-        assert_approx_eq(hlg::encoded_from_display(0.0), 0.0, EPSILON);
-        assert_approx_eq(hlg::encoded_from_display(1.0/12.0), 0.5, TOLERANCE);
-        assert_approx_eq(hlg::encoded_from_display(1.0), 0.75006, TOLERANCE); // Value slightly differs from table (0.75), maybe due to approx?
+        assert_approx_eq(hlg::encoded_from_display(0.0, 1.0, None), 0.0, EPSILON);
+        assert_approx_eq(hlg::encoded_from_display(1.0/12.0, 1.0, None), 0.5, TOLERANCE);
+        assert_approx_eq(hlg::encoded_from_display(1.0, 1.0, None), 0.75006, TOLERANCE); // Value slightly differs from table (0.75), maybe due to approx?
 
-        assert_approx_eq(hlg::display_from_encoded(0.0), 0.0, EPSILON);
-        assert_approx_eq(hlg::display_from_encoded(0.5), 1.0/12.0, TOLERANCE);
-        assert_approx_eq(hlg::display_from_encoded(0.75), 1.0, TOLERANCE);
-        assert_approx_eq(hlg::display_from_encoded(1.0), 12.0, 12.0 * TOLERANCE); // Inverse calculation
+        assert_approx_eq(hlg::display_from_encoded(0.0, 1.0, None), 0.0, EPSILON);
+        assert_approx_eq(hlg::display_from_encoded(0.5, 1.0, None), 1.0/12.0, TOLERANCE);
+        assert_approx_eq(hlg::display_from_encoded(0.75, 1.0, None), 1.0, TOLERANCE);
+        assert_approx_eq(hlg::display_from_encoded(1.0, 1.0, None), 12.0, 12.0 * TOLERANCE); // Inverse calculation
 
     }
 } 

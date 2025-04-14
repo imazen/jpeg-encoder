@@ -4,8 +4,9 @@ use std::sync::Mutex;
 use alloc::vec::Vec;
 use alloc::string::{String, ToString};
 
-use crate::error::{EncoderError, EncoderResult};
+use crate::error::{EncodingError, EncoderResult};
 use crate::tf::{self, ExtraTF};
+use crate::ColorProfile; // Import ColorProfile
 
 // TODO: Define equivalents for JxlColorEncoding if needed, or reuse lcms2 structures.
 
@@ -19,6 +20,7 @@ pub struct ColorEncodingInternal {
     pub is_cmyk: bool,
     pub rendering_intent: Intent,
     pub spot_color_names: Vec<String>,
+    pub channels: u32, // Added channels field
 }
 
 // Simplified representation of transfer function type
@@ -41,7 +43,7 @@ pub struct CIExyYTRIPLE {
 }
 
 // Equivalent of JxlColorProfile
-#[derive(Debug)]
+#[derive(Debug, Clone)] // Added Clone derive
 pub struct ColorProfile {
     pub icc: Vec<u8>,
     pub internal: Option<ColorEncodingInternal>,
@@ -59,20 +61,20 @@ impl ColorProfile {
         let internal = ColorEncodingInternal {
             channels: 3,
             color_space: ColorSpaceSignature::RgbData,
-            white_point: CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 },
+            white_point: Some(CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 }), // Wrapped in Some
             primaries: Some(CIExyYTRIPLE {
                 Red: CIExyY { x: 0.64, y: 0.33, Y: 1.0 },
                 Green: CIExyY { x: 0.30, y: 0.60, Y: 1.0 },
                 Blue: CIExyY { x: 0.15, y: 0.06, Y: 1.0 },
             }),
-            tf: TfType::SRGB,
+            transfer_function: TfType::SRGB, // Use correct field name
             is_cmyk: false,
             rendering_intent: Intent::Perceptual,
             spot_color_names: Vec::new(),
         };
         let profile = Profile::new_srgb();
         let icc_data = profile.save_to_icc_bytes()
-            .map_err(|e| EncoderError::CmsError(format!("Failed to save sRGB profile: {}", e)))?;
+            .map_err(|e| EncodingError::CmsError(format!("Failed to save sRGB profile: {}", e)))?;
         Ok(ColorProfile {
             icc: icc_data,
             internal: Some(internal),
@@ -81,7 +83,7 @@ impl ColorProfile {
     pub fn linear_srgb() -> EncoderResult<Self> {
         let mut profile = Self::srgb()?;
         if let Some(ref mut internal) = profile.internal {
-            internal.tf = TfType::Linear;
+            internal.transfer_function = TfType::Linear; // Use correct field name
         }
         let linear_profile = Profile::new_rgb_context(
                 Context::new(),
@@ -93,10 +95,10 @@ impl ColorProfile {
                 },
                 &[&ToneCurve::new(1.0)]
             )
-            .map_err(|e| EncoderError::CmsError(format!("Failed to create linear sRGB profile: {}", e)))?;
+            .map_err(|e| EncodingError::CmsError(format!("Failed to create linear sRGB profile: {}", e)))?;
 
         profile.icc = linear_profile.save_to_icc_bytes()
-            .map_err(|e| EncoderError::CmsError(format!("Failed to save linear sRGB profile: {}", e)))?;
+            .map_err(|e| EncodingError::CmsError(format!("Failed to save linear sRGB profile: {}", e)))?;
 
         Ok(profile)
     }
@@ -104,9 +106,9 @@ impl ColorProfile {
         let internal = ColorEncodingInternal {
             channels: 1,
             color_space: ColorSpaceSignature::GrayData,
-            white_point: CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 },
+            white_point: Some(CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 }), // Wrapped in Some
             primaries: None,
-            tf: TfType::Gamma(2200),
+            transfer_function: TfType::Gamma(2200), // Use correct field name
             is_cmyk: false,
             rendering_intent: Intent::Perceptual,
             spot_color_names: Vec::new(),
@@ -116,10 +118,10 @@ impl ColorProfile {
                 &CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 },
                 &ToneCurve::new(2.2)
             )
-             .map_err(|e| EncoderError::CmsError(format!("Failed to create gray profile: {}", e)))?;
+             .map_err(|e| EncodingError::CmsError(format!("Failed to create gray profile: {}", e)))?;
 
         let icc_data = gray_profile.save_to_icc_bytes()
-             .map_err(|e| EncoderError::CmsError(format!("Failed to save gray profile: {}", e)))?;
+             .map_err(|e| EncodingError::CmsError(format!("Failed to save gray profile: {}", e)))?;
 
          Ok(ColorProfile {
             icc: icc_data,
@@ -145,16 +147,16 @@ pub struct JxlCms {
     apply_hlg_ootf: bool,
     hlg_ootf_luminances: Option<[f32; 3]>,
 
-    channels_src: usize,
-    channels_dst: usize,
+    pub channels_src: usize, // Made public
+    pub channels_dst: usize, // Made public
 
     src_storage: Mutex<Vec<f32>>,
     dst_storage: Mutex<Vec<f32>>,
 
-    intensity_target: f32,
-    skip_lcms: bool,
-    preprocess: ExtraTF,
-    postprocess: ExtraTF,
+    pub intensity_target: f32, // Made public
+    pub skip_lcms: bool, // Made public
+    pub preprocess: ExtraTF, // Made public
+    pub postprocess: ExtraTF, // Made public
 }
 
 fn get_pixel_format(channels: u32, is_float: bool) -> Option<PixelFormat> {
@@ -176,18 +178,18 @@ impl JxlCms {
         intensity_target: f32,
     ) -> EncoderResult<Self> {
         let internal_in = input_profile.internal.as_ref()
-            .ok_or_else(|| EncoderError::CmsError("Input profile internal data missing".to_string()))?;
+            .ok_or_else(|| EncodingError::CmsError("Input profile internal data missing".to_string()))?;
         let internal_out = output_profile.internal.as_ref()
-            .ok_or_else(|| EncoderError::CmsError("Output profile internal data missing".to_string()))?;
+            .ok_or_else(|| EncodingError::CmsError("Output profile internal data missing".to_string()))?;
 
         let channels_src = internal_in.channels as usize;
         let channels_dst = internal_out.channels as usize;
 
-        let preprocess = tf::get_extra_tf(internal_in.tf, channels_src as u32, false);
-        let postprocess = tf::get_extra_tf(internal_out.tf, channels_dst as u32, true);
+        let preprocess = tf::get_extra_tf(internal_in.transfer_function, channels_src as u32, false);
+        let postprocess = tf::get_extra_tf(internal_out.transfer_function, channels_dst as u32, true);
 
         let skip_lcms = input_profile.icc == output_profile.icc ||
-                        (internal_in.tf == internal_out.tf &&
+                        (internal_in.transfer_function == internal_out.transfer_function &&
                          internal_in.color_space == internal_out.color_space &&
                          channels_src == channels_dst &&
                          preprocess == ExtraTF::kNone &&
@@ -195,30 +197,30 @@ impl JxlCms {
 
         let mut apply_hlg_ootf = false;
         let mut hlg_ootf_luminances = None;
-        if internal_in.tf == TfType::HLG && internal_out.tf != TfType::HLG {
+        if internal_in.transfer_function == TfType::HLG && internal_out.transfer_function != TfType::HLG {
             apply_hlg_ootf = true;
             log::warn!("HLG OOTF needed but not fully implemented.");
-        } else if internal_in.tf != TfType::HLG && internal_out.tf == TfType::HLG {
+        } else if internal_in.transfer_function != TfType::HLG && internal_out.transfer_function == TfType::HLG {
             apply_hlg_ootf = true;
              log::warn!("Inverse HLG OOTF needed but not fully implemented.");
         }
 
         let lcms_transform = if !skip_lcms {
             let profile_src = Profile::new_icc(&input_profile.icc)
-                .map_err(|e| EncoderError::CmsError(format!("Failed to create source profile: {}", e.to_string())))?;
+                .map_err(|e| EncodingError::CmsError(format!("Failed to create source profile: {}", e.to_string())))?;
             let profile_dst = Profile::new_icc(&output_profile.icc)
-                .map_err(|e| EncoderError::CmsError(format!("Failed to create destination profile: {}", e.to_string())))?;
+                .map_err(|e| EncodingError::CmsError(format!("Failed to create destination profile: {}", e.to_string())))?;
 
             let input_format = get_pixel_format(channels_src as u32, true)
-                .ok_or_else(|| EncoderError::CmsError(format!("Unsupported source channel count: {}", channels_src)))?;
+                .ok_or_else(|| EncodingError::CmsError(format!("Unsupported source channel count: {}", channels_src)))?;
             let output_format = get_pixel_format(channels_dst as u32, true)
-                .ok_or_else(|| EncoderError::CmsError(format!("Unsupported destination channel count: {}", channels_dst)))?;
+                .ok_or_else(|| EncodingError::CmsError(format!("Unsupported destination channel count: {}", channels_dst)))?;
 
             let intent = internal_in.rendering_intent;
             let flags = Flags::default();
 
             let transform = Transform::new_flags(&profile_src, input_format, &profile_dst, output_format, intent, flags)
-                .map_err(|e| EncoderError::CmsError(format!("Failed to create LCMS transform: {}", e.to_string())))?;
+                .map_err(|e| EncodingError::CmsError(format!("Failed to create LCMS transform: {}", e.to_string())))?;
             Some(Mutex::new(transform))
         } else {
             None
@@ -247,189 +249,190 @@ impl JxlCms {
         let expected_output_len = num_pixels * self.channels_dst;
 
         if input_slice.len() < expected_input_len || output_slice.len() < expected_output_len {
-            return Err(EncoderError::CmsError(format!(
-                "Input/Output slice length mismatch. Input: {}/{}, Output: {}/{}",
-                input_slice.len(), expected_input_len, output_slice.len(), expected_output_len
-            )));
+            return Err(EncodingError::CmsError(format!(
+                "Buffer size mismatch: input {} vs {}, output {} vs {}",
+                input_slice.len(), expected_input_len,
+                output_slice.len(), expected_output_len
+            ).to_string()));
         }
 
-        let mut src_buffer_guard = self.src_storage.lock().unwrap();
-        if src_buffer_guard.len() < expected_input_len {
-             src_buffer_guard.resize(expected_input_len, 0.0);
+        let mut src_guard = self.src_storage.lock().unwrap();
+        let mut dst_guard = self.dst_storage.lock().unwrap();
+
+        // Ensure storage is large enough
+        if src_guard.len() < expected_input_len {
+            src_guard.resize(expected_input_len, 0.0);
         }
-        let src_buffer = &mut src_buffer_guard[..expected_input_len];
-
-        let mut dst_buffer_guard = self.dst_storage.lock().unwrap();
-        if dst_buffer_guard.len() < expected_output_len {
-             dst_buffer_guard.resize(expected_output_len, 0.0);
-        }
-        let dst_buffer = &mut dst_buffer_guard[..expected_output_len];
-
-        let mut final_lcms_input = input_slice;
-
-        if self.preprocess != ExtraTF::kNone {
-            src_buffer.copy_from_slice(&input_slice[..expected_input_len]);
-            tf::before_transform(self.preprocess, self.intensity_target, src_buffer, num_pixels)?;
-            final_lcms_input = src_buffer;
+        if dst_guard.len() < expected_output_len {
+            dst_guard.resize(expected_output_len, 0.0);
         }
 
-        let mut lcms_output_target = output_slice;
-        let mut used_dst_buffer = false;
-        if self.postprocess != ExtraTF::kNone && !self.skip_lcms {
-            lcms_output_target = dst_buffer;
-            used_dst_buffer = true;
-        }
+        let src_buffer = &mut src_guard[..expected_input_len];
+        src_buffer.copy_from_slice(&input_slice[..expected_input_len]);
 
+        // Apply pre-processing TF
+        tf::before_transform(self.preprocess, self.intensity_target, src_buffer)?;
+
+        // Run LCMS transform if needed
         if let Some(transform_mutex) = &self.transform {
-            if !self.skip_lcms {
-                 let transform = transform_mutex.lock().unwrap();
-                 transform.transform_pixels(final_lcms_input, &mut lcms_output_target[..expected_output_len]);
-            } else {
-                output_slice[..expected_output_len].copy_from_slice(&final_lcms_input[..expected_output_len]);
-            }
+            let mut transform = transform_mutex.lock().unwrap();
+            let dst_buffer = &mut dst_guard[..expected_output_len];
+            transform.transform_pixels(src_buffer, dst_buffer);
         } else if self.skip_lcms {
-             output_slice[..expected_output_len].copy_from_slice(&final_lcms_input[..expected_output_len]);
-        } else {
-             return Err(EncoderError::CmsError("Internal error: Transform not initialized when needed".to_string()));
-        }
-
-        if self.postprocess != ExtraTF::kNone {
-            let source_for_post = if used_dst_buffer {
-                dst_buffer
+            // If skipping LCMS but channels match, copy src to dst buffer for post-processing
+            if self.channels_src == self.channels_dst {
+                 dst_guard[..expected_output_len].copy_from_slice(src_buffer);
             } else {
-                output_slice
-            };
-
-             if used_dst_buffer {
-                 tf::after_transform(self.postprocess, self.intensity_target, dst_buffer, num_pixels)?;
-                 output_slice[..expected_output_len].copy_from_slice(dst_buffer);
-             } else {
-                 tf::after_transform(self.postprocess, self.intensity_target, output_slice, num_pixels)?;
-             }
+                // Should not happen if skip_lcms is true unless TF handles channel change?
+                return Err(EncodingError::CmsError("Channel mismatch when skipping LCMS".to_string()));
+            }
+        } else {
+             return Err(EncodingError::CmsError("CMS transform not available".to_string()));
         }
+
+        // Apply post-processing TF (operates in-place on dst_buffer)
+        let dst_buffer = &mut dst_guard[..expected_output_len];
+        tf::after_transform(self.postprocess, self.intensity_target, dst_buffer)?;
+
+        // Apply HLG OOTF if needed (operates in-place)
+        if self.apply_hlg_ootf {
+            // TODO: Implement HLG OOTF logic
+            log::warn!("HLG OOTF apply step not implemented.");
+            // tf::apply_hlg_ootf(dst_buffer, self.hlg_ootf_luminances, self.intensity_target);
+        }
+
+        // Copy result to output slice
+        output_slice[..expected_output_len].copy_from_slice(dst_buffer);
 
         Ok(())
     }
 }
 
+// Tries to parse ICC profile to extract relevant fields.
 pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingInternal> {
-    if icc_data.is_empty() {
-        return Err(EncoderError::CmsError("ICC data is empty".to_string()));
-    }
     let profile = Profile::new_icc(icc_data)
-        .map_err(|e| EncoderError::CmsError(format!("Failed to parse ICC profile: {}", e)))?;
+        .map_err(|e| EncodingError::CmsError(format!("Failed to parse ICC profile: {}", e.to_string())))?;
 
+    let class = profile.profile_class_signature();
     let color_space_sig = profile.color_space();
-    let class = profile.profile_class();
+    let pcs = profile.pcs(); // Profile Connection Space
 
-    let channels = lcms2::color_space_channels(color_space_sig);
-    if channels == 0 {
-         return Err(EncoderError::CmsError(format!("Unsupported ICC color space: {:?}", color_space_sig)));
-    }
-
-    let is_cmyk = color_space_sig == ColorSpaceSignature::CmykData;
-
-    let mut encoding = ColorEncodingInternal {
-        channels: channels as u32,
-        color_space: color_space_sig,
-        white_point: CIExyY { x: 0.0, y: 0.0, Y: 0.0 },
-        primaries: None,
-        tf: TfType::Unknown,
-        is_cmyk,
-        rendering_intent: profile.rendering_intent(),
-        spot_color_names: Vec::new(),
+    let channels = match color_space_sig {
+        ColorSpaceSignature::GrayData => 1,
+        ColorSpaceSignature::RgbData => 3,
+        ColorSpaceSignature::CmykData => 4,
+        _ => return Err(EncodingError::CmsError(format!("Unsupported ICC color space: {:?}", color_space_sig)))
     };
 
-    if class == ProfileClassSignature::Display || class == ProfileClassSignature::Input || class == ProfileClassSignature::Output || class == ProfileClassSignature::ColorSpace {
-        if let Some(wp_tag_data) = profile.tag_data(TagSignature::MediaWhitePoint).ok() {
+    let mut encoding = ColorEncodingInternal {
+        channels,
+        color_space: color_space_sig,
+        white_point: None,
+        primaries: None,
+        transfer_function: TfType::Unknown,
+        is_cmyk: color_space_sig == ColorSpaceSignature::CmykData,
+        rendering_intent: profile.rendering_intent(),
+        spot_color_names: Vec::new(), // TODO: Extract spot colors if needed
+    };
+
+    // Only extract detailed fields for display/input/output/color space classes
+    if class == ProfileClassSignature::DisplayInputDevice || class == ProfileClassSignature::InputDevice || class == ProfileClassSignature::OutputDevice || class == ProfileClassSignature::ColorSpaceConversion {
+        if let Some(wp_tag_data) = profile.tag_data(TagSignature::MediaWhitePointTag).ok() {
             if let Ok(xyz) = Tag::read_xyz(&wp_tag_data) {
-                 encoding.white_point = xyz.as_xyy();
+                 if let Some(xyy) = CIExyY::from_xyz(&xyz) {
+                     encoding.white_point = Some(xyy);
+                 } else {
+                      log::warn!("ICC WP XYZ to xyY conversion failed, using D50 (PCS default)");
+                     // Default to D50 if conversion fails (PCS white point)
+                     encoding.white_point = Some(CIExyY { x: 0.3457, y: 0.3585, Y: 1.0 });
+                 }
             } else {
-                 log::warn!("Failed to read MediaWhitePointTag as XYZ");
-                 encoding.white_point = CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 };
+                 log::warn!("Failed to read XYZ from MediaWhitePointTag, using D50");
+                 encoding.white_point = Some(CIExyY { x: 0.3457, y: 0.3585, Y: 1.0 });
             }
         } else {
-             log::warn!("MediaWhitePointTag not found, using D65 fallback");
-              encoding.white_point = CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 };
+            log::warn!("MediaWhitePointTag not found, using D50");
+             encoding.white_point = Some(CIExyY { x: 0.3457, y: 0.3585, Y: 1.0 });
         }
 
         if color_space_sig == ColorSpaceSignature::RgbData {
-            let r_tag_data = profile.tag_data(TagSignature::RedColorant).ok();
-            let g_tag_data = profile.tag_data(TagSignature::GreenColorant).ok();
-            let b_tag_data = profile.tag_data(TagSignature::BlueColorant).ok();
+            let r_tag_data = profile.tag_data(TagSignature::RedColorantTag).ok();
+            let g_tag_data = profile.tag_data(TagSignature::GreenColorantTag).ok();
+            let b_tag_data = profile.tag_data(TagSignature::BlueColorantTag).ok();
 
             if let (Some(r_data), Some(g_data), Some(b_data)) = (r_tag_data, g_tag_data, b_tag_data) {
                  if let (Ok(r_xyz), Ok(g_xyz), Ok(b_xyz)) = (Tag::read_xyz(&r_data), Tag::read_xyz(&g_data), Tag::read_xyz(&b_data)) {
-                    encoding.primaries = Some(CIExyYTRIPLE {
-                        Red: r_xyz.as_xyy(),
-                        Green: g_xyz.as_xyy(),
-                        Blue: b_xyz.as_xyy(),
-                    });
+                    if let (Some(r_xyy), Some(g_xyy), Some(b_xyy)) = (CIExyY::from_xyz(&r_xyz), CIExyY::from_xyz(&g_xyz), CIExyY::from_xyz(&b_xyz)) {
+                         encoding.primaries = Some(CIExyYTRIPLE {
+                             Red: r_xyy,
+                             Green: g_xyy,
+                             Blue: b_xyy,
+                         });
+                    } else {
+                        log::warn!("Failed to convert primary XYZ to xyY");
+                    }
                  } else {
-                     log::warn!("Failed to read one or more colorant tags as XYZ");
+                      log::warn!("Failed to read XYZ from primary colorant tags");
                  }
-            } else {
-                log::warn!("One or more RGB colorant tags not found");
             }
         }
-    } else {
-        log::warn!("Profile class {:?} might not have reliable primaries/whitepoint tags, using D65 fallback", class);
-        encoding.white_point = CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 };
     }
 
-    let trc_tag_sig = if color_space_sig == ColorSpaceSignature::GrayData {
-         TagSignature::GrayTRC
-    } else if color_space_sig == ColorSpaceSignature::RgbData {
-         TagSignature::GreenTRC
-    } else {
-         TagSignature::Unknown
+    // Determine Transfer Function (TRC)
+    let trc_tag_sig = match color_space_sig {
+         ColorSpaceSignature::GrayData => TagSignature::GrayTRCTag,
+         ColorSpaceSignature::RgbData => TagSignature::GreenTRCTag, // Green is often representative for RGB
+         _ => TagSignature::Unknown, // No TRC for CMYK etc.
     };
 
     if trc_tag_sig != TagSignature::Unknown {
         if let Some(trc_tag_data) = profile.tag_data(trc_tag_sig).ok() {
              if let Ok(curve) = Tag::read_curve(&trc_tag_data) {
                  if curve.is_linear() {
-                     encoding.tf = TfType::Linear;
+                     encoding.transfer_function = TfType::Linear;
                  } else {
                       if curve.type_signature() == TagTypeSignature::ParametricCurve {
                          let params = curve.parametric_params();
-                         if curve.parametric_type() == 4 {
-                             encoding.tf = TfType::SRGB;
-                         } else if curve.parametric_type() == 5 {
-                              encoding.tf = TfType::PQ;
+                         if curve.parametric_type() == 4 { // sRGB
+                             encoding.transfer_function = TfType::SRGB;
+                         } else if curve.parametric_type() == 5 { // PQ approx
+                             encoding.transfer_function = TfType::PQ;
                               log::warn!("Detected parametric curve type 5, assuming PQ.");
-                         } else if curve.parametric_type() == 6 {
-                             encoding.tf = TfType::HLG;
+                         } else if curve.parametric_type() == 6 { // HLG approx
+                             encoding.transfer_function = TfType::HLG;
                              log::warn!("Detected parametric curve type 6, assuming HLG.");
                          } else if curve.parametric_type() >= 1 && curve.parametric_type() <= 3 && !params.is_empty() {
                               let gamma = params[0];
                               if gamma > 0.0 {
-                                  encoding.tf = TfType::Gamma((gamma * 1000.0).round() as u32);
+                                  encoding.transfer_function = TfType::Gamma((gamma * 1000.0).round() as u32);
                               }
                          } else {
                               log::warn!("Unknown parametric curve type: {}", curve.parametric_type());
-                              encoding.tf = TfType::Unknown;
+                             encoding.transfer_function = TfType::Unknown;
                          }
                       } else {
+                         // Estimate from table if not parametric
                          let gamma = curve.estimated_gamma();
                          if (gamma - 1.8).abs() < 0.01 {
                               log::warn!("Gamma near 1.8 found from table, treating as sRGB (could be BT.709). Parametric check recommended.");
-                              encoding.tf = TfType::SRGB;
+                             encoding.transfer_function = TfType::SRGB;
                          } else if gamma > 0.0 {
-                             encoding.tf = TfType::Gamma((gamma * 1000.0).round() as u32);
+                             encoding.transfer_function = TfType::Gamma((gamma * 1000.0).round() as u32);
                          }
                       }
                  }
              } else {
-                 log::warn!("Failed to read TRC tag data ({:?}) as ToneCurve", trc_tag_sig);
+                  log::warn!("Failed to read curve from TRC tag ({:?})", trc_tag_sig);
              }
          } else {
               log::warn!("TRC tag ({:?}) not found", trc_tag_sig);
-              if color_space_sig == ColorSpaceSignature::RgbData { encoding.tf = TfType::SRGB; }
-              else if color_space_sig == ColorSpaceSignature::GrayData { encoding.tf = TfType::Gamma(2200); }
+             // Default based on colorspace if TRC missing
+             if color_space_sig == ColorSpaceSignature::RgbData { encoding.transfer_function = TfType::SRGB; }
+             else if color_space_sig == ColorSpaceSignature::GrayData { encoding.transfer_function = TfType::Gamma(2200); }
          }
     } else if color_space_sig == ColorSpaceSignature::CmykData {
-        encoding.tf = TfType::Linear;
+        // Assume linear for CMYK if no specific handling
+        encoding.transfer_function = TfType::Linear;
     }
 
     Ok(encoding)
@@ -460,16 +463,16 @@ mod tests {
     use approx::assert_relative_eq;
 
     fn dummy_internal(channels: u32, tf: TfType, cs: ColorSpaceSignature, is_cmyk: bool) -> ColorEncodingInternal {
-         ColorEncodingInternal {
+        ColorEncodingInternal {
             channels,
-            tf,
             color_space: cs,
-            white_point: CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 },
+            white_point: Some(CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 }),
             primaries: if cs == ColorSpaceSignature::RgbData { Some(CIExyYTRIPLE {
-                    Red: CIExyY { x: 0.64, y: 0.33, Y: 1.0 },
-                    Green: CIExyY { x: 0.30, y: 0.60, Y: 1.0 },
-                    Blue: CIExyY { x: 0.15, y: 0.06, Y: 1.0 },
-                }) } else { None },
+                Red: CIExyY { x: 0.64, y: 0.33, Y: 1.0 },
+                Green: CIExyY { x: 0.30, y: 0.60, Y: 1.0 },
+                Blue: CIExyY { x: 0.15, y: 0.06, Y: 1.0 },
+            }) } else { None },
+            transfer_function: tf,
             is_cmyk,
             rendering_intent: Intent::Perceptual,
             spot_color_names: Vec::new(),
@@ -481,7 +484,7 @@ mod tests {
             "srgb" => ColorProfile::srgb(),
             "linear_srgb" => ColorProfile::linear_srgb(),
             "gray_gamma22" => ColorProfile::gray_gamma22(),
-            _ => Err(EncoderError::CmsError("Unknown dummy profile type".to_string()))
+            _ => Err(EncodingError::CmsError("Unknown dummy profile type".to_string()))
         }
     }
 
@@ -491,7 +494,7 @@ mod tests {
         assert!(!profile.icc.is_empty());
         let internal = profile.internal.as_ref().unwrap();
         assert_eq!(internal.channels, 3);
-        assert_eq!(internal.tf, TfType::SRGB);
+        assert_eq!(internal.transfer_function, TfType::SRGB);
         assert_eq!(internal.color_space, ColorSpaceSignature::RgbData);
         assert_relative_eq!(internal.white_point.x, 0.3127, epsilon = 1e-4);
         assert_relative_eq!(internal.white_point.y, 0.3290, epsilon = 1e-4);
@@ -503,7 +506,7 @@ mod tests {
         assert!(!profile.icc.is_empty());
         let internal = profile.internal.as_ref().unwrap();
         assert_eq!(internal.channels, 3);
-        assert_eq!(internal.tf, TfType::Linear);
+        assert_eq!(internal.transfer_function, TfType::Linear);
         assert_eq!(internal.color_space, ColorSpaceSignature::RgbData);
     }
 
@@ -513,7 +516,7 @@ mod tests {
          assert!(!profile.icc.is_empty());
          let internal = profile.internal.as_ref().unwrap();
          assert_eq!(internal.channels, 1);
-         assert_eq!(internal.tf, TfType::Gamma(2200));
+         assert_eq!(internal.transfer_function, TfType::Gamma(2200));
          assert_eq!(internal.color_space, ColorSpaceSignature::GrayData);
      }
 
@@ -524,7 +527,7 @@ mod tests {
         let internal = set_fields_from_icc(&icc_data).unwrap();
 
         assert_eq!(internal.channels, 3);
-        assert!(matches!(internal.tf, TfType::Gamma(_) | TfType::SRGB));
+        assert!(matches!(internal.transfer_function, TfType::Gamma(_) | TfType::SRGB));
         assert_eq!(internal.color_space, ColorSpaceSignature::RgbData);
         assert_relative_eq!(internal.white_point.x, 0.3127, epsilon = 1e-4);
         assert_relative_eq!(internal.white_point.y, 0.3290, epsilon = 1e-4);

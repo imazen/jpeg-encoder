@@ -1,6 +1,7 @@
 // Ported from lib/jpegli/color_transform.cc
 
 use alloc::vec::Vec;
+use crate::error::EncoderError;
 
 // --- Constants for BT.601 Full Range YCbCr <-> RGB ---
 const KR: f32 = 0.299;
@@ -125,6 +126,78 @@ pub fn grayscale_to_rgb(planes: &mut [Vec<f32>], num_pixels: usize) {
     planes[2][..num_pixels].copy_from_slice(&planes[0][..num_pixels]);
 }
 
+// --- Plane-based YCbCr conversion ---
+
+#[inline(always)]
+fn rgb_to_ycbcr_pixel(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
+    let y = 0.299 * r + 0.587 * g + 0.114 * b;
+    let cb = -0.168736 * r - 0.331264 * g + 0.5 * b + 128.0;
+    let cr = 0.5 * r - 0.418688 * g - 0.081312 * b + 128.0;
+    (y, cb, cr)
+}
+
+pub(crate) fn rgb_to_ycbcr_planes(
+    r_plane: &mut Vec<f32>,
+    g_plane: &mut Vec<f32>,
+    b_plane: &mut Vec<f32>,
+    num_pixels: usize,
+) {
+    assert!(r_plane.len() >= num_pixels);
+    assert!(g_plane.len() >= num_pixels);
+    assert!(b_plane.len() >= num_pixels);
+
+    // Process pixel by pixel, modifying planes in place
+    for i in 0..num_pixels {
+        let r = r_plane[i];
+        let g = g_plane[i];
+        let b = b_plane[i];
+        let (y, cb, cr) = rgb_to_ycbcr_pixel(r, g, b);
+        r_plane[i] = y;
+        g_plane[i] = cb;
+        b_plane[i] = cr;
+    }
+    // Rename planes conceptually (r_plane now holds Y, etc.)
+}
+
+// --- Plane-based YCCK conversion ---
+
+#[inline(always)]
+fn cmyk_to_ycck_pixel(c: f32, m: f32, y: f32, k: f32) -> (f32, f32, f32, f32) {
+    // CMYK to RGB (approximate, assumes additive inverse)
+    let r = (255.0 - c) * (255.0 - k) / 255.0;
+    let g = (255.0 - m) * (255.0 - k) / 255.0;
+    let b = (255.0 - y) * (255.0 - k) / 255.0;
+    // RGB to YCbCr
+    let (yc, cb, cr) = rgb_to_ycbcr_pixel(r, g, b);
+    // Keep K channel
+    (yc, cb, cr, k)
+}
+
+pub(crate) fn cmyk_to_ycck_planes(
+    c_plane: &mut Vec<f32>,
+    m_plane: &mut Vec<f32>,
+    y_plane: &mut Vec<f32>,
+    k_plane: &mut Vec<f32>,
+    num_pixels: usize,
+) {
+    assert!(c_plane.len() >= num_pixels);
+    assert!(m_plane.len() >= num_pixels);
+    assert!(y_plane.len() >= num_pixels);
+    assert!(k_plane.len() >= num_pixels);
+
+    for i in 0..num_pixels {
+        let c = c_plane[i];
+        let m = m_plane[i];
+        let y = y_plane[i];
+        let k = k_plane[i];
+        let (yc, cb, cr, k_out) = cmyk_to_ycck_pixel(c, m, y, k);
+        c_plane[i] = yc; // Y
+        m_plane[i] = cb; // Cb
+        y_plane[i] = cr; // Cr
+        k_plane[i] = k_out; // K (unmodified)
+    }
+    // Rename planes conceptually
+}
 
 // --- Tests --- //
 #[cfg(test)]
@@ -197,5 +270,54 @@ mod tests {
         assert_approx_eq_vec(&planes[1], &m_orig, TOLERANCE);
         assert_approx_eq_vec(&planes[2], &y_orig, TOLERANCE);
         assert_approx_eq_vec(&planes[3], &k_orig, TOLERANCE); // K should be unchanged
+    }
+
+    #[test]
+    fn test_rgb_to_ycbcr_planes() {
+        let mut r = vec![255.0, 0.0, 0.0];
+        let mut g = vec![0.0, 255.0, 0.0];
+        let mut b = vec![0.0, 0.0, 255.0];
+        let n = 3;
+
+        rgb_to_ycbcr_planes(&mut r, &mut g, &mut b, n);
+
+        // Expected values from formula (approx)
+        let expected_y = vec![76.245, 149.685, 29.07];
+        let expected_cb = vec![84.979, 43.285, 255.0];
+        let expected_cr = vec![255.0, 10.878, 107.118];
+
+        for i in 0..n {
+            assert!((r[i] - expected_y[i]).abs() < TOLERANCE);
+            assert!((g[i] - expected_cb[i]).abs() < TOLERANCE);
+            assert!((b[i] - expected_cr[i]).abs() < TOLERANCE);
+        }
+    }
+
+    #[test]
+    fn test_cmyk_to_ycck_planes() {
+        let mut c = vec![0.0, 255.0, 0.0, 255.0];
+        let mut m = vec![255.0, 0.0, 0.0, 255.0];
+        let mut y_p = vec![255.0, 0.0, 255.0, 255.0];
+        let mut k = vec![0.0, 0.0, 0.0, 128.0]; // K=0 and K=128
+        let n = 4;
+
+        cmyk_to_ycck_planes(&mut c, &mut m, &mut y_p, &mut k, n);
+
+        // Expected YCCK approx (calculated manually from formulas)
+        // K=0: CMY=(0,255,255)->R=255 G=0 B=0 -> YCbCr=(76.2, 85.0, 255.0)
+        // K=0: CMY=(255,0,0)->R=0 G=255 B=255 -> YCbCr=(180.0, 169.8, 45.1)
+        // K=0: CMY=(0,0,255)->R=255 G=255 B=0 -> YCbCr=(225.9, 0.5, 137.9)
+        // K=128: CMY=(255,255,255)->RGB=(0,0,0)*(127/255)=0 -> YCbCr=(0,128,128)
+        let expected_yc = vec![76.245, 180.000, 225.930, 0.0];
+        let expected_cb = vec![84.979, 169.796, 0.500, 128.0];
+        let expected_cr = vec![255.0, 45.104, 137.918, 128.0];
+        let expected_k = vec![0.0, 0.0, 0.0, 128.0];
+
+        for i in 0..n {
+            assert!((c[i] - expected_yc[i]).abs() < TOLERANCE, "Y mismatch at {}: {} vs {}", i, c[i], expected_yc[i]);
+            assert!((m[i] - expected_cb[i]).abs() < TOLERANCE, "Cb mismatch at {}: {} vs {}", i, m[i], expected_cb[i]);
+            assert!((y_p[i] - expected_cr[i]).abs() < TOLERANCE, "Cr mismatch at {}: {} vs {}", i, y_p[i], expected_cr[i]);
+            assert!((k[i] - expected_k[i]).abs() < TOLERANCE, "K mismatch at {}: {} vs {}", i, k[i], expected_k[i]);
+        }
     }
 } 

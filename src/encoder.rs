@@ -214,6 +214,11 @@ pub struct Encoder<W: JfifWrite> {
 
     /// Whether to enable Jpegli-style adaptive quantization.
     use_adaptive_quantization: bool,
+
+    // Precomputed zero-bias tables (used for adaptive quantization thresholding)
+    // These are computed based on distance/quality.
+    zero_bias_offsets: Vec<[f32; 64]>,
+    zero_bias_multipliers: Vec<[f32; 64]>,
 }
 
 impl<W: JfifWrite> Encoder<W> {
@@ -261,6 +266,8 @@ impl<W: JfifWrite> Encoder<W> {
             optimize_huffman_table: false,
             app_segments: Vec::new(),
             use_adaptive_quantization: false, // Default to off
+            zero_bias_offsets: Vec::new(), // Initialized later
+            zero_bias_multipliers: Vec::new(), // Initialized later
         }
     }
 
@@ -273,6 +280,10 @@ impl<W: JfifWrite> Encoder<W> {
         self.jpegli_distance = None; // Disable Jpegli distance mode
         // Adjust default sampling factor based on quality if needed (optional)
         self.sampling_factor = if self.quality < 90 {
+            // Ensure zero-bias tables are cleared or recomputed if needed when switching modes
+            // For simplicity, we'll recompute them in encode_image_internal
+            self.zero_bias_offsets.clear();
+            self.zero_bias_multipliers.clear();
             SamplingFactor::F_2_2
         } else {
             SamplingFactor::F_1_1
@@ -539,17 +550,20 @@ impl<W: JfifWrite> Encoder<W> {
         // Default force_baseline to true for now, matching jpegli_set_quality behaviour
         let force_baseline = true;
 
-        let q_tables = if let Some(distance) = self.jpegli_distance {
+        // Determine effective distance for quantization and zero-bias calculation
+        let distance = self.jpegli_distance.unwrap_or_else(|| quality_to_distance(self.quality));
+
+        let q_tables = if let Some(d) = self.jpegli_distance {
             // Jpegli distance mode is active
             [
                 QuantizationTable::new_with_jpegli_distance(
-                    distance,
+                    d, // Use the stored distance
                     true, // is_luma
                     is_yuv420,
                     force_baseline,
                 ),
                 QuantizationTable::new_with_jpegli_distance(
-                    distance,
+                    d,
                     false, // is_luma
                     is_yuv420,
                     force_baseline,
@@ -557,6 +571,8 @@ impl<W: JfifWrite> Encoder<W> {
             ]
         } else {
             // Standard quality mode is active
+            // Calculate distance from quality for zero-bias tables
+            let zb_distance = quality_to_distance(self.quality);
             [
                 QuantizationTable::new_with_quality(
                     &self.quantization_tables[0],
@@ -577,6 +593,15 @@ impl<W: JfifWrite> Encoder<W> {
 
         let jpeg_color_type = image.get_jpeg_color_type();
         self.init_components(jpeg_color_type);
+
+        // --- Compute Zero Bias Tables --- 
+        let num_components = self.components.len();
+        (self.zero_bias_offsets, self.zero_bias_multipliers) = 
+            crate::quantization::compute_zero_bias_tables(distance, num_components);
+        // Ensure tables have the correct size
+        assert_eq!(self.zero_bias_offsets.len(), num_components);
+        assert_eq!(self.zero_bias_multipliers.len(), num_components);
+        // -------------------------------
 
         // --- Adaptive Quantization Field Calculation ---
         let adapt_quant_field: Option<Vec<f32>> = if self.use_adaptive_quantization {
@@ -865,6 +890,8 @@ impl<W: JfifWrite> Encoder<W> {
                                 &q_tables[component.quantization_table as usize],
                                 adapt_quant_field,
                                 block_idx_in_comp,
+                                &self.zero_bias_offsets[i],
+                                &self.zero_bias_multipliers[i],
                             );
 
                             self.writer.write_block(
@@ -1144,6 +1171,8 @@ impl<W: JfifWrite> Encoder<W> {
                         &q_tables[component.quantization_table as usize],
                         adapt_quant_field,
                         block_idx_in_comp,
+                        &self.zero_bias_offsets[i],
+                        &self.zero_bias_multipliers[i],
                     );
 
                     blocks[i].push(q_block);
@@ -1382,6 +1411,8 @@ pub(crate) trait Operations {
         table: &QuantizationTable,
         adapt_quant_field: Option<&[f32]>,
         block_idx: usize,
+        zero_bias_offset: &[f32; 64],
+        zero_bias_mul: &[f32; 64],
     ) {
         const SHIFT: i32 = 3;
 
@@ -1394,31 +1425,30 @@ pub(crate) trait Operations {
             let z = ZIGZAG[i] as usize & 0x3f;
             let value = block[z] as i32;
             let q_val = table.get_raw(z) as i32;
-            let mut divisor = q_val << SHIFT;
+            let divisor = q_val << SHIFT;
+
+            // Ensure divisor is not zero, though table values should be >= 1
+            if divisor == 0 { continue; }
 
             // Standard quantization with rounding
             let mut q_coeff = (value + divisor.copysign(value) / 2) / divisor;
 
             // Jpegli-style adaptive quantization thresholding (approximated)
-            // The C++ code uses aq_strength to adjust zero_bias_mul/offset for thresholding.
-            // ReQuantizeBlock: threshold = Add(zb_offset, Mul(zb_mul, aq_mul));
-            //                  nzero_mask = Ge(Abs(qval), threshold);
-            //                  iqval = IfThenElseZero(nzero_mask, Round(qval));
-            // Approximating the effect: Increase the likelihood of zeroing based on aq_strength.
-            // A higher aq_strength (from low-activity areas) should make zeroing more likely.
-            // This is a simplified model, the actual zero_bias values in jpegli are complex.
-            if q_coeff != 0 && adapt_quant_field.is_some() {
-                // Base threshold (simplified): proportional to quant value itself. Maybe 0.5 * q_val?
-                // Jpegli uses precomputed zero_bias tables based on component/distance.
-                let base_threshold = 0.4 * q_val as f32; // Simplified base
-                // Increase threshold in low-activity areas (higher aq_strength)
-                let adjusted_threshold = base_threshold * (1.0 + aq_strength * 0.5); // Heuristic adjustment
+            // Apply only to AC coefficients (i > 0)
+            if i > 0 && q_coeff != 0 && adapt_quant_field.is_some() {
+                // Use the precomputed tables passed as arguments.
+                let zb_offset = zero_bias_offset[i]; // Index `i` corresponds to coefficient k
+                let zb_mul = zero_bias_mul[i];
+                
+                // Calculate threshold: threshold = zb_offset + zb_mul * aq_strength
+                let threshold = zb_offset + zb_mul * aq_strength;
 
-                // Compare absolute *unquantized* value (scaled by 8) to threshold
-                // This matches ReQuantizeBlock comparing Abs(Mul(val, q)) i.e. Abs(block[z] * (8 / q_val))
+                // Value to compare: Abs(original_coeff * 8.0 / q_val)
+                // Use block[z] which is the original coefficient before FDCT scaling adjustment.
                 let abs_unquant_scaled = (block[z] as f32 * (8.0 / q_val as f32)).abs();
 
-                if abs_unquant_scaled < adjusted_threshold {
+                // Zero out coefficient if its scaled value is below the adaptive threshold
+                if abs_unquant_scaled < threshold {
                     q_coeff = 0;
                 }
             }

@@ -786,6 +786,35 @@ mod tests {
         assert!(max_val / (min_val + 1e-6) < 10.0, "AQ field variation seems too large"); // Heuristic check
     }
 
-    // TODO: Add test cases for different distance values.
+    #[test]
+    fn test_aq_field_varying_distance() {
+        // Check if changing distance affects the field magnitude as expected.
+        let width: u16 = 32;
+        let height: u16 = 32;
+        let test_image = create_test_image(width as usize, height as usize, 1.0);
+        let y_quant_01 = 8;
+
+        let field_dist_low = compute_adaptive_quant_field(width, height, &test_image, 0.5, y_quant_01);
+        let field_dist_mid = compute_adaptive_quant_field(width, height, &test_image, 1.5, y_quant_01);
+        let field_dist_high = compute_adaptive_quant_field(width, height, &test_image, 5.0, y_quant_01);
+
+        // Calculate average field values
+        let avg_low: f32 = field_dist_low.iter().sum::<f32>() / field_dist_low.len() as f32;
+        let avg_mid: f32 = field_dist_mid.iter().sum::<f32>() / field_dist_mid.len() as f32;
+        let avg_high: f32 = field_dist_high.iter().sum::<f32>() / field_dist_high.len() as f32;
+
+        println!("Avg AQ Field: Low Dist={}, Mid Dist={}, High Dist={}", avg_low, avg_mid, avg_high);
+
+        // Expectation: Higher distance -> Less aggressive AQ -> Lower aq_strength offset values
+        // The relationship might not be perfectly linear due to complex interactions.
+        // We check the trend.
+        assert!(avg_low < avg_mid + 0.1, "Avg AQ strength did not increase from low to mid distance as expected");
+        assert!(avg_mid < avg_high + 0.1, "Avg AQ strength did not increase from mid to high distance as expected");
+        // Also check the overall range is plausible (similar to flat image test)
+        assert!(avg_low >= 0.0 && avg_low <= 5.0);
+        assert!(avg_mid >= 0.0 && avg_mid <= 5.0);
+        assert!(avg_high >= 0.0 && avg_high <= 5.0);
+    }
+
     // TODO: Add test cases for edge conditions (small images).
 } 

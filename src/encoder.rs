@@ -231,8 +231,8 @@ impl<W: JfifWrite> Encoder<W> {
         ];
 
         let quantization_tables = [
-            QuantizationTableType::Default,
-            QuantizationTableType::Default,
+            QuantizationTableType::StandardAnnexK,
+            QuantizationTableType::StandardAnnexK,
         ];
 
         let sampling_factor = if quality < 90 {

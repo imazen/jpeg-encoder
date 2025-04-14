@@ -6,7 +6,7 @@ use core::num::NonZeroU16;
 /// Tables are based on tables from mozjpeg
 #[derive(Debug, Clone)]
 pub enum QuantizationTableType {
-    /// Sample quantization tables given in Annex K (Clause K.1) of Recommendation ITU-T T.81 (1992) | ISO/IEC 10918-1:1994.
+        /// Sample quantization tables given in Annex K (Clause K.1) of Recommendation ITU-T T.81 (1992) | ISO/IEC 10918-1:1994.
     Default,
 
     /// Flat
@@ -35,7 +35,12 @@ pub enum QuantizationTableType {
     /// An improved detection model for DCT coefficient quantization (1993) Peterson, Ahumada and Watson
     ImprovedDetectionModel,
 
-    /// A user supplied quantization table
+    /// Use default table based on quality setting. This refers to the Standard Annex K tables.
+    StandardAnnexK,
+    /// Use the default Jpegli psychovisual tables, scaled by quality/distance.
+    JpegliDefault,
+    /// A user supplied custom quantization table
+    /// Use custom quantization table
     Custom(Box<[u16; 64]>),
 }
 
@@ -44,6 +49,7 @@ impl QuantizationTableType {
         use QuantizationTableType::*;
 
         match self {
+            // StandardAnnexK
             Default => 0,
             Flat => 1,
             CustomMsSsim => 2,
@@ -53,13 +59,16 @@ impl QuantizationTableType {
             DentalXRays => 6,
             VisualDetectionModel => 7,
             ImprovedDetectionModel => 8,
+            StandardAnnexK => 9,
+            JpegliDefault => 10,
             Custom(_) => panic!("Custom types not supported"),
         }
     }
 }
 
+
 // Tables are based on mozjpeg jcparam.c
-static DEFAULT_LUMA_TABLES: [[u16; 64]; 9] = [
+static DEFAULT_LUMA_TABLES: [[u16; 64]; 10] = [
     [
         // Annex K
         16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13, 16, 24, 40, 57, 69,
@@ -118,10 +127,15 @@ static DEFAULT_LUMA_TABLES: [[u16; 64]; 9] = [
         38, 14, 12, 18, 24, 28, 33, 39, 47, 19, 15, 21, 28, 36, 43, 51, 59, 25, 20, 25, 33, 43, 54,
         64, 74, 34, 26, 31, 39, 51, 64, 77, 91, 45, 33, 38, 47, 59, 74, 91, 108,
     ],
+    [ // annex k dupe
+        16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13, 16, 24, 40, 57, 69,
+        56, 14, 17, 22, 29, 51, 87, 80, 62, 18, 22, 37, 56, 68, 109, 103, 77, 24, 35, 55, 64, 81,
+        104, 113, 92, 49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99,
+    ]
 ];
 
 // Tables are based on mozjpeg jcparam.c
-static DEFAULT_CHROMA_TABLES: [[u16; 64]; 9] = [
+static DEFAULT_CHROMA_TABLES: [[u16; 64]; 10] = [
     [
         // Annex K
         17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99, 99, 99, 99, 24, 26, 56, 99, 99, 99, 99,
@@ -180,6 +194,16 @@ static DEFAULT_CHROMA_TABLES: [[u16; 64]; 9] = [
         38, 14, 12, 18, 24, 28, 33, 39, 47, 19, 15, 21, 28, 36, 43, 51, 59, 25, 20, 25, 33, 43, 54,
         64, 74, 34, 26, 31, 39, 51, 64, 77, 91, 45, 33, 38, 47, 59, 74, 91, 108,
     ],
+    [ //annex k dupe
+        17, 18, 24, 47, 99, 99, 99, 99,
+        18, 21, 26, 66, 99, 99, 99, 99,
+        24, 26, 56, 99, 99, 99, 99, 99,
+        47, 66, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99,
+    ]
 ];
 
 const SHIFT: u32 = 2 * 8 - 1;
@@ -213,15 +237,78 @@ pub struct QuantizationTable {
 }
 
 impl QuantizationTable {
-    pub fn new_with_quality(
-        table: &QuantizationTableType,
+    // Helper function to calculate the quality scaling factor
+    fn get_scale_factor(quality: u8) -> u32 {
+        let quality = quality.clamp(1, 100) as u32;
+        if quality < 50 {
+            5000 / quality
+        } else {
+            200 - quality * 2
+        }
+    }
+
+    // Helper function to apply scaling factor to a base table
+    fn transform_table(base_table: &[u16; 64], scale_factor: u32) -> [NonZeroU16; 64] {
+        let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
+        for (i, &v) in base_table.iter().enumerate() {
+            let val = (v as u32 * scale_factor + 50) / 100;
+            // Clamp to valid JPEG quant value range (1-255 for baseline)
+            // Note: JPEG allows up to 65535 for non-baseline, but we scale to 8-bit here.
+            let val_clamped = val.clamp(1, 255) as u16;
+            // Table values are pre-multiplied by 8 for the FDCT scaling used in this crate.
+            q_table[i] = NonZeroU16::new(val_clamped << 3).unwrap();
+        }
+        q_table
+    }
+
+    pub(crate) fn new_with_quality(
+        q_type: &QuantizationTableType,
         quality: u8,
-        luma: bool,
+        is_luma: bool,
     ) -> QuantizationTable {
-        let table = match table {
-            QuantizationTableType::Custom(table) => Self::get_user_table(table),
+        let scale_factor = QuantizationTable::get_scale_factor(quality);
+
+        let table_data = match q_type {
+            QuantizationTableType::StandardAnnexK => {
+                if is_luma {
+                    QuantizationTable::transform_table(
+                        &DEFAULT_LUMA_TABLES[q_type.index()],
+                        scale_factor,
+                    )
+                } else {
+                    QuantizationTable::transform_table(
+                        &DEFAULT_CHROMA_TABLES[q_type.index()],
+                        scale_factor,
+                    )
+                }
+            }
+            QuantizationTableType::JpegliDefault => {
+                // Placeholder for Phase 2
+                if is_luma {
+                    QuantizationTable::transform_table(
+                        &DEFAULT_LUMA_TABLES[q_type.index()], // Use standard for now
+                        scale_factor,
+                    )
+                } else {
+                    QuantizationTable::transform_table(
+                        &DEFAULT_CHROMA_TABLES[q_type.index()], // Use standard for now
+                        scale_factor,
+                    )
+                }
+            }
+            QuantizationTableType::Custom(table) => {
+                // Custom tables are assumed to be already scaled and ready to use.
+                // We still need to convert them to NonZeroU16 and apply the << 3 shift.
+                let mut q_table = [NonZeroU16::new(1).unwrap(); 64];
+                for (i, &v) in table.iter().enumerate() {
+                     let val_clamped = v.clamp(1, 255);
+                     q_table[i] = NonZeroU16::new(val_clamped << 3).unwrap();
+                 }
+                 q_table
+                 //TODO: Why not keep using Self::get_user_table(table)? It clamped to 2 << 10, not 255.
+            },
             table => {
-                let table = if luma {
+                let table = if is_luma {
                     &DEFAULT_LUMA_TABLES[table.index()]
                 } else {
                     &DEFAULT_CHROMA_TABLES[table.index()]
@@ -234,14 +321,13 @@ impl QuantizationTable {
         let mut corrections = [0i32; 64];
 
         for i in 0..64 {
-            let (reciprocal, correction) = compute_reciprocal(table[i].get() as u32);
-
+            let (reciprocal, correction) = compute_reciprocal(table_data[i].get() as u32);
             reciprocals[i] = reciprocal;
             corrections[i] = correction;
         }
 
         QuantizationTable {
-            table,
+            table: table_data, // Store the final NonZeroU16 table
             reciprocals,
             corrections,
         }
@@ -307,9 +393,51 @@ impl QuantizationTable {
     }
 }
 
+/// Maps a libjpeg quality factor (1..100) to a jpegli Butteraugli distance.
+///
+/// Ported from jpegli C++ implementation.
+pub fn quality_to_distance(quality: u8) -> f32 {
+    let quality = quality as f32;
+    if quality >= 100.0 {
+        0.01
+    } else if quality >= 30.0 {
+        0.1 + (100.0 - quality) * 0.09
+    } else {
+        // Adjusted quadratic formula from C++:
+        // 53.0 / 3000.0 * q*q - 23.0 / 20.0 * q + 25.0
+        // approx 0.017666 * q*q - 1.15 * q + 25.0
+        (53.0 / 3000.0) * quality.powi(2) - (23.0 / 20.0) * quality + 25.0
+    }
+}
+
+// Base quantization tables ported from jpegli quant.cc (kBaseQuantMatrixYCbCr)
+// Luma table (first 64 values)
+const JPEGLI_DEFAULT_LUMA_QTABLE_F32: [f32; 64] = [
+    1.2397409, 1.7227115, 2.9212167, 2.8127374, 3.3398197, 3.4636038, 3.8409152, 3.8695600,
+    1.7227115, 2.0928894, 2.8456761, 2.7045068, 3.4407674, 3.1662324, 4.0252087, 4.0353245,
+    2.9212167, 2.8456761, 2.9587404, 3.3862949, 3.6195238, 3.9046280, 3.7578358, 4.0496073,
+    2.8127374, 2.7045068, 3.3862949, 3.1295824, 3.7035120, 4.3547106, 4.2037473, 3.9457080,
+    3.3398197, 3.4407674, 3.6195238, 3.7035120, 4.0587358, 4.8218517, 4.8176765, 4.1348114,
+    3.4636038, 3.1662324, 3.9046280, 4.3547106, 4.8218517, 5.3049545, 5.0859237, 4.6540699,
+    3.8409152, 4.0252087, 3.7578358, 4.2037473, 4.8176765, 5.0859237, 5.2007284, 5.1318064,
+    3.8695600, 4.0353245, 4.0496073, 3.9457080, 4.1348114, 4.6540699, 5.1318064, 5.3104744,
+];
+// Chroma table (second 64 values from kBaseQuantMatrixYCbCr - assuming Cb=Cr)
+const JPEGLI_DEFAULT_CHROMA_QTABLE_F32: [f32; 64] = [
+    1.4173750, 3.4363859, 3.7492752, 4.2684789, 4.8839750, 5.1342621, 5.3053384, 5.2941780,
+    3.4363859, 3.3934350, 3.7151461, 4.4069610, 5.0667987, 5.0575762, 5.3007593, 5.2948112,
+    3.7492752, 3.7151461, 4.0639019, 4.7990928, 5.0091391, 5.1409049, 5.2947245, 5.2915106,
+    4.2684789, 4.4069610, 4.7990928, 4.7969780, 5.1343479, 5.1429081, 5.3214135, 5.4269948,
+    4.8839750, 5.0667987, 5.0091391, 5.1343479, 5.2924175, 5.2911520, 5.4630551, 5.5700078,
+    5.1342621, 5.0575762, 5.1409049, 5.1429081, 5.2911520, 5.3632350, 5.5484371, 5.5723948,
+    5.3053384, 5.3007593, 5.2947245, 5.3214135, 5.4630551, 5.5484371, 5.5720239, 5.5726733,
+    5.2941780, 5.2948112, 5.2915106, 5.4269948, 5.5700078, 5.5723948, 5.5726733, 5.5728049,
+];
+
 #[cfg(test)]
 mod tests {
-    use crate::quantization::{QuantizationTable, QuantizationTableType};
+    use super::*;
+    use crate::quantization::quality_to_distance;
 
     #[test]
     fn test_new_100() {
@@ -321,10 +449,47 @@ mod tests {
         }
 
         let q = QuantizationTable::new_with_quality(&QuantizationTableType::Default, 100, false);
+        for &v in &q.table {
+            let v = v.get();
+            assert_eq!(v, 1 << 3);
+        }
+    }
+
+    
+    #[test]
+    fn test_new_100_annexk() {
+        let q = QuantizationTable::new_with_quality(&QuantizationTableType::StandardAnnexK, 100, true);
 
         for &v in &q.table {
             let v = v.get();
             assert_eq!(v, 1 << 3);
+        }
+
+        let q = QuantizationTable::new_with_quality(&QuantizationTableType::StandardAnnexK, 100, false);
+
+        for &v in &q.table {
+            let v = v.get();
+            assert_eq!(v, 1 << 3);
+        }
+    }
+
+
+    #[test]
+    fn test_new_100_quantize_annexk() {
+        let luma = QuantizationTable::new_with_quality(
+            &QuantizationTableType::StandardAnnexK,
+            100,
+            true,
+        );
+        let chroma = QuantizationTable::new_with_quality(
+            &QuantizationTableType::StandardAnnexK,
+            100,
+            false,
+        );
+
+        for i in -255..255 {
+            assert_eq!(i, luma.quantize(i << 3, 0));
+            assert_eq!(i, chroma.quantize(i << 3, 0));
         }
     }
 
@@ -335,5 +500,23 @@ mod tests {
         for i in -255..255 {
             assert_eq!(i, q.quantize(i << 3, 0));
         }
+    }
+
+    #[test]
+    fn test_quality_to_distance() {
+        // Test values derived from running the C++ code or known reference points.
+        assert!((quality_to_distance(100) - 0.01).abs() < 1e-6);
+        assert!((quality_to_distance(90) - (0.1 + 10.0 * 0.09)).abs() < 1e-6); // 1.0
+        assert!((quality_to_distance(75) - (0.1 + 25.0 * 0.09)).abs() < 1e-6); // 2.35
+        assert!((quality_to_distance(50) - (0.1 + 50.0 * 0.09)).abs() < 1e-6); // 4.6
+        assert!((quality_to_distance(30) - (0.1 + 70.0 * 0.09)).abs() < 1e-6); // 6.4
+
+        // Lower range - using the quadratic formula part
+        let q20 = (53.0 / 3000.0) * 20.0f32.powi(2) - (23.0 / 20.0) * 20.0 + 25.0;
+        assert!((quality_to_distance(20) - q20).abs() < 1e-6); // approx 9.0666
+        let q10 = (53.0 / 3000.0) * 10.0f32.powi(2) - (23.0 / 20.0) * 10.0 + 25.0;
+        assert!((quality_to_distance(10) - q10).abs() < 1e-6); // approx 15.2666
+        let q1 = (53.0 / 3000.0) * 1.0f32.powi(2) - (23.0 / 20.0) * 1.0 + 25.0;
+        assert!((quality_to_distance(1) - q1).abs() < 1e-6); // approx 23.8676
     }
 }

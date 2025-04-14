@@ -254,12 +254,15 @@ fn edge_detector_scalar(
 /// Computes ratio of derivatives: (d/dx x^(1/3)) / (d/dx x) = 1/3 * x^(-2/3)
 /// Jpegli uses a slightly different gamma (~2.6) and input scaling.
 /// `invert = true` corresponds to the version used in GammaModulation.
+/// Note: This is a scalar approximation.
 #[inline]
 fn ratio_of_derivatives(val: f32, invert: bool) -> f32 {
     // Simple approximation, ignoring the exact gamma/scaling differences for now.
     // Jpegli: ratio = pow(iny * (1.0 / 0.118), -0.73) * 0.15;
     // Here we use the 1/3 * x^(-2/3) formula directly for simplicity.
-    let term = (1.0/3.0) * val.powf(-2.0/3.0);
+    // Ensure input is positive before applying fractional exponent.
+    let base = val.max(1e-6);
+    let term = (1.0/3.0) * base.powf(-2.0/3.0);
     if invert {
         1.0 / term.max(1e-6) // Avoid division by zero
     } else {
@@ -269,86 +272,57 @@ fn ratio_of_derivatives(val: f32, invert: bool) -> f32 {
 
 /// Approximates MaskingSqrt from Jpegli.
 /// Jpegli: return 0.25f * Sqrt(MulAdd(v, Sqrt(mul_v), offset_v))
+/// Note: This is a scalar approximation.
 #[inline]
 fn masking_sqrt(v: f32) -> f32 {
-    0.25 * (v * K_MUL_SQRT.sqrt() + K_LOG_OFFSET_SQRT).sqrt()
-}
-
-/// Simple scalar pad function (copies border pixels).
-fn pad_buffer(buffer: &mut [f32], width: usize, height: usize, border: usize) {
-    // Pad top/bottom
-    for y_off in 0..border {
-        let src_y = y_off;
-        let dst_y = height + y_off;
-        let src_idx = src_y * width;
-        let dst_idx = dst_y * width;
-        buffer[dst_idx..(dst_idx+width)].copy_from_slice(&buffer[src_idx..(src_idx+width)]);
-
-        let src_y_b = height - 1 - y_off;
-        let dst_y_b = height + border + y_off;
-        let src_idx_b = src_y_b * width;
-        let dst_idx_b = dst_y_b * width;
-        buffer[dst_idx_b..(dst_idx_b+width)].copy_from_slice(&buffer[src_idx_b..(src_idx_b+width)]);
-    }
-    // Pad left/right (row by row)
-    let total_h = height + 2 * border;
-    for y in 0..total_h {
-        let row_start = y * width;
-        for x_off in 0..border {
-            buffer[row_start + width + x_off] = buffer[row_start + width - 1 - x_off]; // right
-            buffer[row_start - border + x_off] = buffer[row_start + x_off]; // left (assuming buffer starts at -border offset)
-        }
-    }
-     // TODO: Need to handle buffer layout properly if it doesn't naturally include negative indices.
-     // This padding assumes the buffer has space allocated *before* index 0 for the left border.
+    0.25 * (v * K_MUL_SQRT.sqrt() + K_LOG_OFFSET_SQRT).max(0.0).sqrt()
 }
 
 /// Scalar implementation of ComputePreErosion.
 fn compute_pre_erosion_scalar(
-    input_scaled: &mut [f32], // Input scaled to [0, 1], mutable for potential padding
+    input_scaled: &[f32], // Input scaled to [0, 1]
     width: usize,
     height: usize,
-    border: usize,
     pre_erosion: &mut Vec<f32>, // Output, downsampled by 4x
 ) {
-    let xsize_out = width / 4;
-    let ysize_out = height / 4;
+    let xsize_out = (width + 3) / 4; // Use ceiling division for output size
+    let ysize_out = (height + 3) / 4;
     pre_erosion.resize(xsize_out * ysize_out, 0.0);
 
-    // TODO: Handle padding properly. Jpegli pads the input buffer.
-    // For simplicity here, we might skip exact padding and rely on clamping inside loops,
-    // or assume the caller handles padding.
-    // pad_buffer(input_scaled, width, height, border); // Requires adjusting buffer access
-
-    let mut diff_buffer = vec![0.0f32; width]; // Temporary buffer for one row of accumulated diffs
+    // Temporary buffer for one row of accumulated diffs
+    let mut diff_buffer = vec![0.0f32; width]; 
 
     for y_out in 0..ysize_out {
         // Process 4 input rows at a time
         for iy4 in 0..4 {
             let y = y_out * 4 + iy4;
-            if y >= height { continue; } // Skip if out of bounds
+            // No need to check y bounds here, clamping handles it.
 
             // Zero out diff buffer for the first row of the 4x4 block
             if iy4 == 0 {
                 diff_buffer.fill(0.0);
             }
 
+            // Use clamping for neighbor indices
             let y_prev = (y as i32 - 1).clamp(0, height as i32 - 1) as usize;
+            let y_curr = y.clamp(0, height - 1);
             let y_next = (y + 1).clamp(0, height - 1);
 
-            let row_in = y * width;
             let row_in_prev = y_prev * width;
+            let row_in_curr = y_curr * width;
             let row_in_next = y_next * width;
 
             for x in 0..width {
+                 // Use clamping for neighbor indices
                 let x_prev = (x as i32 - 1).clamp(0, width as i32 - 1) as usize;
+                let x_curr = x;
                 let x_next = (x + 1).clamp(0, width - 1);
 
-                let in_val = input_scaled[row_in + x];
-                let in_r = input_scaled[row_in + x_next];
-                let in_l = input_scaled[row_in + x_prev];
-                let in_t = input_scaled[row_in_prev + x];
-                let in_b = input_scaled[row_in_next + x];
+                let in_val = input_scaled[row_in_curr + x_curr];
+                let in_r = input_scaled[row_in_curr + x_next];
+                let in_l = input_scaled[row_in_curr + x_prev];
+                let in_t = input_scaled[row_in_prev + x_curr];
+                let in_b = input_scaled[row_in_next + x_curr];
 
                 let base = 0.25 * (in_r + in_l + in_t + in_b);
                 // Apply input scaling division here for MATCH_GAMMA_OFFSET
@@ -369,15 +343,19 @@ fn compute_pre_erosion_scalar(
                 let pre_erosion_row_start = y_out * xsize_out;
                 for x_out in 0..xsize_out {
                     let x_start = x_out * 4;
-                    let sum = diff_buffer[x_start] + diff_buffer[x_start + 1] +
-                              diff_buffer[x_start + 2] + diff_buffer[x_start + 3];
-                    pre_erosion[pre_erosion_row_start + x_out] = sum * 0.25;
+                    // Handle boundary case where width is not multiple of 4
+                    let x_end = (x_start + 4).min(width);
+                    let mut sum = 0.0;
+                    for x_pix in x_start..x_end {
+                        sum += diff_buffer[x_pix];
+                    }
+                    pre_erosion[pre_erosion_row_start + x_out] = sum / (x_end - x_start) as f32;
                 }
             }
         }
     }
-     // TODO: Jpegli pads the output pre_erosion buffer as well.
-     // pre_erosion->PadRow(y_out, xsize_out, border);
+    // Note: Jpegli pads the output pre_erosion buffer. This implementation does not,
+    // relying on clamping in the next stage (FuzzyErosion).
 }
 
 /// Scalar implementation of Sort4.
@@ -430,22 +408,24 @@ fn fuzzy_erosion_scalar(
     const MUL2: f32 = 0.06;
     const MUL3: f32 = 0.05;
 
-    // First pass: compute weighted minimums into tmp buffer (size of pre_erosion)
-    for y in 1..(pre_erosion_h - 1) { // Iterate excluding borders
-        let row_t = (y - 1) * pre_erosion_w;
-        let row_m = y * pre_erosion_w;
-        let row_b = (y + 1) * pre_erosion_w;
+    // First pass: compute weighted minimums into tmp buffer
+    // Use clamping for border handling of pre_erosion reads
+    for y in 0..pre_erosion_h {
         let tmp_row_start = y * pre_erosion_w;
+        for x in 0..pre_erosion_w {
+            let mut neighbors = [0.0f32; 9];
+            let mut n_idx = 0;
+            for dy in -1..=1 {
+                let ny = (y as i32 + dy).clamp(0, pre_erosion_h as i32 - 1) as usize;
+                let row_start = ny * pre_erosion_w;
+                for dx in -1..=1 {
+                    let nx = (x as i32 + dx).clamp(0, pre_erosion_w as i32 - 1) as usize;
+                    neighbors[n_idx] = pre_erosion[row_start + nx];
+                    n_idx += 1;
+                }
+            }
 
-        for x in 1..(pre_erosion_w - 1) {
-            // Gather 3x3 neighborhood
-            let neighbors = [
-                pre_erosion[row_t + x - 1], pre_erosion[row_t + x], pre_erosion[row_t + x + 1],
-                pre_erosion[row_m + x - 1], pre_erosion[row_m + x], pre_erosion[row_m + x + 1],
-                pre_erosion[row_b + x - 1], pre_erosion[row_b + x], pre_erosion[row_b + x + 1],
-            ];
-
-            // Find 4 minimums (inefficient scalar sort)
+            // Find 4 minimums
             let mut mins = [neighbors[0], neighbors[1], neighbors[2], neighbors[3]];
             sort4(&mut mins);
             update_min4(neighbors[4], &mut mins);
@@ -457,22 +437,27 @@ fn fuzzy_erosion_scalar(
             // Calculate weighted sum
             tmp[tmp_row_start + x] = MUL0 * mins[0] + MUL1 * mins[1] + MUL2 * mins[2] + MUL3 * mins[3];
         }
-        // TODO: Handle borders of tmp buffer if necessary (jpegli might pad or handle differently)
     }
 
     // Second pass: downsample tmp by 2x into aq_map (block level)
     for by in 0..block_h {
-        let y_tmp = by * 2;
-        if y_tmp + 1 >= pre_erosion_h { continue; } // Ensure we have two rows in tmp
-        let tmp_row0 = y_tmp * pre_erosion_w;
-        let tmp_row1 = (y_tmp + 1) * pre_erosion_w;
         let aq_row_start = by * block_w;
-
         for bx in 0..block_w {
+            let y_tmp = by * 2;
             let x_tmp = bx * 2;
-            if x_tmp + 1 >= pre_erosion_w { continue; } // Ensure we have two columns in tmp
-            aq_map[aq_row_start + bx] = tmp[tmp_row0 + x_tmp] + tmp[tmp_row0 + x_tmp + 1] +
-                                      tmp[tmp_row1 + x_tmp] + tmp[tmp_row1 + x_tmp + 1];
+            let mut sum = 0.0;
+            let mut count = 0;
+            // Average 2x2 area from tmp, clamping indices
+            for iy in 0..2 {
+                let ny = (y_tmp + iy).clamp(0, pre_erosion_h - 1);
+                let tmp_row = ny * pre_erosion_w;
+                for ix in 0..2 {
+                    let nx = (x_tmp + ix).clamp(0, pre_erosion_w - 1);
+                    sum += tmp[tmp_row + nx];
+                    count += 1; // Should always be 4 unless image is tiny
+                }
+            }
+            aq_map[aq_row_start + bx] = sum / count as f32;
         }
     }
 }
@@ -590,9 +575,9 @@ fn per_block_modulations_scalar(
 pub(crate) fn compute_adaptive_quant_field(
     width: u16,
     height: u16,
-    y_channel_scaled: &mut [f32], // Input scaled to [0, 1], mutable for padding
+    y_channel_scaled: &[f32], // Input scaled to [0, 1]
     distance: f32,
-    y_quant_01: i32, // <-- Added parameter
+    y_quant_01: i32,
 ) -> Vec<f32> {
     let width = width as usize;
     let height = height as usize;
@@ -612,14 +597,12 @@ pub(crate) fn compute_adaptive_quant_field(
     let num_blocks = block_w * block_h;
 
     // Allocate buffers
-    let pre_erosion_width = width / 4;
-    let pre_erosion_height = height / 4;
+    let pre_erosion_width = (width + 3) / 4;
+    let pre_erosion_height = (height + 3) / 4;
     let mut pre_erosion_map = vec![0.0f32; pre_erosion_width * pre_erosion_height];
     let mut fuzzy_erosion_map = vec![0.0f32; num_blocks]; // Output of FuzzyErosion
-    // Buffers needed by FuzzyErosion (size based on C++ impl)
-    let fuzzy_tmp_width = width / 2;
-    let fuzzy_tmp_height = height / 2;
-    let mut fuzzy_erosion_tmp = vec![0.0f32; fuzzy_tmp_width * fuzzy_tmp_height];
+    // Temporary buffer for FuzzyErosion first pass
+    let mut fuzzy_erosion_tmp = vec![0.0f32; pre_erosion_width * pre_erosion_height];
 
     let mut final_field = vec![1.0f32; num_blocks];   // The output field
 
@@ -628,7 +611,6 @@ pub(crate) fn compute_adaptive_quant_field(
         y_channel_scaled,
         width,
         height,
-        1, // kPreErosionBorder = 1
         &mut pre_erosion_map
     );
 
@@ -690,14 +672,20 @@ mod tests {
     use super::*; // Import everything from the parent module
 
     // Helper to create a simple gradient image for testing
-    fn create_test_image(width: usize, height: usize) -> Vec<f32> {
+    fn create_test_image(width: usize, height: usize, scale: f32) -> Vec<f32> {
         let mut img = vec![0.0f32; width * height];
         for y in 0..height {
             for x in 0..width {
-                img[y * width + x] = (x + y) as f32 * (255.0 / (width + height) as f32);
+                // Simple linear gradient, scaled to [0, scale]
+                img[y * width + x] = (x + y) as f32 * (scale / (width + height - 2).max(1) as f32);
             }
         }
         img
+    }
+
+    // Helper to create a flat image
+    fn create_flat_image(width: usize, height: usize, value: f32) -> Vec<f32> {
+        vec![value; width * height]
     }
 
     #[test]
@@ -725,10 +713,9 @@ mod tests {
         // Basic test to ensure the function runs without panicking and returns a correctly sized vector.
         let width: u16 = 32;
         let height: u16 = 24;
-        let distance = 1.0;
-        let test_image = create_test_image(width as usize, height as usize);
-
-        let field = compute_adaptive_quant_field(width, height, &mut test_image.clone(), distance, 0);
+        let distance = 1.5;
+        let test_image = create_test_image(width as usize, height as usize, 1.0); // Scaled 0-1
+        let field = compute_adaptive_quant_field(width, height, &test_image, distance, 10); // Example y_quant_01=10
 
         let block_w = (width + 7) / 8;
         let block_h = (height + 7) / 8;
@@ -740,6 +727,65 @@ mod tests {
         }
     }
 
-    // TODO: Add more detailed tests comparing scalar output to known values or properties.
-    // This would likely require generating reference data from jpegli itself.
+    #[test]
+    fn test_aq_field_flat_image() {
+        // For a flat image, the AQ field should be very close to uniform.
+        let width: u16 = 64;
+        let height: u16 = 64;
+        let distance = 1.0;
+        let flat_value = 0.5; // Mid-gray
+        let test_image = create_flat_image(width as usize, height as usize, flat_value);
+        let y_quant_01 = 8;
+
+        let field = compute_adaptive_quant_field(width, height, &test_image, distance, y_quant_01);
+
+        let block_w = (width + 7) / 8;
+        let block_h = (height + 7) / 8;
+        assert_eq!(field.len(), (block_w * block_h) as usize);
+
+        let first_val = field[0];
+        for &val in field.iter() {
+            assert!(val.is_finite());
+            assert!(val >= 0.0); // AQ field value itself >= 0
+            // Check for uniformity (allowing small tolerance due to floating point)
+            assert!((val - first_val).abs() < 1e-4, "AQ field not uniform for flat image");
+        }
+        // Optionally check if the uniform value is reasonable (e.g., not extremely high or low)
+        // This expected value is hard to predict precisely without running jpegli.
+        // Let's assert it's within a broad range (e.g. 0 to 2).
+        assert!(first_val >= 0.0 && first_val <= 2.0);
+    }
+
+    #[test]
+    fn test_aq_field_gradient_image() {
+        // For a gradient image, we expect some variation, likely lower values near
+        // potential "edges" (areas of higher gradient) compared to flatter areas.
+        // This is hard to test precisely without a reference.
+        let width: u16 = 64;
+        let height: u16 = 64;
+        let distance = 1.0;
+        let test_image = create_test_image(width as usize, height as usize, 1.0); // Scaled 0-1
+        let y_quant_01 = 8;
+
+        let field = compute_adaptive_quant_field(width, height, &test_image, distance, y_quant_01);
+
+        let block_w = (width + 7) / 8;
+        let block_h = (height + 7) / 8;
+        assert_eq!(field.len(), (block_w * block_h) as usize);
+
+        let mut min_val = f32::MAX;
+        let mut max_val = f32::MIN;
+        for &val in field.iter() {
+            assert!(val.is_finite());
+            assert!(val >= 0.0);
+            min_val = min_val.min(val);
+            max_val = max_val.max(val);
+        }
+        // Check that there is *some* variation, but not excessively large.
+        assert!(max_val > min_val + 1e-5, "AQ field shows no variation for gradient image");
+        assert!(max_val / (min_val + 1e-6) < 10.0, "AQ field variation seems too large"); // Heuristic check
+    }
+
+    // TODO: Add test cases for different distance values.
+    // TODO: Add test cases for edge conditions (small images).
 } 

@@ -222,6 +222,8 @@ pub struct Encoder<W: JfifWrite> {
     // These are computed based on distance/quality.
     zero_bias_offsets: Vec<[f32; 64]>,
     zero_bias_multipliers: Vec<[f32; 64]>,
+
+    use_float_dct: bool,
 }
 
 impl<W: JfifWrite> Encoder<W> {
@@ -271,6 +273,7 @@ impl<W: JfifWrite> Encoder<W> {
             use_adaptive_quantization: false, // Default to off
             zero_bias_offsets: Vec::new(), // Initialized later
             zero_bias_multipliers: Vec::new(), // Initialized later
+            use_float_dct: false,
         }
     }
 
@@ -1338,6 +1341,10 @@ impl<W: JfifWrite> Encoder<W> {
     /// though typically used with it.
     pub fn set_adaptive_quantization(&mut self, enabled: bool) {
         self.use_adaptive_quantization = enabled;
+    }
+
+    pub fn set_float_dct(&mut self, enable: bool) {
+        self.use_float_dct = enable;
     }
 }
 

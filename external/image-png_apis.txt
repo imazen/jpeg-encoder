@@ -1,0 +1,1750 @@
+pub mod png
+pub mod png::chunk
+pub struct png::chunk::ChunkType(pub [u8; 4])
+impl core::clone::Clone for png::chunk::ChunkType
+pub fn png::chunk::ChunkType::clone(&self) -> png::chunk::ChunkType
+impl core::cmp::Eq for png::chunk::ChunkType
+impl core::cmp::PartialEq for png::chunk::ChunkType
+pub fn png::chunk::ChunkType::eq(&self, other: &png::chunk::ChunkType) -> bool
+impl core::fmt::Debug for png::chunk::ChunkType
+pub fn png::chunk::ChunkType::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for png::chunk::ChunkType
+pub fn png::chunk::ChunkType::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for png::chunk::ChunkType
+impl core::marker::StructuralPartialEq for png::chunk::ChunkType
+impl core::marker::Freeze for png::chunk::ChunkType
+impl core::marker::Send for png::chunk::ChunkType
+impl core::marker::Sync for png::chunk::ChunkType
+impl core::marker::Unpin for png::chunk::ChunkType
+impl core::panic::unwind_safe::RefUnwindSafe for png::chunk::ChunkType
+impl core::panic::unwind_safe::UnwindSafe for png::chunk::ChunkType
+impl<T, U> core::convert::Into<U> for png::chunk::ChunkType where U: core::convert::From<T>
+pub fn png::chunk::ChunkType::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::chunk::ChunkType where U: core::convert::Into<T>
+pub type png::chunk::ChunkType::Error = core::convert::Infallible
+pub fn png::chunk::ChunkType::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::chunk::ChunkType where U: core::convert::TryFrom<T>
+pub type png::chunk::ChunkType::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::chunk::ChunkType::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::chunk::ChunkType where T: core::clone::Clone
+pub type png::chunk::ChunkType::Owned = T
+pub fn png::chunk::ChunkType::clone_into(&self, target: &mut T)
+pub fn png::chunk::ChunkType::to_owned(&self) -> T
+impl<T> core::any::Any for png::chunk::ChunkType where T: 'static + ?core::marker::Sized
+pub fn png::chunk::ChunkType::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::chunk::ChunkType where T: ?core::marker::Sized
+pub fn png::chunk::ChunkType::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::chunk::ChunkType where T: ?core::marker::Sized
+pub fn png::chunk::ChunkType::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::chunk::ChunkType where T: core::clone::Clone
+pub unsafe fn png::chunk::ChunkType::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::chunk::ChunkType
+pub fn png::chunk::ChunkType::from(t: T) -> T
+pub const png::chunk::IDAT: png::chunk::ChunkType
+pub const png::chunk::IEND: png::chunk::ChunkType
+pub const png::chunk::IHDR: png::chunk::ChunkType
+pub const png::chunk::PLTE: png::chunk::ChunkType
+pub const png::chunk::acTL: png::chunk::ChunkType
+pub const png::chunk::bKGD: png::chunk::ChunkType
+pub const png::chunk::cHRM: png::chunk::ChunkType
+pub const png::chunk::cICP: png::chunk::ChunkType
+pub const png::chunk::cLLI: png::chunk::ChunkType
+pub const png::chunk::eXIf: png::chunk::ChunkType
+pub const png::chunk::fcTL: png::chunk::ChunkType
+pub const png::chunk::fdAT: png::chunk::ChunkType
+pub const png::chunk::gAMA: png::chunk::ChunkType
+pub const png::chunk::iCCP: png::chunk::ChunkType
+pub const png::chunk::iTXt: png::chunk::ChunkType
+pub const png::chunk::mDCV: png::chunk::ChunkType
+pub const png::chunk::pHYs: png::chunk::ChunkType
+pub const png::chunk::sBIT: png::chunk::ChunkType
+pub const png::chunk::sRGB: png::chunk::ChunkType
+pub const png::chunk::tEXt: png::chunk::ChunkType
+pub const png::chunk::tIME: png::chunk::ChunkType
+pub const png::chunk::tRNS: png::chunk::ChunkType
+pub const png::chunk::zTXt: png::chunk::ChunkType
+pub fn png::chunk::is_critical(ChunkType: png::chunk::ChunkType) -> bool
+pub fn png::chunk::is_private(ChunkType: png::chunk::ChunkType) -> bool
+pub fn png::chunk::reserved_set(ChunkType: png::chunk::ChunkType) -> bool
+pub fn png::chunk::safe_to_copy(ChunkType: png::chunk::ChunkType) -> bool
+pub mod png::text_metadata
+pub struct png::text_metadata::ITXtChunk
+pub png::text_metadata::ITXtChunk::compressed: bool
+pub png::text_metadata::ITXtChunk::keyword: alloc::string::String
+pub png::text_metadata::ITXtChunk::language_tag: alloc::string::String
+pub png::text_metadata::ITXtChunk::translated_keyword: alloc::string::String
+impl png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::compress_text(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::text_metadata::ITXtChunk::decompress_text(&mut self) -> core::result::Result<(), png::DecodingError>
+pub fn png::text_metadata::ITXtChunk::decompress_text_with_limit(&mut self, limit: usize) -> core::result::Result<(), png::DecodingError>
+pub fn png::text_metadata::ITXtChunk::get_text(&self) -> core::result::Result<alloc::string::String, png::DecodingError>
+pub fn png::text_metadata::ITXtChunk::new(keyword: impl core::convert::Into<alloc::string::String>, text: impl core::convert::Into<alloc::string::String>) -> Self
+impl core::clone::Clone for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::clone(&self) -> png::text_metadata::ITXtChunk
+impl core::cmp::Eq for png::text_metadata::ITXtChunk
+impl core::cmp::PartialEq for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::eq(&self, other: &png::text_metadata::ITXtChunk) -> bool
+impl core::fmt::Debug for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for png::text_metadata::ITXtChunk
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl core::marker::Freeze for png::text_metadata::ITXtChunk
+impl core::marker::Send for png::text_metadata::ITXtChunk
+impl core::marker::Sync for png::text_metadata::ITXtChunk
+impl core::marker::Unpin for png::text_metadata::ITXtChunk
+impl core::panic::unwind_safe::RefUnwindSafe for png::text_metadata::ITXtChunk
+impl core::panic::unwind_safe::UnwindSafe for png::text_metadata::ITXtChunk
+impl<T, U> core::convert::Into<U> for png::text_metadata::ITXtChunk where U: core::convert::From<T>
+pub fn png::text_metadata::ITXtChunk::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::text_metadata::ITXtChunk where U: core::convert::Into<T>
+pub type png::text_metadata::ITXtChunk::Error = core::convert::Infallible
+pub fn png::text_metadata::ITXtChunk::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::text_metadata::ITXtChunk where U: core::convert::TryFrom<T>
+pub type png::text_metadata::ITXtChunk::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::text_metadata::ITXtChunk::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::text_metadata::ITXtChunk where T: core::clone::Clone
+pub type png::text_metadata::ITXtChunk::Owned = T
+pub fn png::text_metadata::ITXtChunk::clone_into(&self, target: &mut T)
+pub fn png::text_metadata::ITXtChunk::to_owned(&self) -> T
+impl<T> core::any::Any for png::text_metadata::ITXtChunk where T: 'static + ?core::marker::Sized
+pub fn png::text_metadata::ITXtChunk::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::text_metadata::ITXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::ITXtChunk::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::text_metadata::ITXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::ITXtChunk::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::text_metadata::ITXtChunk where T: core::clone::Clone
+pub unsafe fn png::text_metadata::ITXtChunk::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::from(t: T) -> T
+pub struct png::text_metadata::TEXtChunk
+pub png::text_metadata::TEXtChunk::keyword: alloc::string::String
+pub png::text_metadata::TEXtChunk::text: alloc::string::String
+impl png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::new(keyword: impl core::convert::Into<alloc::string::String>, text: impl core::convert::Into<alloc::string::String>) -> Self
+impl core::clone::Clone for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::clone(&self) -> png::text_metadata::TEXtChunk
+impl core::cmp::Eq for png::text_metadata::TEXtChunk
+impl core::cmp::PartialEq for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::eq(&self, other: &png::text_metadata::TEXtChunk) -> bool
+impl core::fmt::Debug for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for png::text_metadata::TEXtChunk
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl core::marker::Freeze for png::text_metadata::TEXtChunk
+impl core::marker::Send for png::text_metadata::TEXtChunk
+impl core::marker::Sync for png::text_metadata::TEXtChunk
+impl core::marker::Unpin for png::text_metadata::TEXtChunk
+impl core::panic::unwind_safe::RefUnwindSafe for png::text_metadata::TEXtChunk
+impl core::panic::unwind_safe::UnwindSafe for png::text_metadata::TEXtChunk
+impl<T, U> core::convert::Into<U> for png::text_metadata::TEXtChunk where U: core::convert::From<T>
+pub fn png::text_metadata::TEXtChunk::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::text_metadata::TEXtChunk where U: core::convert::Into<T>
+pub type png::text_metadata::TEXtChunk::Error = core::convert::Infallible
+pub fn png::text_metadata::TEXtChunk::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::text_metadata::TEXtChunk where U: core::convert::TryFrom<T>
+pub type png::text_metadata::TEXtChunk::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::text_metadata::TEXtChunk::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::text_metadata::TEXtChunk where T: core::clone::Clone
+pub type png::text_metadata::TEXtChunk::Owned = T
+pub fn png::text_metadata::TEXtChunk::clone_into(&self, target: &mut T)
+pub fn png::text_metadata::TEXtChunk::to_owned(&self) -> T
+impl<T> core::any::Any for png::text_metadata::TEXtChunk where T: 'static + ?core::marker::Sized
+pub fn png::text_metadata::TEXtChunk::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::text_metadata::TEXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::TEXtChunk::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::text_metadata::TEXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::TEXtChunk::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::text_metadata::TEXtChunk where T: core::clone::Clone
+pub unsafe fn png::text_metadata::TEXtChunk::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::from(t: T) -> T
+pub struct png::text_metadata::ZTXtChunk
+pub png::text_metadata::ZTXtChunk::keyword: alloc::string::String
+impl png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::compress_text(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::text_metadata::ZTXtChunk::decompress_text(&mut self) -> core::result::Result<(), png::DecodingError>
+pub fn png::text_metadata::ZTXtChunk::decompress_text_with_limit(&mut self, limit: usize) -> core::result::Result<(), png::DecodingError>
+pub fn png::text_metadata::ZTXtChunk::get_text(&self) -> core::result::Result<alloc::string::String, png::DecodingError>
+pub fn png::text_metadata::ZTXtChunk::new(keyword: impl core::convert::Into<alloc::string::String>, text: impl core::convert::Into<alloc::string::String>) -> Self
+impl core::clone::Clone for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::clone(&self) -> png::text_metadata::ZTXtChunk
+impl core::cmp::Eq for png::text_metadata::ZTXtChunk
+impl core::cmp::PartialEq for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::eq(&self, other: &png::text_metadata::ZTXtChunk) -> bool
+impl core::fmt::Debug for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for png::text_metadata::ZTXtChunk
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl core::marker::Freeze for png::text_metadata::ZTXtChunk
+impl core::marker::Send for png::text_metadata::ZTXtChunk
+impl core::marker::Sync for png::text_metadata::ZTXtChunk
+impl core::marker::Unpin for png::text_metadata::ZTXtChunk
+impl core::panic::unwind_safe::RefUnwindSafe for png::text_metadata::ZTXtChunk
+impl core::panic::unwind_safe::UnwindSafe for png::text_metadata::ZTXtChunk
+impl<T, U> core::convert::Into<U> for png::text_metadata::ZTXtChunk where U: core::convert::From<T>
+pub fn png::text_metadata::ZTXtChunk::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::text_metadata::ZTXtChunk where U: core::convert::Into<T>
+pub type png::text_metadata::ZTXtChunk::Error = core::convert::Infallible
+pub fn png::text_metadata::ZTXtChunk::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::text_metadata::ZTXtChunk where U: core::convert::TryFrom<T>
+pub type png::text_metadata::ZTXtChunk::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::text_metadata::ZTXtChunk::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::text_metadata::ZTXtChunk where T: core::clone::Clone
+pub type png::text_metadata::ZTXtChunk::Owned = T
+pub fn png::text_metadata::ZTXtChunk::clone_into(&self, target: &mut T)
+pub fn png::text_metadata::ZTXtChunk::to_owned(&self) -> T
+impl<T> core::any::Any for png::text_metadata::ZTXtChunk where T: 'static + ?core::marker::Sized
+pub fn png::text_metadata::ZTXtChunk::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::text_metadata::ZTXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::ZTXtChunk::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::text_metadata::ZTXtChunk where T: ?core::marker::Sized
+pub fn png::text_metadata::ZTXtChunk::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::text_metadata::ZTXtChunk where T: core::clone::Clone
+pub unsafe fn png::text_metadata::ZTXtChunk::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::from(t: T) -> T
+pub const png::text_metadata::DECOMPRESSION_LIMIT: usize
+pub trait png::text_metadata::EncodableTextChunk
+pub fn png::text_metadata::EncodableTextChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::ITXtChunk
+pub fn png::text_metadata::ITXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::TEXtChunk
+pub fn png::text_metadata::TEXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl png::text_metadata::EncodableTextChunk for png::text_metadata::ZTXtChunk
+pub fn png::text_metadata::ZTXtChunk::encode<W: std::io::Write>(&self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+#[repr(u8)] pub enum png::BitDepth
+pub png::BitDepth::Eight = 8
+pub png::BitDepth::Four = 4
+pub png::BitDepth::One = 1
+pub png::BitDepth::Sixteen = 16
+pub png::BitDepth::Two = 2
+impl png::BitDepth
+pub fn png::BitDepth::from_u8(n: u8) -> core::option::Option<png::BitDepth>
+impl core::clone::Clone for png::BitDepth
+pub fn png::BitDepth::clone(&self) -> png::BitDepth
+impl core::cmp::Eq for png::BitDepth
+impl core::cmp::PartialEq for png::BitDepth
+pub fn png::BitDepth::eq(&self, other: &png::BitDepth) -> bool
+impl core::fmt::Debug for png::BitDepth
+pub fn png::BitDepth::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::BitDepth
+impl core::marker::StructuralPartialEq for png::BitDepth
+impl core::marker::Freeze for png::BitDepth
+impl core::marker::Send for png::BitDepth
+impl core::marker::Sync for png::BitDepth
+impl core::marker::Unpin for png::BitDepth
+impl core::panic::unwind_safe::RefUnwindSafe for png::BitDepth
+impl core::panic::unwind_safe::UnwindSafe for png::BitDepth
+impl<T, U> core::convert::Into<U> for png::BitDepth where U: core::convert::From<T>
+pub fn png::BitDepth::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::BitDepth where U: core::convert::Into<T>
+pub type png::BitDepth::Error = core::convert::Infallible
+pub fn png::BitDepth::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::BitDepth where U: core::convert::TryFrom<T>
+pub type png::BitDepth::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::BitDepth::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::BitDepth where T: core::clone::Clone
+pub type png::BitDepth::Owned = T
+pub fn png::BitDepth::clone_into(&self, target: &mut T)
+pub fn png::BitDepth::to_owned(&self) -> T
+impl<T> core::any::Any for png::BitDepth where T: 'static + ?core::marker::Sized
+pub fn png::BitDepth::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::BitDepth where T: ?core::marker::Sized
+pub fn png::BitDepth::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::BitDepth where T: ?core::marker::Sized
+pub fn png::BitDepth::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::BitDepth where T: core::clone::Clone
+pub unsafe fn png::BitDepth::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::BitDepth
+pub fn png::BitDepth::from(t: T) -> T
+#[repr(u8)] pub enum png::BlendOp
+pub png::BlendOp::Over = 1
+pub png::BlendOp::Source = 0
+impl png::BlendOp
+pub fn png::BlendOp::from_u8(n: u8) -> core::option::Option<png::BlendOp>
+impl core::clone::Clone for png::BlendOp
+pub fn png::BlendOp::clone(&self) -> png::BlendOp
+impl core::cmp::Eq for png::BlendOp
+impl core::cmp::PartialEq for png::BlendOp
+pub fn png::BlendOp::eq(&self, other: &png::BlendOp) -> bool
+impl core::fmt::Debug for png::BlendOp
+pub fn png::BlendOp::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for png::BlendOp
+pub fn png::BlendOp::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::BlendOp
+impl core::marker::StructuralPartialEq for png::BlendOp
+impl core::marker::Freeze for png::BlendOp
+impl core::marker::Send for png::BlendOp
+impl core::marker::Sync for png::BlendOp
+impl core::marker::Unpin for png::BlendOp
+impl core::panic::unwind_safe::RefUnwindSafe for png::BlendOp
+impl core::panic::unwind_safe::UnwindSafe for png::BlendOp
+impl<T, U> core::convert::Into<U> for png::BlendOp where U: core::convert::From<T>
+pub fn png::BlendOp::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::BlendOp where U: core::convert::Into<T>
+pub type png::BlendOp::Error = core::convert::Infallible
+pub fn png::BlendOp::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::BlendOp where U: core::convert::TryFrom<T>
+pub type png::BlendOp::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::BlendOp::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::BlendOp where T: core::clone::Clone
+pub type png::BlendOp::Owned = T
+pub fn png::BlendOp::clone_into(&self, target: &mut T)
+pub fn png::BlendOp::to_owned(&self) -> T
+impl<T> alloc::string::ToString for png::BlendOp where T: core::fmt::Display + ?core::marker::Sized
+pub fn png::BlendOp::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for png::BlendOp where T: 'static + ?core::marker::Sized
+pub fn png::BlendOp::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::BlendOp where T: ?core::marker::Sized
+pub fn png::BlendOp::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::BlendOp where T: ?core::marker::Sized
+pub fn png::BlendOp::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::BlendOp where T: core::clone::Clone
+pub unsafe fn png::BlendOp::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::BlendOp
+pub fn png::BlendOp::from(t: T) -> T
+#[repr(u8)] pub enum png::ColorType
+pub png::ColorType::Grayscale = 0
+pub png::ColorType::GrayscaleAlpha = 4
+pub png::ColorType::Indexed = 3
+pub png::ColorType::Rgb = 2
+pub png::ColorType::Rgba = 6
+impl png::ColorType
+pub fn png::ColorType::from_u8(n: u8) -> core::option::Option<png::ColorType>
+pub fn png::ColorType::samples(self) -> usize
+impl core::clone::Clone for png::ColorType
+pub fn png::ColorType::clone(&self) -> png::ColorType
+impl core::cmp::Eq for png::ColorType
+impl core::cmp::PartialEq for png::ColorType
+pub fn png::ColorType::eq(&self, other: &png::ColorType) -> bool
+impl core::fmt::Debug for png::ColorType
+pub fn png::ColorType::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::ColorType
+impl core::marker::StructuralPartialEq for png::ColorType
+impl core::marker::Freeze for png::ColorType
+impl core::marker::Send for png::ColorType
+impl core::marker::Sync for png::ColorType
+impl core::marker::Unpin for png::ColorType
+impl core::panic::unwind_safe::RefUnwindSafe for png::ColorType
+impl core::panic::unwind_safe::UnwindSafe for png::ColorType
+impl<T, U> core::convert::Into<U> for png::ColorType where U: core::convert::From<T>
+pub fn png::ColorType::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::ColorType where U: core::convert::Into<T>
+pub type png::ColorType::Error = core::convert::Infallible
+pub fn png::ColorType::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::ColorType where U: core::convert::TryFrom<T>
+pub type png::ColorType::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::ColorType::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::ColorType where T: core::clone::Clone
+pub type png::ColorType::Owned = T
+pub fn png::ColorType::clone_into(&self, target: &mut T)
+pub fn png::ColorType::to_owned(&self) -> T
+impl<T> core::any::Any for png::ColorType where T: 'static + ?core::marker::Sized
+pub fn png::ColorType::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::ColorType where T: ?core::marker::Sized
+pub fn png::ColorType::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::ColorType where T: ?core::marker::Sized
+pub fn png::ColorType::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::ColorType where T: core::clone::Clone
+pub unsafe fn png::ColorType::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::ColorType
+pub fn png::ColorType::from(t: T) -> T
+#[non_exhaustive] pub enum png::Compression
+pub png::Compression::Balanced
+pub png::Compression::Fast
+pub png::Compression::Fastest
+pub png::Compression::High
+pub png::Compression::NoCompression
+impl core::clone::Clone for png::Compression
+pub fn png::Compression::clone(&self) -> png::Compression
+impl core::default::Default for png::Compression
+pub fn png::Compression::default() -> Self
+impl core::fmt::Debug for png::Compression
+pub fn png::Compression::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::Compression
+impl core::marker::Freeze for png::Compression
+impl core::marker::Send for png::Compression
+impl core::marker::Sync for png::Compression
+impl core::marker::Unpin for png::Compression
+impl core::panic::unwind_safe::RefUnwindSafe for png::Compression
+impl core::panic::unwind_safe::UnwindSafe for png::Compression
+impl<T, U> core::convert::Into<U> for png::Compression where U: core::convert::From<T>
+pub fn png::Compression::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Compression where U: core::convert::Into<T>
+pub type png::Compression::Error = core::convert::Infallible
+pub fn png::Compression::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Compression where U: core::convert::TryFrom<T>
+pub type png::Compression::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Compression::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Compression where T: core::clone::Clone
+pub type png::Compression::Owned = T
+pub fn png::Compression::clone_into(&self, target: &mut T)
+pub fn png::Compression::to_owned(&self) -> T
+impl<T> core::any::Any for png::Compression where T: 'static + ?core::marker::Sized
+pub fn png::Compression::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Compression where T: ?core::marker::Sized
+pub fn png::Compression::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Compression where T: ?core::marker::Sized
+pub fn png::Compression::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Compression where T: core::clone::Clone
+pub unsafe fn png::Compression::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Compression
+pub fn png::Compression::from(t: T) -> T
+pub enum png::Decoded
+pub png::Decoded::AnimationControl(png::AnimationControl)
+pub png::Decoded::ChunkBegin(u32, png::chunk::ChunkType)
+pub png::Decoded::ChunkComplete(u32, png::chunk::ChunkType)
+pub png::Decoded::FrameControl(png::FrameControl)
+pub png::Decoded::Header(u32, u32, png::BitDepth, png::ColorType, bool)
+pub png::Decoded::ImageData
+pub png::Decoded::ImageDataFlushed
+pub png::Decoded::ImageEnd
+pub png::Decoded::Nothing
+pub png::Decoded::PartialChunk(png::chunk::ChunkType)
+pub png::Decoded::PixelDimensions(png::PixelDimensions)
+impl core::fmt::Debug for png::Decoded
+pub fn png::Decoded::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for png::Decoded
+impl core::marker::Send for png::Decoded
+impl core::marker::Sync for png::Decoded
+impl core::marker::Unpin for png::Decoded
+impl core::panic::unwind_safe::RefUnwindSafe for png::Decoded
+impl core::panic::unwind_safe::UnwindSafe for png::Decoded
+impl<T, U> core::convert::Into<U> for png::Decoded where U: core::convert::From<T>
+pub fn png::Decoded::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Decoded where U: core::convert::Into<T>
+pub type png::Decoded::Error = core::convert::Infallible
+pub fn png::Decoded::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Decoded where U: core::convert::TryFrom<T>
+pub type png::Decoded::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Decoded::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::Decoded where T: 'static + ?core::marker::Sized
+pub fn png::Decoded::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Decoded where T: ?core::marker::Sized
+pub fn png::Decoded::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Decoded where T: ?core::marker::Sized
+pub fn png::Decoded::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::Decoded
+pub fn png::Decoded::from(t: T) -> T
+pub enum png::DecodingError
+pub png::DecodingError::Format(png::decoder::stream::FormatError)
+pub png::DecodingError::IoError(std::io::error::Error)
+pub png::DecodingError::LimitsExceeded
+pub png::DecodingError::Parameter(png::ParameterError)
+impl core::convert::From<png::DecodingError> for std::io::error::Error
+pub fn std::io::error::Error::from(err: png::DecodingError) -> std::io::error::Error
+impl core::convert::From<std::io::error::Error> for png::DecodingError
+pub fn png::DecodingError::from(err: std::io::error::Error) -> png::DecodingError
+impl core::error::Error for png::DecodingError
+pub fn png::DecodingError::cause(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for png::DecodingError
+pub fn png::DecodingError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for png::DecodingError
+pub fn png::DecodingError::fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> core::result::Result<(), core::fmt::Error>
+impl core::marker::Freeze for png::DecodingError
+impl core::marker::Send for png::DecodingError
+impl core::marker::Sync for png::DecodingError
+impl core::marker::Unpin for png::DecodingError
+impl !core::panic::unwind_safe::RefUnwindSafe for png::DecodingError
+impl !core::panic::unwind_safe::UnwindSafe for png::DecodingError
+impl<T, U> core::convert::Into<U> for png::DecodingError where U: core::convert::From<T>
+pub fn png::DecodingError::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::DecodingError where U: core::convert::Into<T>
+pub type png::DecodingError::Error = core::convert::Infallible
+pub fn png::DecodingError::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::DecodingError where U: core::convert::TryFrom<T>
+pub type png::DecodingError::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::DecodingError::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::string::ToString for png::DecodingError where T: core::fmt::Display + ?core::marker::Sized
+pub fn png::DecodingError::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for png::DecodingError where T: 'static + ?core::marker::Sized
+pub fn png::DecodingError::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::DecodingError where T: ?core::marker::Sized
+pub fn png::DecodingError::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::DecodingError where T: ?core::marker::Sized
+pub fn png::DecodingError::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::DecodingError
+pub fn png::DecodingError::from(t: T) -> T
+#[non_exhaustive] pub enum png::DeflateCompression
+pub png::DeflateCompression::FdeflateUltraFast
+pub png::DeflateCompression::Level(u8)
+pub png::DeflateCompression::NoCompression
+impl core::clone::Clone for png::DeflateCompression
+pub fn png::DeflateCompression::clone(&self) -> png::DeflateCompression
+impl core::default::Default for png::DeflateCompression
+pub fn png::DeflateCompression::default() -> Self
+impl core::fmt::Debug for png::DeflateCompression
+pub fn png::DeflateCompression::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::DeflateCompression
+impl core::marker::Freeze for png::DeflateCompression
+impl core::marker::Send for png::DeflateCompression
+impl core::marker::Sync for png::DeflateCompression
+impl core::marker::Unpin for png::DeflateCompression
+impl core::panic::unwind_safe::RefUnwindSafe for png::DeflateCompression
+impl core::panic::unwind_safe::UnwindSafe for png::DeflateCompression
+impl<T, U> core::convert::Into<U> for png::DeflateCompression where U: core::convert::From<T>
+pub fn png::DeflateCompression::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::DeflateCompression where U: core::convert::Into<T>
+pub type png::DeflateCompression::Error = core::convert::Infallible
+pub fn png::DeflateCompression::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::DeflateCompression where U: core::convert::TryFrom<T>
+pub type png::DeflateCompression::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::DeflateCompression::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::DeflateCompression where T: core::clone::Clone
+pub type png::DeflateCompression::Owned = T
+pub fn png::DeflateCompression::clone_into(&self, target: &mut T)
+pub fn png::DeflateCompression::to_owned(&self) -> T
+impl<T> core::any::Any for png::DeflateCompression where T: 'static + ?core::marker::Sized
+pub fn png::DeflateCompression::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::DeflateCompression where T: ?core::marker::Sized
+pub fn png::DeflateCompression::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::DeflateCompression where T: ?core::marker::Sized
+pub fn png::DeflateCompression::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::DeflateCompression where T: core::clone::Clone
+pub unsafe fn png::DeflateCompression::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::DeflateCompression
+pub fn png::DeflateCompression::from(t: T) -> T
+#[repr(u8)] pub enum png::DisposeOp
+pub png::DisposeOp::Background = 1
+pub png::DisposeOp::None = 0
+pub png::DisposeOp::Previous = 2
+impl png::DisposeOp
+pub fn png::DisposeOp::from_u8(n: u8) -> core::option::Option<png::DisposeOp>
+impl core::clone::Clone for png::DisposeOp
+pub fn png::DisposeOp::clone(&self) -> png::DisposeOp
+impl core::cmp::Eq for png::DisposeOp
+impl core::cmp::PartialEq for png::DisposeOp
+pub fn png::DisposeOp::eq(&self, other: &png::DisposeOp) -> bool
+impl core::fmt::Debug for png::DisposeOp
+pub fn png::DisposeOp::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for png::DisposeOp
+pub fn png::DisposeOp::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::DisposeOp
+impl core::marker::StructuralPartialEq for png::DisposeOp
+impl core::marker::Freeze for png::DisposeOp
+impl core::marker::Send for png::DisposeOp
+impl core::marker::Sync for png::DisposeOp
+impl core::marker::Unpin for png::DisposeOp
+impl core::panic::unwind_safe::RefUnwindSafe for png::DisposeOp
+impl core::panic::unwind_safe::UnwindSafe for png::DisposeOp
+impl<T, U> core::convert::Into<U> for png::DisposeOp where U: core::convert::From<T>
+pub fn png::DisposeOp::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::DisposeOp where U: core::convert::Into<T>
+pub type png::DisposeOp::Error = core::convert::Infallible
+pub fn png::DisposeOp::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::DisposeOp where U: core::convert::TryFrom<T>
+pub type png::DisposeOp::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::DisposeOp::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::DisposeOp where T: core::clone::Clone
+pub type png::DisposeOp::Owned = T
+pub fn png::DisposeOp::clone_into(&self, target: &mut T)
+pub fn png::DisposeOp::to_owned(&self) -> T
+impl<T> alloc::string::ToString for png::DisposeOp where T: core::fmt::Display + ?core::marker::Sized
+pub fn png::DisposeOp::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for png::DisposeOp where T: 'static + ?core::marker::Sized
+pub fn png::DisposeOp::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::DisposeOp where T: ?core::marker::Sized
+pub fn png::DisposeOp::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::DisposeOp where T: ?core::marker::Sized
+pub fn png::DisposeOp::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::DisposeOp where T: core::clone::Clone
+pub unsafe fn png::DisposeOp::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::DisposeOp
+pub fn png::DisposeOp::from(t: T) -> T
+pub enum png::EncodingError
+pub png::EncodingError::Format(png::encoder::FormatError)
+pub png::EncodingError::IoError(std::io::error::Error)
+pub png::EncodingError::LimitsExceeded
+pub png::EncodingError::Parameter(png::ParameterError)
+impl core::convert::From<png::EncodingError> for std::io::error::Error
+pub fn std::io::error::Error::from(err: png::EncodingError) -> std::io::error::Error
+impl core::convert::From<std::io::error::Error> for png::EncodingError
+pub fn png::EncodingError::from(err: std::io::error::Error) -> png::EncodingError
+impl core::error::Error for png::EncodingError
+pub fn png::EncodingError::cause(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for png::EncodingError
+pub fn png::EncodingError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for png::EncodingError
+pub fn png::EncodingError::fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> core::result::Result<(), core::fmt::Error>
+impl core::marker::Freeze for png::EncodingError
+impl core::marker::Send for png::EncodingError
+impl core::marker::Sync for png::EncodingError
+impl core::marker::Unpin for png::EncodingError
+impl !core::panic::unwind_safe::RefUnwindSafe for png::EncodingError
+impl !core::panic::unwind_safe::UnwindSafe for png::EncodingError
+impl<T, U> core::convert::Into<U> for png::EncodingError where U: core::convert::From<T>
+pub fn png::EncodingError::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::EncodingError where U: core::convert::Into<T>
+pub type png::EncodingError::Error = core::convert::Infallible
+pub fn png::EncodingError::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::EncodingError where U: core::convert::TryFrom<T>
+pub type png::EncodingError::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::EncodingError::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::string::ToString for png::EncodingError where T: core::fmt::Display + ?core::marker::Sized
+pub fn png::EncodingError::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for png::EncodingError where T: 'static + ?core::marker::Sized
+pub fn png::EncodingError::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::EncodingError where T: ?core::marker::Sized
+pub fn png::EncodingError::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::EncodingError where T: ?core::marker::Sized
+pub fn png::EncodingError::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::EncodingError
+pub fn png::EncodingError::from(t: T) -> T
+#[non_exhaustive] pub enum png::Filter
+pub png::Filter::Adaptive
+pub png::Filter::Avg
+pub png::Filter::NoFilter
+pub png::Filter::Paeth
+pub png::Filter::Sub
+pub png::Filter::Up
+impl core::clone::Clone for png::Filter
+pub fn png::Filter::clone(&self) -> png::Filter
+impl core::cmp::Eq for png::Filter
+impl core::cmp::PartialEq for png::Filter
+pub fn png::Filter::eq(&self, other: &png::Filter) -> bool
+impl core::default::Default for png::Filter
+pub fn png::Filter::default() -> Self
+impl core::fmt::Debug for png::Filter
+pub fn png::Filter::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::Filter
+impl core::marker::StructuralPartialEq for png::Filter
+impl core::marker::Freeze for png::Filter
+impl core::marker::Send for png::Filter
+impl core::marker::Sync for png::Filter
+impl core::marker::Unpin for png::Filter
+impl core::panic::unwind_safe::RefUnwindSafe for png::Filter
+impl core::panic::unwind_safe::UnwindSafe for png::Filter
+impl<T, U> core::convert::Into<U> for png::Filter where U: core::convert::From<T>
+pub fn png::Filter::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Filter where U: core::convert::Into<T>
+pub type png::Filter::Error = core::convert::Infallible
+pub fn png::Filter::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Filter where U: core::convert::TryFrom<T>
+pub type png::Filter::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Filter::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Filter where T: core::clone::Clone
+pub type png::Filter::Owned = T
+pub fn png::Filter::clone_into(&self, target: &mut T)
+pub fn png::Filter::to_owned(&self) -> T
+impl<T> core::any::Any for png::Filter where T: 'static + ?core::marker::Sized
+pub fn png::Filter::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Filter where T: ?core::marker::Sized
+pub fn png::Filter::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Filter where T: ?core::marker::Sized
+pub fn png::Filter::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Filter where T: core::clone::Clone
+pub unsafe fn png::Filter::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Filter
+pub fn png::Filter::from(t: T) -> T
+pub enum png::InterlaceInfo
+pub png::InterlaceInfo::Adam7(png::Adam7Info)
+pub png::InterlaceInfo::Null(png::decoder::interlace_info::NullInfo)
+impl core::clone::Clone for png::InterlaceInfo
+pub fn png::InterlaceInfo::clone(&self) -> png::InterlaceInfo
+impl core::fmt::Debug for png::InterlaceInfo
+pub fn png::InterlaceInfo::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::InterlaceInfo
+impl core::marker::Freeze for png::InterlaceInfo
+impl core::marker::Send for png::InterlaceInfo
+impl core::marker::Sync for png::InterlaceInfo
+impl core::marker::Unpin for png::InterlaceInfo
+impl core::panic::unwind_safe::RefUnwindSafe for png::InterlaceInfo
+impl core::panic::unwind_safe::UnwindSafe for png::InterlaceInfo
+impl<T, U> core::convert::Into<U> for png::InterlaceInfo where U: core::convert::From<T>
+pub fn png::InterlaceInfo::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::InterlaceInfo where U: core::convert::Into<T>
+pub type png::InterlaceInfo::Error = core::convert::Infallible
+pub fn png::InterlaceInfo::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::InterlaceInfo where U: core::convert::TryFrom<T>
+pub type png::InterlaceInfo::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::InterlaceInfo::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::InterlaceInfo where T: core::clone::Clone
+pub type png::InterlaceInfo::Owned = T
+pub fn png::InterlaceInfo::clone_into(&self, target: &mut T)
+pub fn png::InterlaceInfo::to_owned(&self) -> T
+impl<T> core::any::Any for png::InterlaceInfo where T: 'static + ?core::marker::Sized
+pub fn png::InterlaceInfo::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::InterlaceInfo where T: ?core::marker::Sized
+pub fn png::InterlaceInfo::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::InterlaceInfo where T: ?core::marker::Sized
+pub fn png::InterlaceInfo::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::InterlaceInfo where T: core::clone::Clone
+pub unsafe fn png::InterlaceInfo::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::InterlaceInfo
+pub fn png::InterlaceInfo::from(t: T) -> T
+#[repr(u8)] pub enum png::SrgbRenderingIntent
+pub png::SrgbRenderingIntent::AbsoluteColorimetric = 3
+pub png::SrgbRenderingIntent::Perceptual = 0
+pub png::SrgbRenderingIntent::RelativeColorimetric = 1
+pub png::SrgbRenderingIntent::Saturation = 2
+impl png::SrgbRenderingIntent
+pub fn png::SrgbRenderingIntent::encode<W: std::io::Write>(self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl core::clone::Clone for png::SrgbRenderingIntent
+pub fn png::SrgbRenderingIntent::clone(&self) -> png::SrgbRenderingIntent
+impl core::cmp::Eq for png::SrgbRenderingIntent
+impl core::cmp::PartialEq for png::SrgbRenderingIntent
+pub fn png::SrgbRenderingIntent::eq(&self, other: &png::SrgbRenderingIntent) -> bool
+impl core::fmt::Debug for png::SrgbRenderingIntent
+pub fn png::SrgbRenderingIntent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::SrgbRenderingIntent
+impl core::marker::StructuralPartialEq for png::SrgbRenderingIntent
+impl core::marker::Freeze for png::SrgbRenderingIntent
+impl core::marker::Send for png::SrgbRenderingIntent
+impl core::marker::Sync for png::SrgbRenderingIntent
+impl core::marker::Unpin for png::SrgbRenderingIntent
+impl core::panic::unwind_safe::RefUnwindSafe for png::SrgbRenderingIntent
+impl core::panic::unwind_safe::UnwindSafe for png::SrgbRenderingIntent
+impl<T, U> core::convert::Into<U> for png::SrgbRenderingIntent where U: core::convert::From<T>
+pub fn png::SrgbRenderingIntent::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::SrgbRenderingIntent where U: core::convert::Into<T>
+pub type png::SrgbRenderingIntent::Error = core::convert::Infallible
+pub fn png::SrgbRenderingIntent::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::SrgbRenderingIntent where U: core::convert::TryFrom<T>
+pub type png::SrgbRenderingIntent::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::SrgbRenderingIntent::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::SrgbRenderingIntent where T: core::clone::Clone
+pub type png::SrgbRenderingIntent::Owned = T
+pub fn png::SrgbRenderingIntent::clone_into(&self, target: &mut T)
+pub fn png::SrgbRenderingIntent::to_owned(&self) -> T
+impl<T> core::any::Any for png::SrgbRenderingIntent where T: 'static + ?core::marker::Sized
+pub fn png::SrgbRenderingIntent::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::SrgbRenderingIntent where T: ?core::marker::Sized
+pub fn png::SrgbRenderingIntent::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::SrgbRenderingIntent where T: ?core::marker::Sized
+pub fn png::SrgbRenderingIntent::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::SrgbRenderingIntent where T: core::clone::Clone
+pub unsafe fn png::SrgbRenderingIntent::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::SrgbRenderingIntent
+pub fn png::SrgbRenderingIntent::from(t: T) -> T
+#[repr(u8)] pub enum png::Unit
+pub png::Unit::Meter = 1
+pub png::Unit::Unspecified = 0
+impl png::Unit
+pub fn png::Unit::from_u8(n: u8) -> core::option::Option<png::Unit>
+impl core::clone::Clone for png::Unit
+pub fn png::Unit::clone(&self) -> png::Unit
+impl core::cmp::Eq for png::Unit
+impl core::cmp::PartialEq for png::Unit
+pub fn png::Unit::eq(&self, other: &png::Unit) -> bool
+impl core::fmt::Debug for png::Unit
+pub fn png::Unit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::Unit
+impl core::marker::StructuralPartialEq for png::Unit
+impl core::marker::Freeze for png::Unit
+impl core::marker::Send for png::Unit
+impl core::marker::Sync for png::Unit
+impl core::marker::Unpin for png::Unit
+impl core::panic::unwind_safe::RefUnwindSafe for png::Unit
+impl core::panic::unwind_safe::UnwindSafe for png::Unit
+impl<T, U> core::convert::Into<U> for png::Unit where U: core::convert::From<T>
+pub fn png::Unit::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Unit where U: core::convert::Into<T>
+pub type png::Unit::Error = core::convert::Infallible
+pub fn png::Unit::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Unit where U: core::convert::TryFrom<T>
+pub type png::Unit::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Unit::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Unit where T: core::clone::Clone
+pub type png::Unit::Owned = T
+pub fn png::Unit::clone_into(&self, target: &mut T)
+pub fn png::Unit::to_owned(&self) -> T
+impl<T> core::any::Any for png::Unit where T: 'static + ?core::marker::Sized
+pub fn png::Unit::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Unit where T: ?core::marker::Sized
+pub fn png::Unit::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Unit where T: ?core::marker::Sized
+pub fn png::Unit::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Unit where T: core::clone::Clone
+pub unsafe fn png::Unit::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Unit
+pub fn png::Unit::from(t: T) -> T
+pub struct png::Adam7Info
+impl png::Adam7Info
+pub fn png::Adam7Info::new(pass: u8, line: u32, width: u32) -> Self
+impl core::clone::Clone for png::Adam7Info
+pub fn png::Adam7Info::clone(&self) -> png::Adam7Info
+impl core::cmp::Eq for png::Adam7Info
+impl core::cmp::PartialEq for png::Adam7Info
+pub fn png::Adam7Info::eq(&self, other: &png::Adam7Info) -> bool
+impl core::fmt::Debug for png::Adam7Info
+pub fn png::Adam7Info::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::Adam7Info
+impl core::marker::StructuralPartialEq for png::Adam7Info
+impl core::marker::Freeze for png::Adam7Info
+impl core::marker::Send for png::Adam7Info
+impl core::marker::Sync for png::Adam7Info
+impl core::marker::Unpin for png::Adam7Info
+impl core::panic::unwind_safe::RefUnwindSafe for png::Adam7Info
+impl core::panic::unwind_safe::UnwindSafe for png::Adam7Info
+impl<T, U> core::convert::Into<U> for png::Adam7Info where U: core::convert::From<T>
+pub fn png::Adam7Info::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Adam7Info where U: core::convert::Into<T>
+pub type png::Adam7Info::Error = core::convert::Infallible
+pub fn png::Adam7Info::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Adam7Info where U: core::convert::TryFrom<T>
+pub type png::Adam7Info::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Adam7Info::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Adam7Info where T: core::clone::Clone
+pub type png::Adam7Info::Owned = T
+pub fn png::Adam7Info::clone_into(&self, target: &mut T)
+pub fn png::Adam7Info::to_owned(&self) -> T
+impl<T> core::any::Any for png::Adam7Info where T: 'static + ?core::marker::Sized
+pub fn png::Adam7Info::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Adam7Info where T: ?core::marker::Sized
+pub fn png::Adam7Info::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Adam7Info where T: ?core::marker::Sized
+pub fn png::Adam7Info::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Adam7Info where T: core::clone::Clone
+pub unsafe fn png::Adam7Info::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Adam7Info
+pub fn png::Adam7Info::from(t: T) -> T
+pub struct png::AnimationControl
+pub png::AnimationControl::num_frames: u32
+pub png::AnimationControl::num_plays: u32
+impl png::AnimationControl
+pub fn png::AnimationControl::encode<W: std::io::Write>(self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+impl core::clone::Clone for png::AnimationControl
+pub fn png::AnimationControl::clone(&self) -> png::AnimationControl
+impl core::fmt::Debug for png::AnimationControl
+pub fn png::AnimationControl::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::AnimationControl
+impl core::marker::Freeze for png::AnimationControl
+impl core::marker::Send for png::AnimationControl
+impl core::marker::Sync for png::AnimationControl
+impl core::marker::Unpin for png::AnimationControl
+impl core::panic::unwind_safe::RefUnwindSafe for png::AnimationControl
+impl core::panic::unwind_safe::UnwindSafe for png::AnimationControl
+impl<T, U> core::convert::Into<U> for png::AnimationControl where U: core::convert::From<T>
+pub fn png::AnimationControl::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::AnimationControl where U: core::convert::Into<T>
+pub type png::AnimationControl::Error = core::convert::Infallible
+pub fn png::AnimationControl::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::AnimationControl where U: core::convert::TryFrom<T>
+pub type png::AnimationControl::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::AnimationControl::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::AnimationControl where T: core::clone::Clone
+pub type png::AnimationControl::Owned = T
+pub fn png::AnimationControl::clone_into(&self, target: &mut T)
+pub fn png::AnimationControl::to_owned(&self) -> T
+impl<T> core::any::Any for png::AnimationControl where T: 'static + ?core::marker::Sized
+pub fn png::AnimationControl::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::AnimationControl where T: ?core::marker::Sized
+pub fn png::AnimationControl::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::AnimationControl where T: ?core::marker::Sized
+pub fn png::AnimationControl::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::AnimationControl where T: core::clone::Clone
+pub unsafe fn png::AnimationControl::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::AnimationControl
+pub fn png::AnimationControl::from(t: T) -> T
+pub struct png::CodingIndependentCodePoints
+pub png::CodingIndependentCodePoints::color_primaries: u8
+pub png::CodingIndependentCodePoints::is_video_full_range_image: bool
+pub png::CodingIndependentCodePoints::matrix_coefficients: u8
+pub png::CodingIndependentCodePoints::transfer_function: u8
+impl core::clone::Clone for png::CodingIndependentCodePoints
+pub fn png::CodingIndependentCodePoints::clone(&self) -> png::CodingIndependentCodePoints
+impl core::cmp::Eq for png::CodingIndependentCodePoints
+impl core::cmp::PartialEq for png::CodingIndependentCodePoints
+pub fn png::CodingIndependentCodePoints::eq(&self, other: &png::CodingIndependentCodePoints) -> bool
+impl core::fmt::Debug for png::CodingIndependentCodePoints
+pub fn png::CodingIndependentCodePoints::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::CodingIndependentCodePoints
+impl core::marker::StructuralPartialEq for png::CodingIndependentCodePoints
+impl core::marker::Freeze for png::CodingIndependentCodePoints
+impl core::marker::Send for png::CodingIndependentCodePoints
+impl core::marker::Sync for png::CodingIndependentCodePoints
+impl core::marker::Unpin for png::CodingIndependentCodePoints
+impl core::panic::unwind_safe::RefUnwindSafe for png::CodingIndependentCodePoints
+impl core::panic::unwind_safe::UnwindSafe for png::CodingIndependentCodePoints
+impl<T, U> core::convert::Into<U> for png::CodingIndependentCodePoints where U: core::convert::From<T>
+pub fn png::CodingIndependentCodePoints::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::CodingIndependentCodePoints where U: core::convert::Into<T>
+pub type png::CodingIndependentCodePoints::Error = core::convert::Infallible
+pub fn png::CodingIndependentCodePoints::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::CodingIndependentCodePoints where U: core::convert::TryFrom<T>
+pub type png::CodingIndependentCodePoints::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::CodingIndependentCodePoints::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::CodingIndependentCodePoints where T: core::clone::Clone
+pub type png::CodingIndependentCodePoints::Owned = T
+pub fn png::CodingIndependentCodePoints::clone_into(&self, target: &mut T)
+pub fn png::CodingIndependentCodePoints::to_owned(&self) -> T
+impl<T> core::any::Any for png::CodingIndependentCodePoints where T: 'static + ?core::marker::Sized
+pub fn png::CodingIndependentCodePoints::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::CodingIndependentCodePoints where T: ?core::marker::Sized
+pub fn png::CodingIndependentCodePoints::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::CodingIndependentCodePoints where T: ?core::marker::Sized
+pub fn png::CodingIndependentCodePoints::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::CodingIndependentCodePoints where T: core::clone::Clone
+pub unsafe fn png::CodingIndependentCodePoints::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::CodingIndependentCodePoints
+pub fn png::CodingIndependentCodePoints::from(t: T) -> T
+pub struct png::ContentLightLevelInfo
+pub png::ContentLightLevelInfo::max_content_light_level: u32
+pub png::ContentLightLevelInfo::max_frame_average_light_level: u32
+impl core::clone::Clone for png::ContentLightLevelInfo
+pub fn png::ContentLightLevelInfo::clone(&self) -> png::ContentLightLevelInfo
+impl core::cmp::Eq for png::ContentLightLevelInfo
+impl core::cmp::PartialEq for png::ContentLightLevelInfo
+pub fn png::ContentLightLevelInfo::eq(&self, other: &png::ContentLightLevelInfo) -> bool
+impl core::fmt::Debug for png::ContentLightLevelInfo
+pub fn png::ContentLightLevelInfo::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::ContentLightLevelInfo
+impl core::marker::StructuralPartialEq for png::ContentLightLevelInfo
+impl core::marker::Freeze for png::ContentLightLevelInfo
+impl core::marker::Send for png::ContentLightLevelInfo
+impl core::marker::Sync for png::ContentLightLevelInfo
+impl core::marker::Unpin for png::ContentLightLevelInfo
+impl core::panic::unwind_safe::RefUnwindSafe for png::ContentLightLevelInfo
+impl core::panic::unwind_safe::UnwindSafe for png::ContentLightLevelInfo
+impl<T, U> core::convert::Into<U> for png::ContentLightLevelInfo where U: core::convert::From<T>
+pub fn png::ContentLightLevelInfo::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::ContentLightLevelInfo where U: core::convert::Into<T>
+pub type png::ContentLightLevelInfo::Error = core::convert::Infallible
+pub fn png::ContentLightLevelInfo::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::ContentLightLevelInfo where U: core::convert::TryFrom<T>
+pub type png::ContentLightLevelInfo::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::ContentLightLevelInfo::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::ContentLightLevelInfo where T: core::clone::Clone
+pub type png::ContentLightLevelInfo::Owned = T
+pub fn png::ContentLightLevelInfo::clone_into(&self, target: &mut T)
+pub fn png::ContentLightLevelInfo::to_owned(&self) -> T
+impl<T> core::any::Any for png::ContentLightLevelInfo where T: 'static + ?core::marker::Sized
+pub fn png::ContentLightLevelInfo::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::ContentLightLevelInfo where T: ?core::marker::Sized
+pub fn png::ContentLightLevelInfo::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::ContentLightLevelInfo where T: ?core::marker::Sized
+pub fn png::ContentLightLevelInfo::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::ContentLightLevelInfo where T: core::clone::Clone
+pub unsafe fn png::ContentLightLevelInfo::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::ContentLightLevelInfo
+pub fn png::ContentLightLevelInfo::from(t: T) -> T
+pub struct png::DecodeOptions
+impl png::DecodeOptions
+pub fn png::DecodeOptions::set_ignore_adler32(&mut self, ignore_adler32: bool)
+pub fn png::DecodeOptions::set_ignore_checksums(&mut self, ignore_checksums: bool)
+pub fn png::DecodeOptions::set_ignore_crc(&mut self, ignore_crc: bool)
+pub fn png::DecodeOptions::set_ignore_iccp_chunk(&mut self, ignore_iccp_chunk: bool)
+pub fn png::DecodeOptions::set_ignore_text_chunk(&mut self, ignore_text_chunk: bool)
+pub fn png::DecodeOptions::set_skip_ancillary_crc_failures(&mut self, skip_ancillary_crc_failures: bool)
+impl core::clone::Clone for png::DecodeOptions
+pub fn png::DecodeOptions::clone(&self) -> png::DecodeOptions
+impl core::default::Default for png::DecodeOptions
+pub fn png::DecodeOptions::default() -> Self
+impl core::marker::Freeze for png::DecodeOptions
+impl core::marker::Send for png::DecodeOptions
+impl core::marker::Sync for png::DecodeOptions
+impl core::marker::Unpin for png::DecodeOptions
+impl core::panic::unwind_safe::RefUnwindSafe for png::DecodeOptions
+impl core::panic::unwind_safe::UnwindSafe for png::DecodeOptions
+impl<T, U> core::convert::Into<U> for png::DecodeOptions where U: core::convert::From<T>
+pub fn png::DecodeOptions::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::DecodeOptions where U: core::convert::Into<T>
+pub type png::DecodeOptions::Error = core::convert::Infallible
+pub fn png::DecodeOptions::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::DecodeOptions where U: core::convert::TryFrom<T>
+pub type png::DecodeOptions::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::DecodeOptions::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::DecodeOptions where T: core::clone::Clone
+pub type png::DecodeOptions::Owned = T
+pub fn png::DecodeOptions::clone_into(&self, target: &mut T)
+pub fn png::DecodeOptions::to_owned(&self) -> T
+impl<T> core::any::Any for png::DecodeOptions where T: 'static + ?core::marker::Sized
+pub fn png::DecodeOptions::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::DecodeOptions where T: ?core::marker::Sized
+pub fn png::DecodeOptions::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::DecodeOptions where T: ?core::marker::Sized
+pub fn png::DecodeOptions::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::DecodeOptions where T: core::clone::Clone
+pub unsafe fn png::DecodeOptions::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::DecodeOptions
+pub fn png::DecodeOptions::from(t: T) -> T
+pub struct png::Decoder<R: std::io::BufRead + std::io::Seek>
+impl<R: std::io::BufRead + std::io::Seek> png::Decoder<R>
+pub fn png::Decoder<R>::ignore_checksums(&mut self, ignore_checksums: bool)
+pub fn png::Decoder<R>::new(r: R) -> png::Decoder<R>
+pub fn png::Decoder<R>::new_with_limits(r: R, limits: png::Limits) -> png::Decoder<R>
+pub fn png::Decoder<R>::new_with_options(r: R, decode_options: png::DecodeOptions) -> png::Decoder<R>
+pub fn png::Decoder<R>::read_header_info(&mut self) -> core::result::Result<&png::Info<'static>, png::DecodingError>
+pub fn png::Decoder<R>::read_info(self) -> core::result::Result<png::Reader<R>, png::DecodingError>
+pub fn png::Decoder<R>::set_ignore_iccp_chunk(&mut self, ignore_iccp_chunk: bool)
+pub fn png::Decoder<R>::set_ignore_text_chunk(&mut self, ignore_text_chunk: bool)
+pub fn png::Decoder<R>::set_limits(&mut self, limits: png::Limits)
+pub fn png::Decoder<R>::set_transformations(&mut self, transform: png::Transformations)
+impl<R> core::marker::Freeze for png::Decoder<R> where R: core::marker::Freeze
+impl<R> core::marker::Send for png::Decoder<R> where R: core::marker::Send
+impl<R> core::marker::Sync for png::Decoder<R> where R: core::marker::Sync
+impl<R> core::marker::Unpin for png::Decoder<R> where R: core::marker::Unpin
+impl<R> core::panic::unwind_safe::RefUnwindSafe for png::Decoder<R> where R: core::panic::unwind_safe::RefUnwindSafe
+impl<R> core::panic::unwind_safe::UnwindSafe for png::Decoder<R> where R: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for png::Decoder<R> where U: core::convert::From<T>
+pub fn png::Decoder<R>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Decoder<R> where U: core::convert::Into<T>
+pub type png::Decoder<R>::Error = core::convert::Infallible
+pub fn png::Decoder<R>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Decoder<R> where U: core::convert::TryFrom<T>
+pub type png::Decoder<R>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Decoder<R>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::Decoder<R> where T: 'static + ?core::marker::Sized
+pub fn png::Decoder<R>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Decoder<R> where T: ?core::marker::Sized
+pub fn png::Decoder<R>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Decoder<R> where T: ?core::marker::Sized
+pub fn png::Decoder<R>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::Decoder<R>
+pub fn png::Decoder<R>::from(t: T) -> T
+pub struct png::Encoder<'a, W: std::io::Write>
+impl<'a, W: std::io::Write> png::Encoder<'a, W>
+pub fn png::Encoder<'a, W>::add_itxt_chunk(&mut self, keyword: alloc::string::String, text: alloc::string::String) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::add_text_chunk(&mut self, keyword: alloc::string::String, text: alloc::string::String) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::add_ztxt_chunk(&mut self, keyword: alloc::string::String, text: alloc::string::String) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::new(w: W, width: u32, height: u32) -> png::Encoder<'static, W>
+pub fn png::Encoder<'a, W>::set_animated(&mut self, num_frames: u32, num_plays: u32) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::set_blend_op(&mut self, op: png::BlendOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::set_color(&mut self, color: png::ColorType)
+pub fn png::Encoder<'a, W>::set_compression(&mut self, compression: png::Compression)
+pub fn png::Encoder<'a, W>::set_deflate_compression(&mut self, compression: png::DeflateCompression)
+pub fn png::Encoder<'a, W>::set_depth(&mut self, depth: png::BitDepth)
+pub fn png::Encoder<'a, W>::set_dispose_op(&mut self, op: png::DisposeOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::set_filter(&mut self, filter: png::Filter)
+pub fn png::Encoder<'a, W>::set_frame_delay(&mut self, numerator: u16, denominator: u16) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::set_palette<T: core::convert::Into<alloc::borrow::Cow<'a, [u8]>>>(&mut self, palette: T)
+pub fn png::Encoder<'a, W>::set_pixel_dims(&mut self, pixel_dims: core::option::Option<png::PixelDimensions>)
+pub fn png::Encoder<'a, W>::set_sep_def_img(&mut self, sep_def_img: bool) -> core::result::Result<(), png::EncodingError>
+pub fn png::Encoder<'a, W>::set_source_chromaticities(&mut self, source_chromaticities: png::SourceChromaticities)
+pub fn png::Encoder<'a, W>::set_source_gamma(&mut self, source_gamma: png::ScaledFloat)
+pub fn png::Encoder<'a, W>::set_source_srgb(&mut self, rendering_intent: png::SrgbRenderingIntent)
+pub fn png::Encoder<'a, W>::set_trns<T: core::convert::Into<alloc::borrow::Cow<'a, [u8]>>>(&mut self, trns: T)
+pub fn png::Encoder<'a, W>::validate_sequence(&mut self, validate: bool)
+pub fn png::Encoder<'a, W>::with_info(w: W, info: png::Info<'a>) -> core::result::Result<png::Encoder<'a, W>, png::EncodingError>
+pub fn png::Encoder<'a, W>::write_header(self) -> core::result::Result<png::Writer<W>, png::EncodingError>
+impl<'a, W> core::marker::Freeze for png::Encoder<'a, W> where W: core::marker::Freeze
+impl<'a, W> core::marker::Send for png::Encoder<'a, W> where W: core::marker::Send
+impl<'a, W> core::marker::Sync for png::Encoder<'a, W> where W: core::marker::Sync
+impl<'a, W> core::marker::Unpin for png::Encoder<'a, W> where W: core::marker::Unpin
+impl<'a, W> core::panic::unwind_safe::RefUnwindSafe for png::Encoder<'a, W> where W: core::panic::unwind_safe::RefUnwindSafe
+impl<'a, W> core::panic::unwind_safe::UnwindSafe for png::Encoder<'a, W> where W: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for png::Encoder<'a, W> where U: core::convert::From<T>
+pub fn png::Encoder<'a, W>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Encoder<'a, W> where U: core::convert::Into<T>
+pub type png::Encoder<'a, W>::Error = core::convert::Infallible
+pub fn png::Encoder<'a, W>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Encoder<'a, W> where U: core::convert::TryFrom<T>
+pub type png::Encoder<'a, W>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Encoder<'a, W>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::Encoder<'a, W> where T: 'static + ?core::marker::Sized
+pub fn png::Encoder<'a, W>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Encoder<'a, W> where T: ?core::marker::Sized
+pub fn png::Encoder<'a, W>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Encoder<'a, W> where T: ?core::marker::Sized
+pub fn png::Encoder<'a, W>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::Encoder<'a, W>
+pub fn png::Encoder<'a, W>::from(t: T) -> T
+pub struct png::FrameControl
+pub png::FrameControl::blend_op: png::BlendOp
+pub png::FrameControl::delay_den: u16
+pub png::FrameControl::delay_num: u16
+pub png::FrameControl::dispose_op: png::DisposeOp
+pub png::FrameControl::height: u32
+pub png::FrameControl::sequence_number: u32
+pub png::FrameControl::width: u32
+pub png::FrameControl::x_offset: u32
+pub png::FrameControl::y_offset: u32
+impl png::FrameControl
+pub fn png::FrameControl::encode<W: std::io::Write>(self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+pub fn png::FrameControl::inc_seq_num(&mut self, i: u32)
+pub fn png::FrameControl::set_seq_num(&mut self, s: u32)
+impl core::clone::Clone for png::FrameControl
+pub fn png::FrameControl::clone(&self) -> png::FrameControl
+impl core::default::Default for png::FrameControl
+pub fn png::FrameControl::default() -> png::FrameControl
+impl core::fmt::Debug for png::FrameControl
+pub fn png::FrameControl::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::FrameControl
+impl core::marker::Freeze for png::FrameControl
+impl core::marker::Send for png::FrameControl
+impl core::marker::Sync for png::FrameControl
+impl core::marker::Unpin for png::FrameControl
+impl core::panic::unwind_safe::RefUnwindSafe for png::FrameControl
+impl core::panic::unwind_safe::UnwindSafe for png::FrameControl
+impl<T, U> core::convert::Into<U> for png::FrameControl where U: core::convert::From<T>
+pub fn png::FrameControl::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::FrameControl where U: core::convert::Into<T>
+pub type png::FrameControl::Error = core::convert::Infallible
+pub fn png::FrameControl::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::FrameControl where U: core::convert::TryFrom<T>
+pub type png::FrameControl::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::FrameControl::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::FrameControl where T: core::clone::Clone
+pub type png::FrameControl::Owned = T
+pub fn png::FrameControl::clone_into(&self, target: &mut T)
+pub fn png::FrameControl::to_owned(&self) -> T
+impl<T> core::any::Any for png::FrameControl where T: 'static + ?core::marker::Sized
+pub fn png::FrameControl::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::FrameControl where T: ?core::marker::Sized
+pub fn png::FrameControl::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::FrameControl where T: ?core::marker::Sized
+pub fn png::FrameControl::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::FrameControl where T: core::clone::Clone
+pub unsafe fn png::FrameControl::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::FrameControl
+pub fn png::FrameControl::from(t: T) -> T
+#[non_exhaustive] pub struct png::Info<'a>
+pub png::Info::animation_control: core::option::Option<png::AnimationControl>
+pub png::Info::bit_depth: png::BitDepth
+pub png::Info::bkgd: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::chrm_chunk: core::option::Option<png::SourceChromaticities>
+pub png::Info::coding_independent_code_points: core::option::Option<png::CodingIndependentCodePoints>
+pub png::Info::color_type: png::ColorType
+pub png::Info::compressed_latin1_text: alloc::vec::Vec<png::text_metadata::ZTXtChunk>
+pub png::Info::content_light_level: core::option::Option<png::ContentLightLevelInfo>
+pub png::Info::exif_metadata: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::frame_control: core::option::Option<png::FrameControl>
+pub png::Info::gama_chunk: core::option::Option<png::ScaledFloat>
+pub png::Info::height: u32
+pub png::Info::icc_profile: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::interlaced: bool
+pub png::Info::mastering_display_color_volume: core::option::Option<png::MasteringDisplayColorVolume>
+pub png::Info::palette: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::pixel_dims: core::option::Option<png::PixelDimensions>
+pub png::Info::sbit: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::source_chromaticities: core::option::Option<png::SourceChromaticities>
+pub png::Info::source_gamma: core::option::Option<png::ScaledFloat>
+pub png::Info::srgb: core::option::Option<png::SrgbRenderingIntent>
+pub png::Info::trns: core::option::Option<alloc::borrow::Cow<'a, [u8]>>
+pub png::Info::uncompressed_latin1_text: alloc::vec::Vec<png::text_metadata::TEXtChunk>
+pub png::Info::utf8_text: alloc::vec::Vec<png::text_metadata::ITXtChunk>
+pub png::Info::width: u32
+impl png::Info<'_>
+pub fn png::Info<'_>::animation_control(&self) -> core::option::Option<&png::AnimationControl>
+pub fn png::Info<'_>::bits_per_pixel(&self) -> usize
+pub fn png::Info<'_>::bytes_per_pixel(&self) -> usize
+pub fn png::Info<'_>::chromaticities(&self) -> core::option::Option<png::SourceChromaticities>
+pub fn png::Info<'_>::frame_control(&self) -> core::option::Option<&png::FrameControl>
+pub fn png::Info<'_>::gamma(&self) -> core::option::Option<png::ScaledFloat>
+pub fn png::Info<'_>::is_animated(&self) -> bool
+pub fn png::Info<'_>::raw_bytes(&self) -> usize
+pub fn png::Info<'_>::raw_row_length(&self) -> usize
+pub fn png::Info<'_>::raw_row_length_from_width(&self, width: u32) -> usize
+pub fn png::Info<'_>::size(&self) -> (u32, u32)
+pub fn png::Info<'_>::with_size(width: u32, height: u32) -> Self
+impl core::default::Default for png::Info<'_>
+pub fn png::Info<'_>::default() -> png::Info<'static>
+impl<'a> core::clone::Clone for png::Info<'a>
+pub fn png::Info<'a>::clone(&self) -> png::Info<'a>
+impl<'a> core::fmt::Debug for png::Info<'a>
+pub fn png::Info<'a>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a> core::marker::Freeze for png::Info<'a>
+impl<'a> core::marker::Send for png::Info<'a>
+impl<'a> core::marker::Sync for png::Info<'a>
+impl<'a> core::marker::Unpin for png::Info<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for png::Info<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for png::Info<'a>
+impl<T, U> core::convert::Into<U> for png::Info<'a> where U: core::convert::From<T>
+pub fn png::Info<'a>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Info<'a> where U: core::convert::Into<T>
+pub type png::Info<'a>::Error = core::convert::Infallible
+pub fn png::Info<'a>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Info<'a> where U: core::convert::TryFrom<T>
+pub type png::Info<'a>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Info<'a>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Info<'a> where T: core::clone::Clone
+pub type png::Info<'a>::Owned = T
+pub fn png::Info<'a>::clone_into(&self, target: &mut T)
+pub fn png::Info<'a>::to_owned(&self) -> T
+impl<T> core::any::Any for png::Info<'a> where T: 'static + ?core::marker::Sized
+pub fn png::Info<'a>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Info<'a> where T: ?core::marker::Sized
+pub fn png::Info<'a>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Info<'a> where T: ?core::marker::Sized
+pub fn png::Info<'a>::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Info<'a> where T: core::clone::Clone
+pub unsafe fn png::Info<'a>::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Info<'a>
+pub fn png::Info<'a>::from(t: T) -> T
+pub struct png::InterlacedRow<'data>
+impl<'data> png::InterlacedRow<'data>
+pub fn png::InterlacedRow<'data>::data(&self) -> &'data [u8]
+pub fn png::InterlacedRow<'data>::interlace(&self) -> &png::InterlaceInfo
+impl<'data> core::clone::Clone for png::InterlacedRow<'data>
+pub fn png::InterlacedRow<'data>::clone(&self) -> png::InterlacedRow<'data>
+impl<'data> core::fmt::Debug for png::InterlacedRow<'data>
+pub fn png::InterlacedRow<'data>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'data> core::marker::Copy for png::InterlacedRow<'data>
+impl<'data> core::marker::Freeze for png::InterlacedRow<'data>
+impl<'data> core::marker::Send for png::InterlacedRow<'data>
+impl<'data> core::marker::Sync for png::InterlacedRow<'data>
+impl<'data> core::marker::Unpin for png::InterlacedRow<'data>
+impl<'data> core::panic::unwind_safe::RefUnwindSafe for png::InterlacedRow<'data>
+impl<'data> core::panic::unwind_safe::UnwindSafe for png::InterlacedRow<'data>
+impl<T, U> core::convert::Into<U> for png::InterlacedRow<'data> where U: core::convert::From<T>
+pub fn png::InterlacedRow<'data>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::InterlacedRow<'data> where U: core::convert::Into<T>
+pub type png::InterlacedRow<'data>::Error = core::convert::Infallible
+pub fn png::InterlacedRow<'data>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::InterlacedRow<'data> where U: core::convert::TryFrom<T>
+pub type png::InterlacedRow<'data>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::InterlacedRow<'data>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::InterlacedRow<'data> where T: core::clone::Clone
+pub type png::InterlacedRow<'data>::Owned = T
+pub fn png::InterlacedRow<'data>::clone_into(&self, target: &mut T)
+pub fn png::InterlacedRow<'data>::to_owned(&self) -> T
+impl<T> core::any::Any for png::InterlacedRow<'data> where T: 'static + ?core::marker::Sized
+pub fn png::InterlacedRow<'data>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::InterlacedRow<'data> where T: ?core::marker::Sized
+pub fn png::InterlacedRow<'data>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::InterlacedRow<'data> where T: ?core::marker::Sized
+pub fn png::InterlacedRow<'data>::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::InterlacedRow<'data> where T: core::clone::Clone
+pub unsafe fn png::InterlacedRow<'data>::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::InterlacedRow<'data>
+pub fn png::InterlacedRow<'data>::from(t: T) -> T
+pub struct png::Limits
+pub png::Limits::bytes: usize
+impl core::clone::Clone for png::Limits
+pub fn png::Limits::clone(&self) -> png::Limits
+impl core::default::Default for png::Limits
+pub fn png::Limits::default() -> png::Limits
+impl core::fmt::Debug for png::Limits
+pub fn png::Limits::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::Limits
+impl core::marker::Freeze for png::Limits
+impl core::marker::Send for png::Limits
+impl core::marker::Sync for png::Limits
+impl core::marker::Unpin for png::Limits
+impl core::panic::unwind_safe::RefUnwindSafe for png::Limits
+impl core::panic::unwind_safe::UnwindSafe for png::Limits
+impl<T, U> core::convert::Into<U> for png::Limits where U: core::convert::From<T>
+pub fn png::Limits::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Limits where U: core::convert::Into<T>
+pub type png::Limits::Error = core::convert::Infallible
+pub fn png::Limits::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Limits where U: core::convert::TryFrom<T>
+pub type png::Limits::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Limits::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Limits where T: core::clone::Clone
+pub type png::Limits::Owned = T
+pub fn png::Limits::clone_into(&self, target: &mut T)
+pub fn png::Limits::to_owned(&self) -> T
+impl<T> core::any::Any for png::Limits where T: 'static + ?core::marker::Sized
+pub fn png::Limits::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Limits where T: ?core::marker::Sized
+pub fn png::Limits::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Limits where T: ?core::marker::Sized
+pub fn png::Limits::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Limits where T: core::clone::Clone
+pub unsafe fn png::Limits::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Limits
+pub fn png::Limits::from(t: T) -> T
+pub struct png::MasteringDisplayColorVolume
+pub png::MasteringDisplayColorVolume::chromaticities: png::SourceChromaticities
+pub png::MasteringDisplayColorVolume::max_luminance: u32
+pub png::MasteringDisplayColorVolume::min_luminance: u32
+impl core::clone::Clone for png::MasteringDisplayColorVolume
+pub fn png::MasteringDisplayColorVolume::clone(&self) -> png::MasteringDisplayColorVolume
+impl core::cmp::Eq for png::MasteringDisplayColorVolume
+impl core::cmp::PartialEq for png::MasteringDisplayColorVolume
+pub fn png::MasteringDisplayColorVolume::eq(&self, other: &png::MasteringDisplayColorVolume) -> bool
+impl core::fmt::Debug for png::MasteringDisplayColorVolume
+pub fn png::MasteringDisplayColorVolume::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::MasteringDisplayColorVolume
+impl core::marker::StructuralPartialEq for png::MasteringDisplayColorVolume
+impl core::marker::Freeze for png::MasteringDisplayColorVolume
+impl core::marker::Send for png::MasteringDisplayColorVolume
+impl core::marker::Sync for png::MasteringDisplayColorVolume
+impl core::marker::Unpin for png::MasteringDisplayColorVolume
+impl core::panic::unwind_safe::RefUnwindSafe for png::MasteringDisplayColorVolume
+impl core::panic::unwind_safe::UnwindSafe for png::MasteringDisplayColorVolume
+impl<T, U> core::convert::Into<U> for png::MasteringDisplayColorVolume where U: core::convert::From<T>
+pub fn png::MasteringDisplayColorVolume::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::MasteringDisplayColorVolume where U: core::convert::Into<T>
+pub type png::MasteringDisplayColorVolume::Error = core::convert::Infallible
+pub fn png::MasteringDisplayColorVolume::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::MasteringDisplayColorVolume where U: core::convert::TryFrom<T>
+pub type png::MasteringDisplayColorVolume::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::MasteringDisplayColorVolume::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::MasteringDisplayColorVolume where T: core::clone::Clone
+pub type png::MasteringDisplayColorVolume::Owned = T
+pub fn png::MasteringDisplayColorVolume::clone_into(&self, target: &mut T)
+pub fn png::MasteringDisplayColorVolume::to_owned(&self) -> T
+impl<T> core::any::Any for png::MasteringDisplayColorVolume where T: 'static + ?core::marker::Sized
+pub fn png::MasteringDisplayColorVolume::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::MasteringDisplayColorVolume where T: ?core::marker::Sized
+pub fn png::MasteringDisplayColorVolume::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::MasteringDisplayColorVolume where T: ?core::marker::Sized
+pub fn png::MasteringDisplayColorVolume::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::MasteringDisplayColorVolume where T: core::clone::Clone
+pub unsafe fn png::MasteringDisplayColorVolume::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::MasteringDisplayColorVolume
+pub fn png::MasteringDisplayColorVolume::from(t: T) -> T
+pub struct png::OutputInfo
+pub png::OutputInfo::bit_depth: png::BitDepth
+pub png::OutputInfo::color_type: png::ColorType
+pub png::OutputInfo::height: u32
+pub png::OutputInfo::line_size: usize
+pub png::OutputInfo::width: u32
+impl png::OutputInfo
+pub fn png::OutputInfo::buffer_size(&self) -> usize
+impl core::cmp::Eq for png::OutputInfo
+impl core::cmp::PartialEq for png::OutputInfo
+pub fn png::OutputInfo::eq(&self, other: &png::OutputInfo) -> bool
+impl core::fmt::Debug for png::OutputInfo
+pub fn png::OutputInfo::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for png::OutputInfo
+impl core::marker::Freeze for png::OutputInfo
+impl core::marker::Send for png::OutputInfo
+impl core::marker::Sync for png::OutputInfo
+impl core::marker::Unpin for png::OutputInfo
+impl core::panic::unwind_safe::RefUnwindSafe for png::OutputInfo
+impl core::panic::unwind_safe::UnwindSafe for png::OutputInfo
+impl<T, U> core::convert::Into<U> for png::OutputInfo where U: core::convert::From<T>
+pub fn png::OutputInfo::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::OutputInfo where U: core::convert::Into<T>
+pub type png::OutputInfo::Error = core::convert::Infallible
+pub fn png::OutputInfo::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::OutputInfo where U: core::convert::TryFrom<T>
+pub type png::OutputInfo::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::OutputInfo::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::OutputInfo where T: 'static + ?core::marker::Sized
+pub fn png::OutputInfo::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::OutputInfo where T: ?core::marker::Sized
+pub fn png::OutputInfo::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::OutputInfo where T: ?core::marker::Sized
+pub fn png::OutputInfo::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::OutputInfo
+pub fn png::OutputInfo::from(t: T) -> T
+pub struct png::ParameterError
+impl core::fmt::Debug for png::ParameterError
+pub fn png::ParameterError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for png::ParameterError
+pub fn png::ParameterError::fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for png::ParameterError
+impl core::marker::Send for png::ParameterError
+impl core::marker::Sync for png::ParameterError
+impl core::marker::Unpin for png::ParameterError
+impl core::panic::unwind_safe::RefUnwindSafe for png::ParameterError
+impl core::panic::unwind_safe::UnwindSafe for png::ParameterError
+impl<T, U> core::convert::Into<U> for png::ParameterError where U: core::convert::From<T>
+pub fn png::ParameterError::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::ParameterError where U: core::convert::Into<T>
+pub type png::ParameterError::Error = core::convert::Infallible
+pub fn png::ParameterError::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::ParameterError where U: core::convert::TryFrom<T>
+pub type png::ParameterError::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::ParameterError::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::string::ToString for png::ParameterError where T: core::fmt::Display + ?core::marker::Sized
+pub fn png::ParameterError::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for png::ParameterError where T: 'static + ?core::marker::Sized
+pub fn png::ParameterError::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::ParameterError where T: ?core::marker::Sized
+pub fn png::ParameterError::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::ParameterError where T: ?core::marker::Sized
+pub fn png::ParameterError::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::ParameterError
+pub fn png::ParameterError::from(t: T) -> T
+pub struct png::PixelDimensions
+pub png::PixelDimensions::unit: png::Unit
+pub png::PixelDimensions::xppu: u32
+pub png::PixelDimensions::yppu: u32
+impl core::clone::Clone for png::PixelDimensions
+pub fn png::PixelDimensions::clone(&self) -> png::PixelDimensions
+impl core::fmt::Debug for png::PixelDimensions
+pub fn png::PixelDimensions::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::PixelDimensions
+impl core::marker::Freeze for png::PixelDimensions
+impl core::marker::Send for png::PixelDimensions
+impl core::marker::Sync for png::PixelDimensions
+impl core::marker::Unpin for png::PixelDimensions
+impl core::panic::unwind_safe::RefUnwindSafe for png::PixelDimensions
+impl core::panic::unwind_safe::UnwindSafe for png::PixelDimensions
+impl<T, U> core::convert::Into<U> for png::PixelDimensions where U: core::convert::From<T>
+pub fn png::PixelDimensions::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::PixelDimensions where U: core::convert::Into<T>
+pub type png::PixelDimensions::Error = core::convert::Infallible
+pub fn png::PixelDimensions::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::PixelDimensions where U: core::convert::TryFrom<T>
+pub type png::PixelDimensions::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::PixelDimensions::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::PixelDimensions where T: core::clone::Clone
+pub type png::PixelDimensions::Owned = T
+pub fn png::PixelDimensions::clone_into(&self, target: &mut T)
+pub fn png::PixelDimensions::to_owned(&self) -> T
+impl<T> core::any::Any for png::PixelDimensions where T: 'static + ?core::marker::Sized
+pub fn png::PixelDimensions::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::PixelDimensions where T: ?core::marker::Sized
+pub fn png::PixelDimensions::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::PixelDimensions where T: ?core::marker::Sized
+pub fn png::PixelDimensions::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::PixelDimensions where T: core::clone::Clone
+pub unsafe fn png::PixelDimensions::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::PixelDimensions
+pub fn png::PixelDimensions::from(t: T) -> T
+pub struct png::Reader<R: std::io::BufRead + std::io::Seek>
+impl<R: std::io::BufRead + std::io::Seek> png::Reader<R>
+pub fn png::Reader<R>::finish(&mut self) -> core::result::Result<(), png::DecodingError>
+pub fn png::Reader<R>::info(&self) -> &png::Info<'static>
+pub fn png::Reader<R>::next_frame(&mut self, buf: &mut [u8]) -> core::result::Result<png::OutputInfo, png::DecodingError>
+pub fn png::Reader<R>::next_frame_info(&mut self) -> core::result::Result<&png::FrameControl, png::DecodingError>
+pub fn png::Reader<R>::next_interlaced_row(&mut self) -> core::result::Result<core::option::Option<png::InterlacedRow<'_>>, png::DecodingError>
+pub fn png::Reader<R>::next_row(&mut self) -> core::result::Result<core::option::Option<png::decoder::Row<'_>>, png::DecodingError>
+pub fn png::Reader<R>::output_buffer_size(&self) -> usize
+pub fn png::Reader<R>::output_color_type(&self) -> (png::ColorType, png::BitDepth)
+pub fn png::Reader<R>::output_line_size(&self, width: u32) -> usize
+pub fn png::Reader<R>::read_row(&mut self, output_buffer: &mut [u8]) -> core::result::Result<core::option::Option<png::InterlaceInfo>, png::DecodingError>
+impl<R> core::marker::Freeze for png::Reader<R> where R: core::marker::Freeze
+impl<R> core::marker::Send for png::Reader<R> where R: core::marker::Send
+impl<R> core::marker::Sync for png::Reader<R> where R: core::marker::Sync
+impl<R> core::marker::Unpin for png::Reader<R> where R: core::marker::Unpin
+impl<R> !core::panic::unwind_safe::RefUnwindSafe for png::Reader<R>
+impl<R> !core::panic::unwind_safe::UnwindSafe for png::Reader<R>
+impl<T, U> core::convert::Into<U> for png::Reader<R> where U: core::convert::From<T>
+pub fn png::Reader<R>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Reader<R> where U: core::convert::Into<T>
+pub type png::Reader<R>::Error = core::convert::Infallible
+pub fn png::Reader<R>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Reader<R> where U: core::convert::TryFrom<T>
+pub type png::Reader<R>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Reader<R>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::Reader<R> where T: 'static + ?core::marker::Sized
+pub fn png::Reader<R>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Reader<R> where T: ?core::marker::Sized
+pub fn png::Reader<R>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Reader<R> where T: ?core::marker::Sized
+pub fn png::Reader<R>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::Reader<R>
+pub fn png::Reader<R>::from(t: T) -> T
+pub struct png::ScaledFloat(_)
+impl png::ScaledFloat
+pub fn png::ScaledFloat::exact(value: f32) -> bool
+pub fn png::ScaledFloat::from_scaled(val: u32) -> Self
+pub fn png::ScaledFloat::in_range(value: f32) -> bool
+pub fn png::ScaledFloat::into_scaled(self) -> u32
+pub fn png::ScaledFloat::into_value(self) -> f32
+pub fn png::ScaledFloat::new(value: f32) -> Self
+impl core::clone::Clone for png::ScaledFloat
+pub fn png::ScaledFloat::clone(&self) -> png::ScaledFloat
+impl core::cmp::Eq for png::ScaledFloat
+impl core::cmp::PartialEq for png::ScaledFloat
+pub fn png::ScaledFloat::eq(&self, other: &png::ScaledFloat) -> bool
+impl core::fmt::Debug for png::ScaledFloat
+pub fn png::ScaledFloat::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::ScaledFloat
+impl core::marker::StructuralPartialEq for png::ScaledFloat
+impl core::marker::Freeze for png::ScaledFloat
+impl core::marker::Send for png::ScaledFloat
+impl core::marker::Sync for png::ScaledFloat
+impl core::marker::Unpin for png::ScaledFloat
+impl core::panic::unwind_safe::RefUnwindSafe for png::ScaledFloat
+impl core::panic::unwind_safe::UnwindSafe for png::ScaledFloat
+impl<T, U> core::convert::Into<U> for png::ScaledFloat where U: core::convert::From<T>
+pub fn png::ScaledFloat::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::ScaledFloat where U: core::convert::Into<T>
+pub type png::ScaledFloat::Error = core::convert::Infallible
+pub fn png::ScaledFloat::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::ScaledFloat where U: core::convert::TryFrom<T>
+pub type png::ScaledFloat::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::ScaledFloat::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::ScaledFloat where T: core::clone::Clone
+pub type png::ScaledFloat::Owned = T
+pub fn png::ScaledFloat::clone_into(&self, target: &mut T)
+pub fn png::ScaledFloat::to_owned(&self) -> T
+impl<T> core::any::Any for png::ScaledFloat where T: 'static + ?core::marker::Sized
+pub fn png::ScaledFloat::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::ScaledFloat where T: ?core::marker::Sized
+pub fn png::ScaledFloat::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::ScaledFloat where T: ?core::marker::Sized
+pub fn png::ScaledFloat::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::ScaledFloat where T: core::clone::Clone
+pub unsafe fn png::ScaledFloat::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::ScaledFloat
+pub fn png::ScaledFloat::from(t: T) -> T
+pub struct png::SourceChromaticities
+pub png::SourceChromaticities::blue: (png::ScaledFloat, png::ScaledFloat)
+pub png::SourceChromaticities::green: (png::ScaledFloat, png::ScaledFloat)
+pub png::SourceChromaticities::red: (png::ScaledFloat, png::ScaledFloat)
+pub png::SourceChromaticities::white: (png::ScaledFloat, png::ScaledFloat)
+impl png::SourceChromaticities
+pub fn png::SourceChromaticities::encode<W: std::io::Write>(self, w: &mut W) -> core::result::Result<(), png::EncodingError>
+pub fn png::SourceChromaticities::new(white: (f32, f32), red: (f32, f32), green: (f32, f32), blue: (f32, f32)) -> Self
+pub fn png::SourceChromaticities::to_be_bytes(self) -> [u8; 32]
+impl core::clone::Clone for png::SourceChromaticities
+pub fn png::SourceChromaticities::clone(&self) -> png::SourceChromaticities
+impl core::cmp::Eq for png::SourceChromaticities
+impl core::cmp::PartialEq for png::SourceChromaticities
+pub fn png::SourceChromaticities::eq(&self, other: &png::SourceChromaticities) -> bool
+impl core::fmt::Debug for png::SourceChromaticities
+pub fn png::SourceChromaticities::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for png::SourceChromaticities
+impl core::marker::StructuralPartialEq for png::SourceChromaticities
+impl core::marker::Freeze for png::SourceChromaticities
+impl core::marker::Send for png::SourceChromaticities
+impl core::marker::Sync for png::SourceChromaticities
+impl core::marker::Unpin for png::SourceChromaticities
+impl core::panic::unwind_safe::RefUnwindSafe for png::SourceChromaticities
+impl core::panic::unwind_safe::UnwindSafe for png::SourceChromaticities
+impl<T, U> core::convert::Into<U> for png::SourceChromaticities where U: core::convert::From<T>
+pub fn png::SourceChromaticities::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::SourceChromaticities where U: core::convert::Into<T>
+pub type png::SourceChromaticities::Error = core::convert::Infallible
+pub fn png::SourceChromaticities::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::SourceChromaticities where U: core::convert::TryFrom<T>
+pub type png::SourceChromaticities::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::SourceChromaticities::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::SourceChromaticities where T: core::clone::Clone
+pub type png::SourceChromaticities::Owned = T
+pub fn png::SourceChromaticities::clone_into(&self, target: &mut T)
+pub fn png::SourceChromaticities::to_owned(&self) -> T
+impl<T> core::any::Any for png::SourceChromaticities where T: 'static + ?core::marker::Sized
+pub fn png::SourceChromaticities::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::SourceChromaticities where T: ?core::marker::Sized
+pub fn png::SourceChromaticities::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::SourceChromaticities where T: ?core::marker::Sized
+pub fn png::SourceChromaticities::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::SourceChromaticities where T: core::clone::Clone
+pub unsafe fn png::SourceChromaticities::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::SourceChromaticities
+pub fn png::SourceChromaticities::from(t: T) -> T
+pub struct png::StreamWriter<'a, W: std::io::Write>
+impl<'a, W: std::io::Write> png::StreamWriter<'a, W>
+pub fn png::StreamWriter<'a, W>::finish(self) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::reset_frame_dimension(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::reset_frame_position(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::set_blend_op(&mut self, op: png::BlendOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::set_dispose_op(&mut self, op: png::DisposeOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::set_filter(&mut self, filter: png::Filter)
+pub fn png::StreamWriter<'a, W>::set_frame_delay(&mut self, numerator: u16, denominator: u16) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::set_frame_dimension(&mut self, width: u32, height: u32) -> core::result::Result<(), png::EncodingError>
+pub fn png::StreamWriter<'a, W>::set_frame_position(&mut self, x: u32, y: u32) -> core::result::Result<(), png::EncodingError>
+impl<'a, W: std::io::Write> std::io::Write for png::StreamWriter<'a, W>
+pub fn png::StreamWriter<'a, W>::flush(&mut self) -> std::io::error::Result<()>
+pub fn png::StreamWriter<'a, W>::write(&mut self, data: &[u8]) -> std::io::error::Result<usize>
+impl<W: std::io::Write> core::ops::drop::Drop for png::StreamWriter<'_, W>
+pub fn png::StreamWriter<'_, W>::drop(&mut self)
+impl<'a, W> core::marker::Freeze for png::StreamWriter<'a, W> where W: core::marker::Freeze
+impl<'a, W> core::marker::Send for png::StreamWriter<'a, W> where W: core::marker::Send
+impl<'a, W> core::marker::Sync for png::StreamWriter<'a, W> where W: core::marker::Sync
+impl<'a, W> core::marker::Unpin for png::StreamWriter<'a, W> where W: core::marker::Unpin
+impl<'a, W> core::panic::unwind_safe::RefUnwindSafe for png::StreamWriter<'a, W> where W: core::panic::unwind_safe::RefUnwindSafe
+impl<'a, W> !core::panic::unwind_safe::UnwindSafe for png::StreamWriter<'a, W>
+impl<T, U> core::convert::Into<U> for png::StreamWriter<'a, W> where U: core::convert::From<T>
+pub fn png::StreamWriter<'a, W>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::StreamWriter<'a, W> where U: core::convert::Into<T>
+pub type png::StreamWriter<'a, W>::Error = core::convert::Infallible
+pub fn png::StreamWriter<'a, W>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::StreamWriter<'a, W> where U: core::convert::TryFrom<T>
+pub type png::StreamWriter<'a, W>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::StreamWriter<'a, W>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::StreamWriter<'a, W> where T: 'static + ?core::marker::Sized
+pub fn png::StreamWriter<'a, W>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::StreamWriter<'a, W> where T: ?core::marker::Sized
+pub fn png::StreamWriter<'a, W>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::StreamWriter<'a, W> where T: ?core::marker::Sized
+pub fn png::StreamWriter<'a, W>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::StreamWriter<'a, W>
+pub fn png::StreamWriter<'a, W>::from(t: T) -> T
+pub struct png::StreamingDecoder
+impl png::StreamingDecoder
+pub fn png::StreamingDecoder::ignore_adler32(&self) -> bool
+pub fn png::StreamingDecoder::info(&self) -> core::option::Option<&png::Info<'static>>
+pub fn png::StreamingDecoder::new() -> png::StreamingDecoder
+pub fn png::StreamingDecoder::new_with_options(decode_options: png::DecodeOptions) -> png::StreamingDecoder
+pub fn png::StreamingDecoder::reset(&mut self)
+pub fn png::StreamingDecoder::set_ignore_adler32(&mut self, ignore_adler32: bool) -> bool
+pub fn png::StreamingDecoder::set_ignore_crc(&mut self, ignore_crc: bool)
+pub fn png::StreamingDecoder::set_ignore_iccp_chunk(&mut self, ignore_iccp_chunk: bool)
+pub fn png::StreamingDecoder::set_ignore_text_chunk(&mut self, ignore_text_chunk: bool)
+pub fn png::StreamingDecoder::set_skip_ancillary_crc_failures(&mut self, skip_ancillary_crc_failures: bool)
+pub fn png::StreamingDecoder::update(&mut self, buf: &[u8], image_data: &mut alloc::vec::Vec<u8>) -> core::result::Result<(usize, png::Decoded), png::DecodingError>
+impl core::default::Default for png::StreamingDecoder
+pub fn png::StreamingDecoder::default() -> Self
+impl core::marker::Freeze for png::StreamingDecoder
+impl core::marker::Send for png::StreamingDecoder
+impl core::marker::Sync for png::StreamingDecoder
+impl core::marker::Unpin for png::StreamingDecoder
+impl core::panic::unwind_safe::RefUnwindSafe for png::StreamingDecoder
+impl core::panic::unwind_safe::UnwindSafe for png::StreamingDecoder
+impl<T, U> core::convert::Into<U> for png::StreamingDecoder where U: core::convert::From<T>
+pub fn png::StreamingDecoder::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::StreamingDecoder where U: core::convert::Into<T>
+pub type png::StreamingDecoder::Error = core::convert::Infallible
+pub fn png::StreamingDecoder::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::StreamingDecoder where U: core::convert::TryFrom<T>
+pub type png::StreamingDecoder::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::StreamingDecoder::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::StreamingDecoder where T: 'static + ?core::marker::Sized
+pub fn png::StreamingDecoder::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::StreamingDecoder where T: ?core::marker::Sized
+pub fn png::StreamingDecoder::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::StreamingDecoder where T: ?core::marker::Sized
+pub fn png::StreamingDecoder::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::StreamingDecoder
+pub fn png::StreamingDecoder::from(t: T) -> T
+pub struct png::Transformations(_)
+impl png::Transformations
+pub const png::Transformations::ALPHA: Self
+pub const png::Transformations::EXPAND: Self
+pub const png::Transformations::IDENTITY: Self
+pub const png::Transformations::STRIP_16: Self
+impl png::Transformations
+pub const fn png::Transformations::all() -> Self
+pub const fn png::Transformations::bits(&self) -> u32
+pub const fn png::Transformations::complement(self) -> Self
+pub const fn png::Transformations::contains(&self, other: Self) -> bool
+pub const fn png::Transformations::difference(self, other: Self) -> Self
+pub const fn png::Transformations::empty() -> Self
+pub const fn png::Transformations::from_bits(bits: u32) -> core::option::Option<Self>
+pub const fn png::Transformations::from_bits_retain(bits: u32) -> Self
+pub const fn png::Transformations::from_bits_truncate(bits: u32) -> Self
+pub fn png::Transformations::from_name(name: &str) -> core::option::Option<Self>
+pub fn png::Transformations::insert(&mut self, other: Self)
+pub const fn png::Transformations::intersection(self, other: Self) -> Self
+pub const fn png::Transformations::intersects(&self, other: Self) -> bool
+pub const fn png::Transformations::is_all(&self) -> bool
+pub const fn png::Transformations::is_empty(&self) -> bool
+pub fn png::Transformations::remove(&mut self, other: Self)
+pub fn png::Transformations::set(&mut self, other: Self, value: bool)
+pub const fn png::Transformations::symmetric_difference(self, other: Self) -> Self
+pub fn png::Transformations::toggle(&mut self, other: Self)
+pub const fn png::Transformations::union(self, other: Self) -> Self
+impl png::Transformations
+pub const fn png::Transformations::iter(&self) -> bitflags::iter::Iter<png::Transformations>
+pub const fn png::Transformations::iter_names(&self) -> bitflags::iter::IterNames<png::Transformations>
+impl png::Transformations
+pub fn png::Transformations::normalize_to_color8() -> png::Transformations
+impl bitflags::traits::Flags for png::Transformations
+pub type png::Transformations::Bits = u32
+pub const png::Transformations::FLAGS: &'static [bitflags::traits::Flag<png::Transformations>]
+pub fn png::Transformations::bits(&self) -> u32
+pub fn png::Transformations::from_bits_retain(bits: u32) -> png::Transformations
+impl bitflags::traits::PublicFlags for png::Transformations
+pub type png::Transformations::Internal = InternalBitFlags
+pub type png::Transformations::Primitive = u32
+impl core::clone::Clone for png::Transformations
+pub fn png::Transformations::clone(&self) -> png::Transformations
+impl core::cmp::Eq for png::Transformations
+impl core::cmp::Ord for png::Transformations
+pub fn png::Transformations::cmp(&self, other: &png::Transformations) -> core::cmp::Ordering
+impl core::cmp::PartialEq for png::Transformations
+pub fn png::Transformations::eq(&self, other: &png::Transformations) -> bool
+impl core::cmp::PartialOrd for png::Transformations
+pub fn png::Transformations::partial_cmp(&self, other: &png::Transformations) -> core::option::Option<core::cmp::Ordering>
+impl core::default::Default for png::Transformations
+pub fn png::Transformations::default() -> png::Transformations
+impl core::fmt::Binary for png::Transformations
+pub fn png::Transformations::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Debug for png::Transformations
+pub fn png::Transformations::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::LowerHex for png::Transformations
+pub fn png::Transformations::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Octal for png::Transformations
+pub fn png::Transformations::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::UpperHex for png::Transformations
+pub fn png::Transformations::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for png::Transformations
+pub fn png::Transformations::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::iter::traits::collect::Extend<png::Transformations> for png::Transformations
+pub fn png::Transformations::extend<T: core::iter::traits::collect::IntoIterator<Item = Self>>(&mut self, iterator: T)
+impl core::iter::traits::collect::FromIterator<png::Transformations> for png::Transformations
+pub fn png::Transformations::from_iter<T: core::iter::traits::collect::IntoIterator<Item = Self>>(iterator: T) -> Self
+impl core::iter::traits::collect::IntoIterator for png::Transformations
+pub type png::Transformations::IntoIter = bitflags::iter::Iter<png::Transformations>
+pub type png::Transformations::Item = png::Transformations
+pub fn png::Transformations::into_iter(self) -> Self::IntoIter
+impl core::marker::Copy for png::Transformations
+impl core::marker::StructuralPartialEq for png::Transformations
+impl core::ops::arith::Sub for png::Transformations
+pub type png::Transformations::Output = png::Transformations
+pub fn png::Transformations::sub(self, other: Self) -> Self
+impl core::ops::arith::SubAssign for png::Transformations
+pub fn png::Transformations::sub_assign(&mut self, other: Self)
+impl core::ops::bit::BitAnd for png::Transformations
+pub type png::Transformations::Output = png::Transformations
+pub fn png::Transformations::bitand(self, other: Self) -> Self
+impl core::ops::bit::BitAndAssign for png::Transformations
+pub fn png::Transformations::bitand_assign(&mut self, other: Self)
+impl core::ops::bit::BitOr for png::Transformations
+pub type png::Transformations::Output = png::Transformations
+pub fn png::Transformations::bitor(self, other: png::Transformations) -> Self
+impl core::ops::bit::BitOrAssign for png::Transformations
+pub fn png::Transformations::bitor_assign(&mut self, other: Self)
+impl core::ops::bit::BitXor for png::Transformations
+pub type png::Transformations::Output = png::Transformations
+pub fn png::Transformations::bitxor(self, other: Self) -> Self
+impl core::ops::bit::BitXorAssign for png::Transformations
+pub fn png::Transformations::bitxor_assign(&mut self, other: Self)
+impl core::ops::bit::Not for png::Transformations
+pub type png::Transformations::Output = png::Transformations
+pub fn png::Transformations::not(self) -> Self
+impl core::marker::Freeze for png::Transformations
+impl core::marker::Send for png::Transformations
+impl core::marker::Sync for png::Transformations
+impl core::marker::Unpin for png::Transformations
+impl core::panic::unwind_safe::RefUnwindSafe for png::Transformations
+impl core::panic::unwind_safe::UnwindSafe for png::Transformations
+impl<T, U> core::convert::Into<U> for png::Transformations where U: core::convert::From<T>
+pub fn png::Transformations::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Transformations where U: core::convert::Into<T>
+pub type png::Transformations::Error = core::convert::Infallible
+pub fn png::Transformations::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Transformations where U: core::convert::TryFrom<T>
+pub type png::Transformations::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Transformations::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for png::Transformations where T: core::clone::Clone
+pub type png::Transformations::Owned = T
+pub fn png::Transformations::clone_into(&self, target: &mut T)
+pub fn png::Transformations::to_owned(&self) -> T
+impl<T> core::any::Any for png::Transformations where T: 'static + ?core::marker::Sized
+pub fn png::Transformations::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Transformations where T: ?core::marker::Sized
+pub fn png::Transformations::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Transformations where T: ?core::marker::Sized
+pub fn png::Transformations::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for png::Transformations where T: core::clone::Clone
+pub unsafe fn png::Transformations::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for png::Transformations
+pub fn png::Transformations::from(t: T) -> T
+pub struct png::Writer<W: std::io::Write>
+impl<W: std::io::Write> png::Writer<W>
+pub fn png::Writer<W>::finish(self) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::into_stream_writer(self) -> core::result::Result<png::StreamWriter<'static, W>, png::EncodingError>
+pub fn png::Writer<W>::into_stream_writer_with_size(self, size: usize) -> core::result::Result<png::StreamWriter<'static, W>, png::EncodingError>
+pub fn png::Writer<W>::reset_frame_dimension(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::reset_frame_position(&mut self) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::set_blend_op(&mut self, op: png::BlendOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::set_dispose_op(&mut self, op: png::DisposeOp) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::set_filter(&mut self, filter: png::Filter)
+pub fn png::Writer<W>::set_frame_delay(&mut self, numerator: u16, denominator: u16) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::set_frame_dimension(&mut self, width: u32, height: u32) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::set_frame_position(&mut self, x: u32, y: u32) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::stream_writer(&mut self) -> core::result::Result<png::StreamWriter<'_, W>, png::EncodingError>
+pub fn png::Writer<W>::stream_writer_with_size(&mut self, size: usize) -> core::result::Result<png::StreamWriter<'_, W>, png::EncodingError>
+pub fn png::Writer<W>::write_chunk(&mut self, name: png::chunk::ChunkType, data: &[u8]) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::write_image_data(&mut self, data: &[u8]) -> core::result::Result<(), png::EncodingError>
+pub fn png::Writer<W>::write_text_chunk<T: png::text_metadata::EncodableTextChunk>(&mut self, text_chunk: &T) -> core::result::Result<(), png::EncodingError>
+impl<W: std::io::Write> core::ops::drop::Drop for png::Writer<W>
+pub fn png::Writer<W>::drop(&mut self)
+impl<W> core::marker::Freeze for png::Writer<W> where W: core::marker::Freeze
+impl<W> core::marker::Send for png::Writer<W> where W: core::marker::Send
+impl<W> core::marker::Sync for png::Writer<W> where W: core::marker::Sync
+impl<W> core::marker::Unpin for png::Writer<W> where W: core::marker::Unpin
+impl<W> core::panic::unwind_safe::RefUnwindSafe for png::Writer<W> where W: core::panic::unwind_safe::RefUnwindSafe
+impl<W> core::panic::unwind_safe::UnwindSafe for png::Writer<W> where W: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for png::Writer<W> where U: core::convert::From<T>
+pub fn png::Writer<W>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for png::Writer<W> where U: core::convert::Into<T>
+pub type png::Writer<W>::Error = core::convert::Infallible
+pub fn png::Writer<W>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for png::Writer<W> where U: core::convert::TryFrom<T>
+pub type png::Writer<W>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn png::Writer<W>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for png::Writer<W> where T: 'static + ?core::marker::Sized
+pub fn png::Writer<W>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for png::Writer<W> where T: ?core::marker::Sized
+pub fn png::Writer<W>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for png::Writer<W> where T: ?core::marker::Sized
+pub fn png::Writer<W>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for png::Writer<W>
+pub fn png::Writer<W>::from(t: T) -> T
+pub fn png::expand_interlaced_row(img: &mut [u8], img_row_stride: usize, interlaced_row: &[u8], interlace_info: &png::Adam7Info, bits_per_pixel: u8)

@@ -1,0 +1,976 @@
+pub mod lcms2
+pub use lcms2::CIELab
+pub use lcms2::CIEXYZ
+pub use lcms2::CIExyY
+pub use lcms2::CIExyYTRIPLE
+pub use lcms2::ColorSpaceSignature
+pub use lcms2::InfoType
+pub use lcms2::Intent
+pub use lcms2::PixelFormat
+pub use lcms2::Pod
+pub use lcms2::ProfileClassSignature
+pub use lcms2::TagSignature
+pub use lcms2::VideoSignalType
+pub use lcms2::ViewingConditions
+pub use lcms2::Zeroable
+pub enum lcms2::Error
+pub lcms2::Error::InvalidString
+pub lcms2::Error::MissingData
+pub lcms2::Error::ObjectCreationError
+impl core::clone::Clone for lcms2::Error
+pub fn lcms2::Error::clone(&self) -> lcms2::Error
+impl core::cmp::Eq for lcms2::Error
+impl core::cmp::PartialEq for lcms2::Error
+pub fn lcms2::Error::eq(&self, other: &lcms2::Error) -> bool
+impl core::error::Error for lcms2::Error
+impl core::fmt::Debug for lcms2::Error
+pub fn lcms2::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for lcms2::Error
+pub fn lcms2::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for lcms2::Error
+impl core::marker::StructuralPartialEq for lcms2::Error
+impl core::marker::Freeze for lcms2::Error
+impl core::marker::Send for lcms2::Error
+impl core::marker::Sync for lcms2::Error
+impl core::marker::Unpin for lcms2::Error
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::Error
+impl core::panic::unwind_safe::UnwindSafe for lcms2::Error
+impl<T, U> core::convert::Into<U> for lcms2::Error where U: core::convert::From<T>
+pub fn lcms2::Error::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Error where U: core::convert::Into<T>
+pub type lcms2::Error::Error = core::convert::Infallible
+pub fn lcms2::Error::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Error where U: core::convert::TryFrom<T>
+pub type lcms2::Error::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Error::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::Error where T: core::clone::Clone
+pub type lcms2::Error::Owned = T
+pub fn lcms2::Error::clone_into(&self, target: &mut T)
+pub fn lcms2::Error::to_owned(&self) -> T
+impl<T> alloc::string::ToString for lcms2::Error where T: core::fmt::Display + ?core::marker::Sized
+pub fn lcms2::Error::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for lcms2::Error where T: 'static + ?core::marker::Sized
+pub fn lcms2::Error::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Error where T: ?core::marker::Sized
+pub fn lcms2::Error::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Error where T: ?core::marker::Sized
+pub fn lcms2::Error::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::Error where T: core::clone::Clone
+pub unsafe fn lcms2::Error::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::Error
+pub fn lcms2::Error::from(t: T) -> T
+#[non_exhaustive] pub enum lcms2::Tag<'a>
+pub lcms2::Tag::CIEXYZ(&'a lcms2_sys::ffi::CIEXYZ)
+pub lcms2::Tag::CIExyYTRIPLE(&'a lcms2_sys::ffi::CIExyYTRIPLE)
+pub lcms2::Tag::ColorimetricIntentImageState(lcms2_sys::ffi::ColorimetricIntentImageState)
+pub lcms2::Tag::ICCData(&'a lcms2_sys::ffi::ICCData)
+pub lcms2::Tag::ICCMeasurementConditions(&'a lcms2_sys::ffi::ICCMeasurementConditions)
+pub lcms2::Tag::ICCViewingConditions(&'a lcms2_sys::ffi::ICCViewingConditions)
+pub lcms2::Tag::Intent(lcms2_sys::ffi::Intent)
+pub lcms2::Tag::MHC2(&'a lcms2_sys::ffi::MHC2Type)
+pub lcms2::Tag::MLU(&'a lcms2::MLURef)
+pub lcms2::Tag::NamedColorList(&'a lcms2::NamedColorListRef)
+pub lcms2::Tag::None
+pub lcms2::Tag::Pipeline(&'a lcms2::PipelineRef)
+pub lcms2::Tag::SEQ(&'a lcms2_sys::ffi::SEQ)
+pub lcms2::Tag::Screening(&'a lcms2_sys::ffi::Screening)
+pub lcms2::Tag::Technology(lcms2_sys::ffi::TechnologySignature)
+pub lcms2::Tag::ToneCurve(&'a lcms2::ToneCurveRef)
+pub lcms2::Tag::UcrBg(&'a lcms2_sys::ffi::UcrBg)
+pub lcms2::Tag::VcgtCurves([&'a lcms2::ToneCurveRef; 3])
+pub lcms2::Tag::VideoSignal(&'a lcms2_sys::ffi::VideoSignalType)
+impl<'a> lcms2::Tag<'a>
+pub unsafe fn lcms2::Tag<'a>::data_for_signature(&self, sig: lcms2_sys::ffi::TagSignature) -> *const u8
+pub fn lcms2::Tag<'a>::is_none(&self) -> bool
+pub unsafe fn lcms2::Tag<'a>::new(sig: lcms2_sys::ffi::TagSignature, data: *const u8) -> Self
+impl<'a> core::fmt::Debug for lcms2::Tag<'a>
+pub fn lcms2::Tag<'a>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a> core::marker::Freeze for lcms2::Tag<'a>
+impl<'a> !core::marker::Send for lcms2::Tag<'a>
+impl<'a> !core::marker::Sync for lcms2::Tag<'a>
+impl<'a> core::marker::Unpin for lcms2::Tag<'a>
+impl<'a> !core::panic::unwind_safe::RefUnwindSafe for lcms2::Tag<'a>
+impl<'a> !core::panic::unwind_safe::UnwindSafe for lcms2::Tag<'a>
+impl<T, U> core::convert::Into<U> for lcms2::Tag<'a> where U: core::convert::From<T>
+pub fn lcms2::Tag<'a>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Tag<'a> where U: core::convert::Into<T>
+pub type lcms2::Tag<'a>::Error = core::convert::Infallible
+pub fn lcms2::Tag<'a>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Tag<'a> where U: core::convert::TryFrom<T>
+pub type lcms2::Tag<'a>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Tag<'a>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::Tag<'a> where T: 'static + ?core::marker::Sized
+pub fn lcms2::Tag<'a>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Tag<'a> where T: ?core::marker::Sized
+pub fn lcms2::Tag<'a>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Tag<'a> where T: ?core::marker::Sized
+pub fn lcms2::Tag<'a>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::Tag<'a>
+pub fn lcms2::Tag<'a>::from(t: T) -> T
+pub struct lcms2::CIECAM02
+impl lcms2::CIECAM02
+pub fn lcms2::CIECAM02::forward(&mut self, input: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::JCh
+pub fn lcms2::CIECAM02::new(conditions: lcms2_sys::ffi::ViewingConditions) -> lcms2::LCMSResult<Self>
+pub fn lcms2::CIECAM02::reverse(&mut self, input: &lcms2_sys::ffi::JCh) -> lcms2_sys::ffi::CIEXYZ
+impl core::ops::drop::Drop for lcms2::CIECAM02
+pub fn lcms2::CIECAM02::drop(&mut self)
+impl core::marker::Freeze for lcms2::CIECAM02
+impl !core::marker::Send for lcms2::CIECAM02
+impl !core::marker::Sync for lcms2::CIECAM02
+impl core::marker::Unpin for lcms2::CIECAM02
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::CIECAM02
+impl core::panic::unwind_safe::UnwindSafe for lcms2::CIECAM02
+impl<T, U> core::convert::Into<U> for lcms2::CIECAM02 where U: core::convert::From<T>
+pub fn lcms2::CIECAM02::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::CIECAM02 where U: core::convert::Into<T>
+pub type lcms2::CIECAM02::Error = core::convert::Infallible
+pub fn lcms2::CIECAM02::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::CIECAM02 where U: core::convert::TryFrom<T>
+pub type lcms2::CIECAM02::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::CIECAM02::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::CIECAM02 where T: 'static + ?core::marker::Sized
+pub fn lcms2::CIECAM02::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::CIECAM02 where T: ?core::marker::Sized
+pub fn lcms2::CIECAM02::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::CIECAM02 where T: ?core::marker::Sized
+pub fn lcms2::CIECAM02::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::CIECAM02
+pub fn lcms2::CIECAM02::from(t: T) -> T
+pub struct lcms2::Flags<T: lcms2::CacheFlag>(pub u32, _)
+impl lcms2::Flags
+pub const lcms2::Flags::BLACKPOINT_COMPENSATION: lcms2::Flags
+pub const lcms2::Flags::CLUT_POST_LINEARIZATION: lcms2::Flags
+pub const lcms2::Flags::CLUT_PRE_LINEARIZATION: lcms2::Flags
+pub const lcms2::Flags::COPY_ALPHA: lcms2::Flags
+pub const lcms2::Flags::DEVICELINK_8BITS: lcms2::Flags
+pub const lcms2::Flags::FORCE_CLUT: lcms2::Flags
+pub const lcms2::Flags::GAMUT_CHECK: lcms2::Flags
+pub const lcms2::Flags::GUESS_DEVICE_CLASS: lcms2::Flags
+pub const lcms2::Flags::HIGHRES_PRECALC: lcms2::Flags
+pub const lcms2::Flags::KEEP_SEQUENCE: lcms2::Flags
+pub const lcms2::Flags::LOWRES_PRECALC: lcms2::Flags
+pub const lcms2::Flags::NO_CACHE: lcms2::Flags<DisallowCache>
+pub const lcms2::Flags::NO_DEFAULT_RESOURCE_DEF: lcms2::Flags
+pub const lcms2::Flags::NO_NEGATIVES: lcms2::Flags
+pub const lcms2::Flags::NO_OPTIMIZE: lcms2::Flags
+pub const lcms2::Flags::NO_WHITE_ON_WHITE_FIXUP: lcms2::Flags
+pub const lcms2::Flags::NULL_TRANSFORM: lcms2::Flags
+pub const lcms2::Flags::SOFT_PROOFING: lcms2::Flags
+impl<T: lcms2::CacheFlag> lcms2::Flags<T>
+pub fn lcms2::Flags<T>::has<F: lcms2::CacheFlag>(&self, flag: lcms2::Flags<F>) -> bool
+impl core::default::Default for lcms2::Flags
+pub fn lcms2::Flags::default() -> Self
+impl<T: core::clone::Clone + lcms2::CacheFlag> core::clone::Clone for lcms2::Flags<T>
+pub fn lcms2::Flags<T>::clone(&self) -> lcms2::Flags<T>
+impl<T: core::fmt::Debug + lcms2::CacheFlag> core::fmt::Debug for lcms2::Flags<T>
+pub fn lcms2::Flags<T>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<T: core::marker::Copy + lcms2::CacheFlag> core::marker::Copy for lcms2::Flags<T>
+impl<T> core::marker::Freeze for lcms2::Flags<T> where T: core::marker::Freeze
+impl<T> core::marker::Send for lcms2::Flags<T> where T: core::marker::Send
+impl<T> core::marker::Sync for lcms2::Flags<T> where T: core::marker::Sync
+impl<T> core::marker::Unpin for lcms2::Flags<T> where T: core::marker::Unpin
+impl<T> core::panic::unwind_safe::RefUnwindSafe for lcms2::Flags<T> where T: core::panic::unwind_safe::RefUnwindSafe
+impl<T> core::panic::unwind_safe::UnwindSafe for lcms2::Flags<T> where T: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for lcms2::Flags<T> where U: core::convert::From<T>
+pub fn lcms2::Flags<T>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Flags<T> where U: core::convert::Into<T>
+pub type lcms2::Flags<T>::Error = core::convert::Infallible
+pub fn lcms2::Flags<T>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Flags<T> where U: core::convert::TryFrom<T>
+pub type lcms2::Flags<T>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Flags<T>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::Flags<T> where T: core::clone::Clone
+pub type lcms2::Flags<T>::Owned = T
+pub fn lcms2::Flags<T>::clone_into(&self, target: &mut T)
+pub fn lcms2::Flags<T>::to_owned(&self) -> T
+impl<T> core::any::Any for lcms2::Flags<T> where T: 'static + ?core::marker::Sized
+pub fn lcms2::Flags<T>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Flags<T> where T: ?core::marker::Sized
+pub fn lcms2::Flags<T>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Flags<T> where T: ?core::marker::Sized
+pub fn lcms2::Flags<T>::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::Flags<T> where T: core::clone::Clone
+pub unsafe fn lcms2::Flags<T>::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::Flags<T>
+pub fn lcms2::Flags<T>::from(t: T) -> T
+pub struct lcms2::Locale
+impl lcms2::Locale
+pub fn lcms2::Locale::new(locale_name: &str) -> Self
+pub fn lcms2::Locale::none() -> Self
+impl core::clone::Clone for lcms2::Locale
+pub fn lcms2::Locale::clone(&self) -> lcms2::Locale
+impl core::cmp::Eq for lcms2::Locale
+impl core::cmp::Ord for lcms2::Locale
+pub fn lcms2::Locale::cmp(&self, other: &lcms2::Locale) -> core::cmp::Ordering
+impl core::cmp::PartialEq for lcms2::Locale
+pub fn lcms2::Locale::eq(&self, other: &lcms2::Locale) -> bool
+impl core::cmp::PartialOrd for lcms2::Locale
+pub fn lcms2::Locale::partial_cmp(&self, other: &lcms2::Locale) -> core::option::Option<core::cmp::Ordering>
+impl core::default::Default for lcms2::Locale
+pub fn lcms2::Locale::default() -> Self
+impl core::fmt::Debug for lcms2::Locale
+pub fn lcms2::Locale::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for lcms2::Locale
+pub fn lcms2::Locale::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for lcms2::Locale
+impl core::marker::StructuralPartialEq for lcms2::Locale
+impl<'a> core::convert::From<&'a str> for lcms2::Locale
+pub fn lcms2::Locale::from(s: &'a str) -> Self
+impl core::marker::Freeze for lcms2::Locale
+impl core::marker::Send for lcms2::Locale
+impl core::marker::Sync for lcms2::Locale
+impl core::marker::Unpin for lcms2::Locale
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::Locale
+impl core::panic::unwind_safe::UnwindSafe for lcms2::Locale
+impl<T, U> core::convert::Into<U> for lcms2::Locale where U: core::convert::From<T>
+pub fn lcms2::Locale::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Locale where U: core::convert::Into<T>
+pub type lcms2::Locale::Error = core::convert::Infallible
+pub fn lcms2::Locale::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Locale where U: core::convert::TryFrom<T>
+pub type lcms2::Locale::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Locale::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::Locale where T: core::clone::Clone
+pub type lcms2::Locale::Owned = T
+pub fn lcms2::Locale::clone_into(&self, target: &mut T)
+pub fn lcms2::Locale::to_owned(&self) -> T
+impl<T> alloc::string::ToString for lcms2::Locale where T: core::fmt::Display + ?core::marker::Sized
+pub fn lcms2::Locale::to_string(&self) -> alloc::string::String
+impl<T> core::any::Any for lcms2::Locale where T: 'static + ?core::marker::Sized
+pub fn lcms2::Locale::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Locale where T: ?core::marker::Sized
+pub fn lcms2::Locale::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Locale where T: ?core::marker::Sized
+pub fn lcms2::Locale::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::Locale where T: core::clone::Clone
+pub unsafe fn lcms2::Locale::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::Locale
+pub fn lcms2::Locale::from(t: T) -> T
+pub struct lcms2::MLU(_)
+impl lcms2::MLU
+pub fn lcms2::MLU::new(items: usize) -> Self
+impl core::borrow::Borrow<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::borrow(&self) -> &lcms2::MLURef
+impl core::borrow::BorrowMut<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::borrow_mut(&mut self) -> &mut lcms2::MLURef
+impl core::convert::AsMut<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::as_mut(&mut self) -> &mut lcms2::MLURef
+impl core::convert::AsRef<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::as_ref(&self) -> &lcms2::MLURef
+impl core::ops::deref::Deref for lcms2::MLU
+pub type lcms2::MLU::Target = lcms2::MLURef
+pub fn lcms2::MLU::deref(&self) -> &lcms2::MLURef
+impl core::ops::deref::DerefMut for lcms2::MLU
+pub fn lcms2::MLU::deref_mut(&mut self) -> &mut lcms2::MLURef
+impl core::ops::drop::Drop for lcms2::MLU
+pub fn lcms2::MLU::drop(&mut self)
+impl foreign_types_shared::ForeignType for lcms2::MLU
+pub type lcms2::MLU::CType = lcms2_sys::ffi::MLU
+pub type lcms2::MLU::Ref = lcms2::MLURef
+pub fn lcms2::MLU::as_ptr(&self) -> *mut lcms2_sys::ffi::MLU
+pub unsafe fn lcms2::MLU::from_ptr(ptr: *mut lcms2_sys::ffi::MLU) -> lcms2::MLU
+impl core::marker::Freeze for lcms2::MLU
+impl !core::marker::Send for lcms2::MLU
+impl !core::marker::Sync for lcms2::MLU
+impl core::marker::Unpin for lcms2::MLU
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::MLU
+impl core::panic::unwind_safe::UnwindSafe for lcms2::MLU
+impl<P, T> core::ops::deref::Receiver for lcms2::MLU where P: core::ops::deref::Deref<Target = T> + ?core::marker::Sized, T: ?core::marker::Sized
+pub type lcms2::MLU::Target = T
+impl<T, U> core::convert::Into<U> for lcms2::MLU where U: core::convert::From<T>
+pub fn lcms2::MLU::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::MLU where U: core::convert::Into<T>
+pub type lcms2::MLU::Error = core::convert::Infallible
+pub fn lcms2::MLU::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::MLU where U: core::convert::TryFrom<T>
+pub type lcms2::MLU::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::MLU::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::MLU where T: 'static + ?core::marker::Sized
+pub fn lcms2::MLU::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::MLU where T: ?core::marker::Sized
+pub fn lcms2::MLU::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::MLU where T: ?core::marker::Sized
+pub fn lcms2::MLU::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::MLU
+pub fn lcms2::MLU::from(t: T) -> T
+pub struct lcms2::MLURef(_)
+impl lcms2::MLURef
+pub fn lcms2::MLURef::set_text(&mut self, text: &str, locale: lcms2::Locale) -> bool
+pub fn lcms2::MLURef::set_text_ascii(&mut self, text: &str, locale: lcms2::Locale) -> bool
+pub fn lcms2::MLURef::tanslation(&self, locale: lcms2::Locale) -> lcms2::LCMSResult<lcms2::Locale>
+pub fn lcms2::MLURef::tanslations(&self) -> alloc::vec::Vec<lcms2::Locale>
+pub fn lcms2::MLURef::text(&self, locale: lcms2::Locale) -> lcms2::LCMSResult<alloc::string::String>
+pub fn lcms2::MLURef::text_ascii(&self, locale: lcms2::Locale) -> lcms2::LCMSResult<alloc::string::String>
+impl core::borrow::Borrow<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::borrow(&self) -> &lcms2::MLURef
+impl core::borrow::BorrowMut<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::borrow_mut(&mut self) -> &mut lcms2::MLURef
+impl core::convert::AsMut<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::as_mut(&mut self) -> &mut lcms2::MLURef
+impl core::convert::AsRef<lcms2::MLURef> for lcms2::MLU
+pub fn lcms2::MLU::as_ref(&self) -> &lcms2::MLURef
+impl core::fmt::Debug for lcms2::MLURef
+pub fn lcms2::MLURef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl foreign_types_shared::ForeignTypeRef for lcms2::MLURef
+pub type lcms2::MLURef::CType = lcms2_sys::ffi::MLU
+impl core::marker::Freeze for lcms2::MLURef
+impl !core::marker::Send for lcms2::MLURef
+impl !core::marker::Sync for lcms2::MLURef
+impl core::marker::Unpin for lcms2::MLURef
+impl !core::panic::unwind_safe::RefUnwindSafe for lcms2::MLURef
+impl core::panic::unwind_safe::UnwindSafe for lcms2::MLURef
+impl<T, U> core::convert::Into<U> for lcms2::MLURef where U: core::convert::From<T>
+pub fn lcms2::MLURef::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::MLURef where U: core::convert::Into<T>
+pub type lcms2::MLURef::Error = core::convert::Infallible
+pub fn lcms2::MLURef::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::MLURef where U: core::convert::TryFrom<T>
+pub type lcms2::MLURef::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::MLURef::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::MLURef where T: 'static + ?core::marker::Sized
+pub fn lcms2::MLURef::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::MLURef where T: ?core::marker::Sized
+pub fn lcms2::MLURef::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::MLURef where T: ?core::marker::Sized
+pub fn lcms2::MLURef::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::MLURef
+pub fn lcms2::MLURef::from(t: T) -> T
+pub struct lcms2::NamedColorInfo
+pub lcms2::NamedColorInfo::colorant: [u16; 16]
+pub lcms2::NamedColorInfo::name: alloc::string::String
+pub lcms2::NamedColorInfo::pcs: [u16; 3]
+pub lcms2::NamedColorInfo::prefix: alloc::string::String
+pub lcms2::NamedColorInfo::suffix: alloc::string::String
+impl core::clone::Clone for lcms2::NamedColorInfo
+pub fn lcms2::NamedColorInfo::clone(&self) -> lcms2::NamedColorInfo
+impl core::cmp::Eq for lcms2::NamedColorInfo
+impl core::cmp::PartialEq for lcms2::NamedColorInfo
+pub fn lcms2::NamedColorInfo::eq(&self, other: &lcms2::NamedColorInfo) -> bool
+impl core::fmt::Debug for lcms2::NamedColorInfo
+pub fn lcms2::NamedColorInfo::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for lcms2::NamedColorInfo
+impl core::marker::Freeze for lcms2::NamedColorInfo
+impl core::marker::Send for lcms2::NamedColorInfo
+impl core::marker::Sync for lcms2::NamedColorInfo
+impl core::marker::Unpin for lcms2::NamedColorInfo
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::NamedColorInfo
+impl core::panic::unwind_safe::UnwindSafe for lcms2::NamedColorInfo
+impl<T, U> core::convert::Into<U> for lcms2::NamedColorInfo where U: core::convert::From<T>
+pub fn lcms2::NamedColorInfo::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::NamedColorInfo where U: core::convert::Into<T>
+pub type lcms2::NamedColorInfo::Error = core::convert::Infallible
+pub fn lcms2::NamedColorInfo::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::NamedColorInfo where U: core::convert::TryFrom<T>
+pub type lcms2::NamedColorInfo::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::NamedColorInfo::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::NamedColorInfo where T: core::clone::Clone
+pub type lcms2::NamedColorInfo::Owned = T
+pub fn lcms2::NamedColorInfo::clone_into(&self, target: &mut T)
+pub fn lcms2::NamedColorInfo::to_owned(&self) -> T
+impl<T> core::any::Any for lcms2::NamedColorInfo where T: 'static + ?core::marker::Sized
+pub fn lcms2::NamedColorInfo::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::NamedColorInfo where T: ?core::marker::Sized
+pub fn lcms2::NamedColorInfo::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::NamedColorInfo where T: ?core::marker::Sized
+pub fn lcms2::NamedColorInfo::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::NamedColorInfo where T: core::clone::Clone
+pub unsafe fn lcms2::NamedColorInfo::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::NamedColorInfo
+pub fn lcms2::NamedColorInfo::from(t: T) -> T
+pub struct lcms2::NamedColorList(_)
+impl lcms2::NamedColorList
+pub fn lcms2::NamedColorList::new(spot_colors: usize, colorant_count: usize, prefix: &str, suffix: &str) -> lcms2::LCMSResult<Self>
+impl core::borrow::Borrow<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::borrow(&self) -> &lcms2::NamedColorListRef
+impl core::borrow::BorrowMut<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::borrow_mut(&mut self) -> &mut lcms2::NamedColorListRef
+impl core::convert::AsMut<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::as_mut(&mut self) -> &mut lcms2::NamedColorListRef
+impl core::convert::AsRef<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::as_ref(&self) -> &lcms2::NamedColorListRef
+impl core::ops::deref::Deref for lcms2::NamedColorList
+pub type lcms2::NamedColorList::Target = lcms2::NamedColorListRef
+pub fn lcms2::NamedColorList::deref(&self) -> &lcms2::NamedColorListRef
+impl core::ops::deref::DerefMut for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::deref_mut(&mut self) -> &mut lcms2::NamedColorListRef
+impl core::ops::drop::Drop for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::drop(&mut self)
+impl foreign_types_shared::ForeignType for lcms2::NamedColorList
+pub type lcms2::NamedColorList::CType = lcms2_sys::ffi::NAMEDCOLORLIST
+pub type lcms2::NamedColorList::Ref = lcms2::NamedColorListRef
+pub fn lcms2::NamedColorList::as_ptr(&self) -> *mut lcms2_sys::ffi::NAMEDCOLORLIST
+pub unsafe fn lcms2::NamedColorList::from_ptr(ptr: *mut lcms2_sys::ffi::NAMEDCOLORLIST) -> lcms2::NamedColorList
+impl core::marker::Freeze for lcms2::NamedColorList
+impl !core::marker::Send for lcms2::NamedColorList
+impl !core::marker::Sync for lcms2::NamedColorList
+impl core::marker::Unpin for lcms2::NamedColorList
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::NamedColorList
+impl core::panic::unwind_safe::UnwindSafe for lcms2::NamedColorList
+impl<P, T> core::ops::deref::Receiver for lcms2::NamedColorList where P: core::ops::deref::Deref<Target = T> + ?core::marker::Sized, T: ?core::marker::Sized
+pub type lcms2::NamedColorList::Target = T
+impl<T, U> core::convert::Into<U> for lcms2::NamedColorList where U: core::convert::From<T>
+pub fn lcms2::NamedColorList::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::NamedColorList where U: core::convert::Into<T>
+pub type lcms2::NamedColorList::Error = core::convert::Infallible
+pub fn lcms2::NamedColorList::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::NamedColorList where U: core::convert::TryFrom<T>
+pub type lcms2::NamedColorList::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::NamedColorList::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::NamedColorList where T: 'static + ?core::marker::Sized
+pub fn lcms2::NamedColorList::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::NamedColorList where T: ?core::marker::Sized
+pub fn lcms2::NamedColorList::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::NamedColorList where T: ?core::marker::Sized
+pub fn lcms2::NamedColorList::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::from(t: T) -> T
+pub struct lcms2::NamedColorListRef(_)
+impl lcms2::NamedColorListRef
+pub fn lcms2::NamedColorListRef::append(&mut self, color_name: &str, pcs: [u16; 3], colorant: [u16; 16]) -> bool
+pub fn lcms2::NamedColorListRef::colors(&self) -> alloc::vec::Vec<lcms2::NamedColorInfo>
+pub fn lcms2::NamedColorListRef::get(&self, index: usize) -> core::option::Option<lcms2::NamedColorInfo>
+pub fn lcms2::NamedColorListRef::index_of(&self, color_name: &str) -> usize
+impl core::borrow::Borrow<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::borrow(&self) -> &lcms2::NamedColorListRef
+impl core::borrow::BorrowMut<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::borrow_mut(&mut self) -> &mut lcms2::NamedColorListRef
+impl core::convert::AsMut<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::as_mut(&mut self) -> &mut lcms2::NamedColorListRef
+impl core::convert::AsRef<lcms2::NamedColorListRef> for lcms2::NamedColorList
+pub fn lcms2::NamedColorList::as_ref(&self) -> &lcms2::NamedColorListRef
+impl foreign_types_shared::ForeignTypeRef for lcms2::NamedColorListRef
+pub type lcms2::NamedColorListRef::CType = lcms2_sys::ffi::NAMEDCOLORLIST
+impl<'a> core::fmt::Debug for lcms2::NamedColorListRef
+pub fn lcms2::NamedColorListRef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for lcms2::NamedColorListRef
+impl !core::marker::Send for lcms2::NamedColorListRef
+impl !core::marker::Sync for lcms2::NamedColorListRef
+impl core::marker::Unpin for lcms2::NamedColorListRef
+impl !core::panic::unwind_safe::RefUnwindSafe for lcms2::NamedColorListRef
+impl core::panic::unwind_safe::UnwindSafe for lcms2::NamedColorListRef
+impl<T, U> core::convert::Into<U> for lcms2::NamedColorListRef where U: core::convert::From<T>
+pub fn lcms2::NamedColorListRef::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::NamedColorListRef where U: core::convert::Into<T>
+pub type lcms2::NamedColorListRef::Error = core::convert::Infallible
+pub fn lcms2::NamedColorListRef::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::NamedColorListRef where U: core::convert::TryFrom<T>
+pub type lcms2::NamedColorListRef::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::NamedColorListRef::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::NamedColorListRef where T: 'static + ?core::marker::Sized
+pub fn lcms2::NamedColorListRef::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::NamedColorListRef where T: ?core::marker::Sized
+pub fn lcms2::NamedColorListRef::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::NamedColorListRef where T: ?core::marker::Sized
+pub fn lcms2::NamedColorListRef::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::NamedColorListRef
+pub fn lcms2::NamedColorListRef::from(t: T) -> T
+pub struct lcms2::PipelineRef(_)
+impl lcms2::PipelineRef
+pub fn lcms2::PipelineRef::cat(&mut self, append: &lcms2::PipelineRef) -> bool
+pub fn lcms2::PipelineRef::eval<Value: lcms2::eval::FloatOrU16>(&self, input: &[Value], output: &mut [Value])
+pub unsafe fn lcms2::PipelineRef::eval_unchecked<Value: lcms2::eval::FloatOrU16>(&self, input: &[Value], output: &mut [Value])
+pub fn lcms2::PipelineRef::first_stage(&self) -> core::option::Option<&lcms2::StageRef>
+pub fn lcms2::PipelineRef::input_channels(&self) -> usize
+pub fn lcms2::PipelineRef::last_stage(&self) -> core::option::Option<&lcms2::StageRef>
+pub fn lcms2::PipelineRef::output_channels(&self) -> usize
+pub fn lcms2::PipelineRef::set_8bit(&mut self, on: bool) -> bool
+pub fn lcms2::PipelineRef::stage_count(&self) -> usize
+pub fn lcms2::PipelineRef::stages(&self) -> lcms2::StagesIter<'_>
+impl alloc::borrow::ToOwned for lcms2::PipelineRef
+pub type lcms2::PipelineRef::Owned = Pipeline
+pub fn lcms2::PipelineRef::to_owned(&self) -> Pipeline
+impl core::fmt::Debug for lcms2::PipelineRef
+pub fn lcms2::PipelineRef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl foreign_types_shared::ForeignTypeRef for lcms2::PipelineRef
+pub type lcms2::PipelineRef::CType = lcms2_sys::ffi::Pipeline
+impl core::marker::Freeze for lcms2::PipelineRef
+impl !core::marker::Send for lcms2::PipelineRef
+impl !core::marker::Sync for lcms2::PipelineRef
+impl core::marker::Unpin for lcms2::PipelineRef
+impl !core::panic::unwind_safe::RefUnwindSafe for lcms2::PipelineRef
+impl core::panic::unwind_safe::UnwindSafe for lcms2::PipelineRef
+impl<T, U> core::convert::Into<U> for lcms2::PipelineRef where U: core::convert::From<T>
+pub fn lcms2::PipelineRef::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::PipelineRef where U: core::convert::Into<T>
+pub type lcms2::PipelineRef::Error = core::convert::Infallible
+pub fn lcms2::PipelineRef::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::PipelineRef where U: core::convert::TryFrom<T>
+pub type lcms2::PipelineRef::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::PipelineRef::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::PipelineRef where T: 'static + ?core::marker::Sized
+pub fn lcms2::PipelineRef::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::PipelineRef where T: ?core::marker::Sized
+pub fn lcms2::PipelineRef::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::PipelineRef where T: ?core::marker::Sized
+pub fn lcms2::PipelineRef::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::PipelineRef
+pub fn lcms2::PipelineRef::from(t: T) -> T
+pub struct lcms2::Profile<Context>
+impl lcms2::Profile<GlobalContext>
+pub fn lcms2::Profile<GlobalContext>::ink_limiting(color_space: lcms2_sys::ffi::ColorSpaceSignature, limit: f64) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<GlobalContext>::new_device_link<F, T>(transform: &lcms2::Transform<F, T>, version: f64, flags: lcms2::Flags) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<GlobalContext>::new_file<P: core::convert::AsRef<std::path::Path>>(path: P) -> std::io::error::Result<Self>
+pub fn lcms2::Profile<GlobalContext>::new_gray(white_point: &lcms2_sys::ffi::CIExyY, curve: &lcms2::ToneCurve) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<GlobalContext>::new_icc(data: &[u8]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<GlobalContext>::new_null() -> Self
+pub fn lcms2::Profile<GlobalContext>::new_placeholder() -> Self
+pub fn lcms2::Profile<GlobalContext>::new_rgb(white_point: &lcms2_sys::ffi::CIExyY, primaries: &lcms2_sys::ffi::CIExyYTRIPLE, transfer_function: &[&lcms2::ToneCurve]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<GlobalContext>::new_srgb() -> Self
+pub fn lcms2::Profile<GlobalContext>::new_xyz() -> Self
+impl<Ctx: Context> lcms2::Profile<Ctx>
+pub fn lcms2::Profile<Ctx>::color_space(&self) -> lcms2_sys::ffi::ColorSpaceSignature
+pub fn lcms2::Profile<Ctx>::detect_black_point(&self, intent: lcms2_sys::ffi::Intent) -> core::option::Option<lcms2_sys::ffi::CIEXYZ>
+pub fn lcms2::Profile<Ctx>::detect_destination_black_point(&self, intent: lcms2_sys::ffi::Intent) -> core::option::Option<lcms2_sys::ffi::CIEXYZ>
+pub fn lcms2::Profile<Ctx>::detect_tac(&self) -> f64
+pub fn lcms2::Profile<Ctx>::device_class(&self) -> lcms2_sys::ffi::ProfileClassSignature
+pub fn lcms2::Profile<Ctx>::encoded_icc_version(&self) -> u32
+pub fn lcms2::Profile<Ctx>::has_tag(&self, sig: lcms2_sys::ffi::TagSignature) -> bool
+pub fn lcms2::Profile<Ctx>::header_attributes(&self) -> u64
+pub fn lcms2::Profile<Ctx>::header_creator(&self) -> u32
+pub fn lcms2::Profile<Ctx>::header_flags(&self) -> u32
+pub fn lcms2::Profile<Ctx>::header_manufacturer(&self) -> u32
+pub fn lcms2::Profile<Ctx>::header_model(&self) -> u32
+pub fn lcms2::Profile<Ctx>::header_rendering_intent(&self) -> lcms2_sys::ffi::Intent
+pub fn lcms2::Profile<Ctx>::icc(&self) -> lcms2::LCMSResult<alloc::vec::Vec<u8>>
+pub fn lcms2::Profile<Ctx>::info(&self, info: lcms2_sys::ffi::InfoType, locale: lcms2::Locale) -> core::option::Option<alloc::string::String>
+pub fn lcms2::Profile<Ctx>::is_clut(&self, intent: lcms2_sys::ffi::Intent, used_direction: u32) -> bool
+pub fn lcms2::Profile<Ctx>::is_intent_supported(&self, intent: lcms2_sys::ffi::Intent, used_direction: u32) -> bool
+pub fn lcms2::Profile<Ctx>::is_matrix_shaper(&self) -> bool
+pub fn lcms2::Profile<Ctx>::link_tag(&mut self, sig: lcms2_sys::ffi::TagSignature, dst: lcms2_sys::ffi::TagSignature) -> bool
+pub fn lcms2::Profile<Ctx>::pcs(&self) -> lcms2_sys::ffi::ColorSpaceSignature
+pub fn lcms2::Profile<Ctx>::profile_id(&self) -> lcms2_sys::ffi::ProfileID
+pub fn lcms2::Profile<Ctx>::read_tag(&self, sig: lcms2_sys::ffi::TagSignature) -> lcms2::Tag<'_>
+pub fn lcms2::Profile<Ctx>::remove_tag(&mut self, sig: lcms2_sys::ffi::TagSignature) -> bool
+pub fn lcms2::Profile<Ctx>::save_profile_to_file(&mut self, path: &std::path::Path) -> std::io::error::Result<()>
+pub fn lcms2::Profile<Ctx>::set_color_space(&mut self, sig: lcms2_sys::ffi::ColorSpaceSignature)
+pub fn lcms2::Profile<Ctx>::set_default_profile_id(&mut self)
+pub fn lcms2::Profile<Ctx>::set_device_class(&mut self, cls: lcms2_sys::ffi::ProfileClassSignature)
+pub fn lcms2::Profile<Ctx>::set_encoded_icc_version(&self, v: u32)
+pub fn lcms2::Profile<Ctx>::set_header_attributes(&mut self, flags: u64)
+pub fn lcms2::Profile<Ctx>::set_header_flags(&mut self, flags: u32)
+pub fn lcms2::Profile<Ctx>::set_header_manufacturer(&mut self, m: u32)
+pub fn lcms2::Profile<Ctx>::set_header_model(&mut self, model: u32)
+pub fn lcms2::Profile<Ctx>::set_header_rendering_intent(&mut self, intent: lcms2_sys::ffi::Intent)
+pub fn lcms2::Profile<Ctx>::set_pcs(&mut self, pcs: lcms2_sys::ffi::ColorSpaceSignature)
+pub fn lcms2::Profile<Ctx>::set_profile_id(&mut self, id: lcms2_sys::ffi::ProfileID)
+pub fn lcms2::Profile<Ctx>::set_version(&mut self, ver: f64)
+pub fn lcms2::Profile<Ctx>::tag_signatures(&self) -> alloc::vec::Vec<lcms2_sys::ffi::TagSignature>
+pub fn lcms2::Profile<Ctx>::version(&self) -> f64
+pub fn lcms2::Profile<Ctx>::write_tag(&mut self, sig: lcms2_sys::ffi::TagSignature, tag: lcms2::Tag<'_>) -> bool
+impl<Ctx: Context> lcms2::Profile<Ctx>
+pub fn lcms2::Profile<Ctx>::ink_limiting_context(context: impl core::convert::AsRef<Ctx>, color_space: lcms2_sys::ffi::ColorSpaceSignature, limit: f64) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_bchsw_abstract_context(context: impl core::convert::AsRef<Ctx>, lut_points: usize, bright: f64, contrast: f64, hue: f64, saturation: f64, temp_src_dst: core::option::Option<(u32, u32)>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_file_context<P: core::convert::AsRef<std::path::Path>>(context: impl core::convert::AsRef<Ctx>, path: P) -> std::io::error::Result<Self>
+pub fn lcms2::Profile<Ctx>::new_gray_context(context: impl core::convert::AsRef<Ctx>, white_point: &lcms2_sys::ffi::CIExyY, curve: &lcms2::ToneCurve) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_icc_context(context: impl core::convert::AsRef<Ctx>, data: &[u8]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_lab2_context(context: impl core::convert::AsRef<Ctx>, white_point: &lcms2_sys::ffi::CIExyY) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_lab4_context(context: impl core::convert::AsRef<Ctx>, white_point: &lcms2_sys::ffi::CIExyY) -> lcms2::LCMSResult<Self>
+pub unsafe fn lcms2::Profile<Ctx>::new_linearization_device_link_context(context: impl core::convert::AsRef<Ctx>, color_space: lcms2_sys::ffi::ColorSpaceSignature, curves: &[lcms2::ToneCurveRef]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_null_context(context: impl core::convert::AsRef<Ctx>) -> Self
+pub fn lcms2::Profile<Ctx>::new_rgb_context(context: impl core::convert::AsRef<Ctx>, white_point: &lcms2_sys::ffi::CIExyY, primaries: &lcms2_sys::ffi::CIExyYTRIPLE, transfer_function: &[&lcms2::ToneCurve]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Profile<Ctx>::new_srgb_context(context: impl core::convert::AsRef<Ctx>) -> Self
+pub fn lcms2::Profile<Ctx>::new_xyz_context(context: impl core::convert::AsRef<Ctx>) -> Self
+impl core::fmt::Debug for lcms2::Profile
+pub fn lcms2::Profile::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a, C: core::marker::Send> core::marker::Send for lcms2::Profile<C>
+impl<Context> core::ops::drop::Drop for lcms2::Profile<Context>
+pub fn lcms2::Profile<Context>::drop(&mut self)
+impl<Context> core::marker::Freeze for lcms2::Profile<Context>
+impl<Context> !core::marker::Sync for lcms2::Profile<Context>
+impl<Context> core::marker::Unpin for lcms2::Profile<Context> where Context: core::marker::Unpin
+impl<Context> core::panic::unwind_safe::RefUnwindSafe for lcms2::Profile<Context> where Context: core::panic::unwind_safe::RefUnwindSafe
+impl<Context> core::panic::unwind_safe::UnwindSafe for lcms2::Profile<Context> where Context: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for lcms2::Profile<Context> where U: core::convert::From<T>
+pub fn lcms2::Profile<Context>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Profile<Context> where U: core::convert::Into<T>
+pub type lcms2::Profile<Context>::Error = core::convert::Infallible
+pub fn lcms2::Profile<Context>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Profile<Context> where U: core::convert::TryFrom<T>
+pub type lcms2::Profile<Context>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Profile<Context>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::Profile<Context> where T: 'static + ?core::marker::Sized
+pub fn lcms2::Profile<Context>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Profile<Context> where T: ?core::marker::Sized
+pub fn lcms2::Profile<Context>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Profile<Context> where T: ?core::marker::Sized
+pub fn lcms2::Profile<Context>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::Profile<Context>
+pub fn lcms2::Profile<Context>::from(t: T) -> T
+pub struct lcms2::Stage(_)
+impl lcms2::Stage
+pub fn lcms2::Stage::new_clut<Value: lcms2::eval::FloatOrU16>(grid_point_nodes: usize, input_channels: u32, output_channels: u32, table: core::option::Option<&[Value]>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Stage::new_identity(channels: u32) -> lcms2::Stage
+pub fn lcms2::Stage::new_matrix(matrix2d: &[f64], rows: usize, cols: usize, offsets: core::option::Option<&[f64]>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Stage::new_tone_curves(curves: &[&lcms2::ToneCurveRef]) -> lcms2::LCMSResult<lcms2::Stage>
+impl core::borrow::Borrow<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::borrow(&self) -> &lcms2::StageRef
+impl core::borrow::BorrowMut<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::borrow_mut(&mut self) -> &mut lcms2::StageRef
+impl core::convert::AsMut<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::as_mut(&mut self) -> &mut lcms2::StageRef
+impl core::convert::AsRef<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::as_ref(&self) -> &lcms2::StageRef
+impl core::ops::deref::Deref for lcms2::Stage
+pub type lcms2::Stage::Target = lcms2::StageRef
+pub fn lcms2::Stage::deref(&self) -> &lcms2::StageRef
+impl core::ops::deref::DerefMut for lcms2::Stage
+pub fn lcms2::Stage::deref_mut(&mut self) -> &mut lcms2::StageRef
+impl core::ops::drop::Drop for lcms2::Stage
+pub fn lcms2::Stage::drop(&mut self)
+impl foreign_types_shared::ForeignType for lcms2::Stage
+pub type lcms2::Stage::CType = lcms2_sys::ffi::Stage
+pub type lcms2::Stage::Ref = lcms2::StageRef
+pub fn lcms2::Stage::as_ptr(&self) -> *mut lcms2_sys::ffi::Stage
+pub unsafe fn lcms2::Stage::from_ptr(ptr: *mut lcms2_sys::ffi::Stage) -> lcms2::Stage
+impl core::marker::Freeze for lcms2::Stage
+impl !core::marker::Send for lcms2::Stage
+impl !core::marker::Sync for lcms2::Stage
+impl core::marker::Unpin for lcms2::Stage
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::Stage
+impl core::panic::unwind_safe::UnwindSafe for lcms2::Stage
+impl<P, T> core::ops::deref::Receiver for lcms2::Stage where P: core::ops::deref::Deref<Target = T> + ?core::marker::Sized, T: ?core::marker::Sized
+pub type lcms2::Stage::Target = T
+impl<T, U> core::convert::Into<U> for lcms2::Stage where U: core::convert::From<T>
+pub fn lcms2::Stage::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Stage where U: core::convert::Into<T>
+pub type lcms2::Stage::Error = core::convert::Infallible
+pub fn lcms2::Stage::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Stage where U: core::convert::TryFrom<T>
+pub type lcms2::Stage::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Stage::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::Stage where T: 'static + ?core::marker::Sized
+pub fn lcms2::Stage::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Stage where T: ?core::marker::Sized
+pub fn lcms2::Stage::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Stage where T: ?core::marker::Sized
+pub fn lcms2::Stage::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::Stage
+pub fn lcms2::Stage::from(t: T) -> T
+pub struct lcms2::StageRef(_)
+impl lcms2::StageRef
+pub fn lcms2::StageRef::input_channels(&self) -> usize
+pub fn lcms2::StageRef::output_channels(&self) -> usize
+pub fn lcms2::StageRef::stage_type(&self) -> lcms2_sys::ffi::StageSignature
+impl core::borrow::Borrow<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::borrow(&self) -> &lcms2::StageRef
+impl core::borrow::BorrowMut<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::borrow_mut(&mut self) -> &mut lcms2::StageRef
+impl core::convert::AsMut<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::as_mut(&mut self) -> &mut lcms2::StageRef
+impl core::convert::AsRef<lcms2::StageRef> for lcms2::Stage
+pub fn lcms2::Stage::as_ref(&self) -> &lcms2::StageRef
+impl core::fmt::Debug for lcms2::StageRef
+pub fn lcms2::StageRef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl foreign_types_shared::ForeignTypeRef for lcms2::StageRef
+pub type lcms2::StageRef::CType = lcms2_sys::ffi::Stage
+impl core::marker::Freeze for lcms2::StageRef
+impl !core::marker::Send for lcms2::StageRef
+impl !core::marker::Sync for lcms2::StageRef
+impl core::marker::Unpin for lcms2::StageRef
+impl !core::panic::unwind_safe::RefUnwindSafe for lcms2::StageRef
+impl core::panic::unwind_safe::UnwindSafe for lcms2::StageRef
+impl<T, U> core::convert::Into<U> for lcms2::StageRef where U: core::convert::From<T>
+pub fn lcms2::StageRef::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::StageRef where U: core::convert::Into<T>
+pub type lcms2::StageRef::Error = core::convert::Infallible
+pub fn lcms2::StageRef::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::StageRef where U: core::convert::TryFrom<T>
+pub type lcms2::StageRef::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::StageRef::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::StageRef where T: 'static + ?core::marker::Sized
+pub fn lcms2::StageRef::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::StageRef where T: ?core::marker::Sized
+pub fn lcms2::StageRef::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::StageRef where T: ?core::marker::Sized
+pub fn lcms2::StageRef::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::StageRef
+pub fn lcms2::StageRef::from(t: T) -> T
+pub struct lcms2::StagesIter<'a>(pub core::option::Option<&'a lcms2::StageRef>)
+impl<'a> core::iter::traits::iterator::Iterator for lcms2::StagesIter<'a>
+pub type lcms2::StagesIter<'a>::Item = &'a lcms2::StageRef
+pub fn lcms2::StagesIter<'a>::next(&mut self) -> core::option::Option<Self::Item>
+impl<'a> core::marker::Freeze for lcms2::StagesIter<'a>
+impl<'a> !core::marker::Send for lcms2::StagesIter<'a>
+impl<'a> !core::marker::Sync for lcms2::StagesIter<'a>
+impl<'a> core::marker::Unpin for lcms2::StagesIter<'a>
+impl<'a> !core::panic::unwind_safe::RefUnwindSafe for lcms2::StagesIter<'a>
+impl<'a> !core::panic::unwind_safe::UnwindSafe for lcms2::StagesIter<'a>
+impl<I> core::iter::traits::collect::IntoIterator for lcms2::StagesIter<'a> where I: core::iter::traits::iterator::Iterator
+pub type lcms2::StagesIter<'a>::IntoIter = I
+pub type lcms2::StagesIter<'a>::Item = <I as core::iter::traits::iterator::Iterator>::Item
+pub fn lcms2::StagesIter<'a>::into_iter(self) -> I
+impl<T, U> core::convert::Into<U> for lcms2::StagesIter<'a> where U: core::convert::From<T>
+pub fn lcms2::StagesIter<'a>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::StagesIter<'a> where U: core::convert::Into<T>
+pub type lcms2::StagesIter<'a>::Error = core::convert::Infallible
+pub fn lcms2::StagesIter<'a>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::StagesIter<'a> where U: core::convert::TryFrom<T>
+pub type lcms2::StagesIter<'a>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::StagesIter<'a>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::StagesIter<'a> where T: 'static + ?core::marker::Sized
+pub fn lcms2::StagesIter<'a>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::StagesIter<'a> where T: ?core::marker::Sized
+pub fn lcms2::StagesIter<'a>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::StagesIter<'a> where T: ?core::marker::Sized
+pub fn lcms2::StagesIter<'a>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::StagesIter<'a>
+pub fn lcms2::StagesIter<'a>::from(t: T) -> T
+pub struct lcms2::ThreadContext
+impl lcms2::ThreadContext
+pub fn lcms2::ThreadContext::adaptation_state(&self) -> f64
+pub fn lcms2::ThreadContext::alarm_codes(&self) -> [u16; 16]
+pub unsafe fn lcms2::ThreadContext::install_plugin(&mut self, plugin: *mut std::os::raw::c_void) -> bool
+pub fn lcms2::ThreadContext::new() -> Self
+pub fn lcms2::ThreadContext::set_adaptation_state(&mut self, value: f64)
+pub fn lcms2::ThreadContext::set_alarm_codes(&mut self, codes: [u16; 16])
+pub fn lcms2::ThreadContext::set_error_logging_function(&mut self, handler: lcms2_sys::ffi::LogErrorHandlerFunction)
+pub fn lcms2::ThreadContext::supported_intents(&self) -> std::collections::hash::map::HashMap<lcms2_sys::ffi::Intent, &'static core::ffi::c_str::CStr>
+pub fn lcms2::ThreadContext::unregister_plugins(&mut self)
+pub fn lcms2::ThreadContext::user_data(&self) -> *mut std::os::raw::c_void
+impl core::clone::Clone for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::clone(&self) -> Self
+impl core::convert::AsRef<lcms2::ThreadContext> for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::as_ref(&self) -> &Self
+impl core::default::Default for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::default() -> Self
+impl core::fmt::Debug for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Send for lcms2::ThreadContext
+impl core::ops::drop::Drop for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::drop(&mut self)
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::ThreadContext
+impl core::panic::unwind_safe::UnwindSafe for lcms2::ThreadContext
+impl core::marker::Freeze for lcms2::ThreadContext
+impl !core::marker::Sync for lcms2::ThreadContext
+impl core::marker::Unpin for lcms2::ThreadContext
+impl<T, U> core::convert::Into<U> for lcms2::ThreadContext where U: core::convert::From<T>
+pub fn lcms2::ThreadContext::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::ThreadContext where U: core::convert::Into<T>
+pub type lcms2::ThreadContext::Error = core::convert::Infallible
+pub fn lcms2::ThreadContext::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::ThreadContext where U: core::convert::TryFrom<T>
+pub type lcms2::ThreadContext::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::ThreadContext::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::ThreadContext where T: core::clone::Clone
+pub type lcms2::ThreadContext::Owned = T
+pub fn lcms2::ThreadContext::clone_into(&self, target: &mut T)
+pub fn lcms2::ThreadContext::to_owned(&self) -> T
+impl<T> core::any::Any for lcms2::ThreadContext where T: 'static + ?core::marker::Sized
+pub fn lcms2::ThreadContext::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::ThreadContext where T: ?core::marker::Sized
+pub fn lcms2::ThreadContext::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::ThreadContext where T: ?core::marker::Sized
+pub fn lcms2::ThreadContext::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::ThreadContext where T: core::clone::Clone
+pub unsafe fn lcms2::ThreadContext::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::ThreadContext
+pub fn lcms2::ThreadContext::from(t: T) -> T
+pub struct lcms2::ToneCurve(_)
+impl lcms2::ToneCurve
+pub fn lcms2::ToneCurve::new(gamma: f64) -> Self
+pub fn lcms2::ToneCurve::new_parametric(curve_type: i16, params: &[f64]) -> lcms2::LCMSResult<Self>
+pub fn lcms2::ToneCurve::new_tabulated(values: &[u16]) -> Self
+pub fn lcms2::ToneCurve::new_tabulated_float(values: &[f32]) -> Self
+impl core::borrow::Borrow<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::borrow(&self) -> &lcms2::ToneCurveRef
+impl core::borrow::BorrowMut<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::borrow_mut(&mut self) -> &mut lcms2::ToneCurveRef
+impl core::clone::Clone for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::clone(&self) -> lcms2::ToneCurve
+impl core::convert::AsMut<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::as_mut(&mut self) -> &mut lcms2::ToneCurveRef
+impl core::convert::AsRef<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::as_ref(&self) -> &lcms2::ToneCurveRef
+impl core::ops::deref::Deref for lcms2::ToneCurve
+pub type lcms2::ToneCurve::Target = lcms2::ToneCurveRef
+pub fn lcms2::ToneCurve::deref(&self) -> &lcms2::ToneCurveRef
+impl core::ops::deref::DerefMut for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::deref_mut(&mut self) -> &mut lcms2::ToneCurveRef
+impl core::ops::drop::Drop for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::drop(&mut self)
+impl foreign_types_shared::ForeignType for lcms2::ToneCurve
+pub type lcms2::ToneCurve::CType = lcms2_sys::ffi::ToneCurve
+pub type lcms2::ToneCurve::Ref = lcms2::ToneCurveRef
+pub fn lcms2::ToneCurve::as_ptr(&self) -> *mut lcms2_sys::ffi::ToneCurve
+pub unsafe fn lcms2::ToneCurve::from_ptr(ptr: *mut lcms2_sys::ffi::ToneCurve) -> lcms2::ToneCurve
+impl core::marker::Freeze for lcms2::ToneCurve
+impl !core::marker::Send for lcms2::ToneCurve
+impl !core::marker::Sync for lcms2::ToneCurve
+impl core::marker::Unpin for lcms2::ToneCurve
+impl core::panic::unwind_safe::RefUnwindSafe for lcms2::ToneCurve
+impl core::panic::unwind_safe::UnwindSafe for lcms2::ToneCurve
+impl<P, T> core::ops::deref::Receiver for lcms2::ToneCurve where P: core::ops::deref::Deref<Target = T> + ?core::marker::Sized, T: ?core::marker::Sized
+pub type lcms2::ToneCurve::Target = T
+impl<T, U> core::convert::Into<U> for lcms2::ToneCurve where U: core::convert::From<T>
+pub fn lcms2::ToneCurve::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::ToneCurve where U: core::convert::Into<T>
+pub type lcms2::ToneCurve::Error = core::convert::Infallible
+pub fn lcms2::ToneCurve::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::ToneCurve where U: core::convert::TryFrom<T>
+pub type lcms2::ToneCurve::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::ToneCurve::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> alloc::borrow::ToOwned for lcms2::ToneCurve where T: core::clone::Clone
+pub type lcms2::ToneCurve::Owned = T
+pub fn lcms2::ToneCurve::clone_into(&self, target: &mut T)
+pub fn lcms2::ToneCurve::to_owned(&self) -> T
+impl<T> core::any::Any for lcms2::ToneCurve where T: 'static + ?core::marker::Sized
+pub fn lcms2::ToneCurve::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::ToneCurve where T: ?core::marker::Sized
+pub fn lcms2::ToneCurve::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::ToneCurve where T: ?core::marker::Sized
+pub fn lcms2::ToneCurve::borrow_mut(&mut self) -> &mut T
+impl<T> core::clone::CloneToUninit for lcms2::ToneCurve where T: core::clone::Clone
+pub unsafe fn lcms2::ToneCurve::clone_to_uninit(&self, dest: *mut u8)
+impl<T> core::convert::From<T> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::from(t: T) -> T
+pub struct lcms2::ToneCurveRef(_)
+impl lcms2::ToneCurveRef
+pub fn lcms2::ToneCurveRef::estimated_entries(&self) -> &[u16]
+pub fn lcms2::ToneCurveRef::estimated_gamma(&self, precision: f64) -> core::option::Option<f64>
+pub fn lcms2::ToneCurveRef::eval<ToneCurveValue: lcms2::eval::FloatOrU16>(&self, v: ToneCurveValue) -> ToneCurveValue
+pub fn lcms2::ToneCurveRef::is_descending(&self) -> bool
+pub fn lcms2::ToneCurveRef::is_linear(&self) -> bool
+pub fn lcms2::ToneCurveRef::is_monotonic(&self) -> bool
+pub fn lcms2::ToneCurveRef::is_multisegment(&self) -> bool
+pub fn lcms2::ToneCurveRef::join(&self, y: &lcms2::ToneCurveRef, points: usize) -> lcms2::ToneCurve
+pub fn lcms2::ToneCurveRef::parametric_type(&self) -> i32
+pub fn lcms2::ToneCurveRef::reversed(&self) -> lcms2::ToneCurve
+pub fn lcms2::ToneCurveRef::reversed_samples(&self, samples: usize) -> lcms2::ToneCurve
+pub fn lcms2::ToneCurveRef::smooth(&mut self, lambda: f64) -> bool
+impl alloc::borrow::ToOwned for lcms2::ToneCurveRef
+pub type lcms2::ToneCurveRef::Owned = lcms2::ToneCurve
+pub fn lcms2::ToneCurveRef::to_owned(&self) -> lcms2::ToneCurve
+impl core::borrow::Borrow<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::borrow(&self) -> &lcms2::ToneCurveRef
+impl core::borrow::BorrowMut<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::borrow_mut(&mut self) -> &mut lcms2::ToneCurveRef
+impl core::convert::AsMut<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::as_mut(&mut self) -> &mut lcms2::ToneCurveRef
+impl core::convert::AsRef<lcms2::ToneCurveRef> for lcms2::ToneCurve
+pub fn lcms2::ToneCurve::as_ref(&self) -> &lcms2::ToneCurveRef
+impl core::fmt::Debug for lcms2::ToneCurveRef
+pub fn lcms2::ToneCurveRef::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl foreign_types_shared::ForeignTypeRef for lcms2::ToneCurveRef
+pub type lcms2::ToneCurveRef::CType = lcms2_sys::ffi::ToneCurve
+impl core::marker::Freeze for lcms2::ToneCurveRef
+impl !core::marker::Send for lcms2::ToneCurveRef
+impl !core::marker::Sync for lcms2::ToneCurveRef
+impl core::marker::Unpin for lcms2::ToneCurveRef
+impl !core::panic::unwind_safe::RefUnwindSafe for lcms2::ToneCurveRef
+impl core::panic::unwind_safe::UnwindSafe for lcms2::ToneCurveRef
+impl<T, U> core::convert::Into<U> for lcms2::ToneCurveRef where U: core::convert::From<T>
+pub fn lcms2::ToneCurveRef::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::ToneCurveRef where U: core::convert::Into<T>
+pub type lcms2::ToneCurveRef::Error = core::convert::Infallible
+pub fn lcms2::ToneCurveRef::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::ToneCurveRef where U: core::convert::TryFrom<T>
+pub type lcms2::ToneCurveRef::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::ToneCurveRef::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::ToneCurveRef where T: 'static + ?core::marker::Sized
+pub fn lcms2::ToneCurveRef::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::ToneCurveRef where T: ?core::marker::Sized
+pub fn lcms2::ToneCurveRef::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::ToneCurveRef where T: ?core::marker::Sized
+pub fn lcms2::ToneCurveRef::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::ToneCurveRef
+pub fn lcms2::ToneCurveRef::from(t: T) -> T
+pub struct lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>
+impl<F, T, C, L> lcms2::Transform<F, T, C, L>
+pub fn lcms2::Transform<F, T, C, L>::input_format(&self) -> lcms2_sys::ffi::PixelFormat
+pub fn lcms2::Transform<F, T, C, L>::output_format(&self) -> lcms2_sys::ffi::PixelFormat
+impl<F, T, L> lcms2::Transform<F, T, GlobalContext, L>
+pub fn lcms2::Transform<F, T, GlobalContext, L>::global_adaptation_state() -> f64
+pub fn lcms2::Transform<F, T, GlobalContext, L>::global_alarm_codes() -> [u16; 16]
+pub fn lcms2::Transform<F, T, GlobalContext, L>::set_global_adaptation_state(value: f64)
+pub fn lcms2::Transform<F, T, GlobalContext, L>::set_global_alarm_codes(codes: [u16; 16])
+impl<InputPixelFormat: core::marker::Copy + bytemuck::pod::Pod, OutputPixelFormat: core::marker::Copy + bytemuck::pod::Pod, Ctx: Context, Fl: lcms2::CacheFlag> lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::input_pixel_format(&self) -> lcms2_sys::ffi::PixelFormat
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::new_flags_context(context: impl core::convert::AsRef<Ctx>, input: &lcms2::Profile<Ctx>, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile<Ctx>, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags<Fl>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::new_multiprofile_context(context: impl core::convert::AsRef<Ctx>, profiles: &[&lcms2::Profile<Ctx>], in_format: lcms2_sys::ffi::PixelFormat, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags<Fl>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::new_proofing_context(context: impl core::convert::AsRef<Ctx>, input: &lcms2::Profile<Ctx>, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile<Ctx>, out_format: lcms2_sys::ffi::PixelFormat, proofing: &lcms2::Profile<Ctx>, intent: lcms2_sys::ffi::Intent, proofng_intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags<Fl>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::output_pixel_format(&self) -> lcms2_sys::ffi::PixelFormat
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::transform_pixels(&self, src: &[InputPixelFormat], dst: &mut [OutputPixelFormat])
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, Fl>::transform_pixels_uninit<'dst>(&self, src: &[InputPixelFormat], dst: &'dst mut [core::mem::maybe_uninit::MaybeUninit<OutputPixelFormat>]) -> &'dst mut [OutputPixelFormat]
+impl<InputPixelFormat: core::marker::Copy + bytemuck::pod::Pod, OutputPixelFormat: core::marker::Copy + bytemuck::pod::Pod, Ctx: Context> lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, AllowCache>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Ctx, AllowCache>::new_context(context: impl core::convert::AsRef<Ctx>, input: &lcms2::Profile<Ctx>, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile<Ctx>, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent) -> lcms2::LCMSResult<Self>
+impl<InputPixelFormat: core::marker::Copy + bytemuck::pod::Pod, OutputPixelFormat: core::marker::Copy + bytemuck::pod::Pod> lcms2::Transform<InputPixelFormat, OutputPixelFormat, GlobalContext, AllowCache>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, GlobalContext, AllowCache>::new(input: &lcms2::Profile, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, GlobalContext, AllowCache>::new_flags<Fl: lcms2::CacheFlag>(input: &lcms2::Profile, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags<Fl>) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, GlobalContext, AllowCache>::new_multiprofile(profiles: &[&lcms2::Profile], in_format: lcms2_sys::ffi::PixelFormat, out_format: lcms2_sys::ffi::PixelFormat, intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags) -> lcms2::LCMSResult<Self>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, GlobalContext, AllowCache>::new_proofing(input: &lcms2::Profile, in_format: lcms2_sys::ffi::PixelFormat, output: &lcms2::Profile, out_format: lcms2_sys::ffi::PixelFormat, proofing: &lcms2::Profile, intent: lcms2_sys::ffi::Intent, proofng_intent: lcms2_sys::ffi::Intent, flags: lcms2::Flags) -> lcms2::LCMSResult<Self>
+impl<PixelFormat: core::marker::Copy + bytemuck::pod::Pod, Ctx: Context, Fl: lcms2::CacheFlag> lcms2::Transform<PixelFormat, PixelFormat, Ctx, Fl>
+pub fn lcms2::Transform<PixelFormat, PixelFormat, Ctx, Fl>::transform_in_place(&self, srcdst: &mut [PixelFormat])
+impl<F, T, C, L> core::fmt::Debug for lcms2::Transform<F, T, C, L>
+pub fn lcms2::Transform<F, T, C, L>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<F, T, C, L> core::ops::drop::Drop for lcms2::Transform<F, T, C, L>
+pub fn lcms2::Transform<F, T, C, L>::drop(&mut self)
+impl<F, T, C: core::marker::Send, Z> core::marker::Send for lcms2::Transform<F, T, C, Z>
+impl<InputPixelFormat, OutputPixelFormat, Context, Flags> core::marker::Freeze for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>
+impl<InputPixelFormat, OutputPixelFormat, Context, Flags> !core::marker::Sync for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>
+impl<InputPixelFormat, OutputPixelFormat, Context, Flags> core::marker::Unpin for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where InputPixelFormat: core::marker::Unpin, OutputPixelFormat: core::marker::Unpin, Context: core::marker::Unpin, Flags: core::marker::Unpin
+impl<InputPixelFormat, OutputPixelFormat, Context, Flags> core::panic::unwind_safe::RefUnwindSafe for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where InputPixelFormat: core::panic::unwind_safe::RefUnwindSafe, OutputPixelFormat: core::panic::unwind_safe::RefUnwindSafe, Context: core::panic::unwind_safe::RefUnwindSafe, Flags: core::panic::unwind_safe::RefUnwindSafe
+impl<InputPixelFormat, OutputPixelFormat, Context, Flags> core::panic::unwind_safe::UnwindSafe for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where InputPixelFormat: core::panic::unwind_safe::UnwindSafe, OutputPixelFormat: core::panic::unwind_safe::UnwindSafe, Context: core::panic::unwind_safe::UnwindSafe, Flags: core::panic::unwind_safe::UnwindSafe
+impl<T, U> core::convert::Into<U> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where U: core::convert::From<T>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::into(self) -> U
+impl<T, U> core::convert::TryFrom<U> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where U: core::convert::Into<T>
+pub type lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::Error = core::convert::Infallible
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::try_from(value: U) -> core::result::Result<T, <T as core::convert::TryFrom<U>>::Error>
+impl<T, U> core::convert::TryInto<U> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where U: core::convert::TryFrom<T>
+pub type lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::Error = <U as core::convert::TryFrom<T>>::Error
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::try_into(self) -> core::result::Result<U, <U as core::convert::TryFrom<T>>::Error>
+impl<T> core::any::Any for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where T: 'static + ?core::marker::Sized
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::type_id(&self) -> core::any::TypeId
+impl<T> core::borrow::Borrow<T> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where T: ?core::marker::Sized
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::borrow(&self) -> &T
+impl<T> core::borrow::BorrowMut<T> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags> where T: ?core::marker::Sized
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::borrow_mut(&mut self) -> &mut T
+impl<T> core::convert::From<T> for lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>
+pub fn lcms2::Transform<InputPixelFormat, OutputPixelFormat, Context, Flags>::from(t: T) -> T
+pub trait lcms2::CIELabExt: core::marker::Sized
+pub fn lcms2::CIELabExt::bfd_delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2::CIELabExt::cie2000_delta_e(&self, other: &lcms2_sys::ffi::CIELab, kl: f64, kc: f64, kh: f64) -> f64
+pub fn lcms2::CIELabExt::cie94_delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2::CIELabExt::cmc_delta_e(&self, other: &lcms2_sys::ffi::CIELab, k: f64, c: f64) -> f64
+pub fn lcms2::CIELabExt::delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2::CIELabExt::desaturate(&mut self, amin: f64, amax: f64, bmin: f64, bmax: f64) -> bool
+pub fn lcms2::CIELabExt::encoded(&self) -> [u16; 3]
+pub fn lcms2::CIELabExt::encoded_v2(&self) -> [u16; 3]
+pub fn lcms2::CIELabExt::from_encoded(icc: &[u16; 3]) -> Self
+pub fn lcms2::CIELabExt::from_encoded_v2(icc: &[u16; 3]) -> Self
+pub fn lcms2::CIELabExt::to_xyz(&self, white_point: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::CIEXYZ
+impl lcms2::CIELabExt for lcms2_sys::ffi::CIELab
+pub fn lcms2_sys::ffi::CIELab::bfd_delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2_sys::ffi::CIELab::cie2000_delta_e(&self, other: &lcms2_sys::ffi::CIELab, kl: f64, kc: f64, kh: f64) -> f64
+pub fn lcms2_sys::ffi::CIELab::cie94_delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2_sys::ffi::CIELab::cmc_delta_e(&self, other: &lcms2_sys::ffi::CIELab, k: f64, c: f64) -> f64
+pub fn lcms2_sys::ffi::CIELab::delta_e(&self, other: &lcms2_sys::ffi::CIELab) -> f64
+pub fn lcms2_sys::ffi::CIELab::desaturate(&mut self, amin: f64, amax: f64, bmin: f64, bmax: f64) -> bool
+pub fn lcms2_sys::ffi::CIELab::encoded(&self) -> [u16; 3]
+pub fn lcms2_sys::ffi::CIELab::encoded_v2(&self) -> [u16; 3]
+pub fn lcms2_sys::ffi::CIELab::from_encoded(icc: &[u16; 3]) -> Self
+pub fn lcms2_sys::ffi::CIELab::from_encoded_v2(icc: &[u16; 3]) -> Self
+pub fn lcms2_sys::ffi::CIELab::to_xyz(&self, white_point: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::CIEXYZ
+pub trait lcms2::CIEXYZExt: core::marker::Sized
+pub fn lcms2::CIEXYZExt::adapt_to_illuminant(&self, source_white_point: &lcms2_sys::ffi::CIEXYZ, illuminant: &lcms2_sys::ffi::CIEXYZ) -> core::option::Option<lcms2_sys::ffi::CIEXYZ>
+pub fn lcms2::CIEXYZExt::from_encoded(icc: &[u16; 3]) -> Self
+pub fn lcms2::CIEXYZExt::to_lab(&self, white_point: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::CIELab
+impl lcms2::CIEXYZExt for lcms2_sys::ffi::CIEXYZ
+pub fn lcms2_sys::ffi::CIEXYZ::adapt_to_illuminant(&self, source_white_point: &lcms2_sys::ffi::CIEXYZ, illuminant: &lcms2_sys::ffi::CIEXYZ) -> core::option::Option<lcms2_sys::ffi::CIEXYZ>
+pub fn lcms2_sys::ffi::CIEXYZ::from_encoded(icc: &[u16; 3]) -> Self
+pub fn lcms2_sys::ffi::CIEXYZ::to_lab(&self, white_point: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::CIELab
+pub trait lcms2::CIExzYExt: core::marker::Sized
+pub fn lcms2::CIExzYExt::temp(&self) -> core::option::Option<f64>
+impl lcms2::CIExzYExt for lcms2_sys::ffi::CIExyY
+pub fn lcms2_sys::ffi::CIExyY::temp(&self) -> core::option::Option<f64>
+pub trait lcms2::CacheFlag: core::marker::Sized
+pub trait lcms2::ColorSpaceSignatureExt: core::marker::Sized + core::marker::Copy
+pub fn lcms2::ColorSpaceSignatureExt::channels(self) -> u32
+pub fn lcms2::ColorSpaceSignatureExt::pixel_type(self) -> lcms2_sys::ffi::PixelType
+impl lcms2::ColorSpaceSignatureExt for lcms2_sys::ffi::ColorSpaceSignature
+pub fn lcms2_sys::ffi::ColorSpaceSignature::channels(self) -> u32
+pub fn lcms2_sys::ffi::ColorSpaceSignature::pixel_type(self) -> lcms2_sys::ffi::PixelType
+pub fn lcms2::XYZ2xyY(xyz: &lcms2_sys::ffi::CIEXYZ) -> lcms2_sys::ffi::CIExyY
+pub fn lcms2::version() -> u32
+pub fn lcms2::white_point_from_temp(temp: f64) -> core::option::Option<lcms2_sys::ffi::CIExyY>
+pub fn lcms2::xyY2XYZ(xyY: &lcms2_sys::ffi::CIExyY) -> lcms2_sys::ffi::CIEXYZ
+pub type lcms2::LCMSResult<T> = core::result::Result<T, lcms2::Error>

@@ -1,0 +1,6 @@
+---
+description: 
+globs: *.rs
+alwaysApply: false
+---
+If you are working with color management, reference [lcms2_apis.txt](mdc:external/lcms2_apis.txt) for lcms. 

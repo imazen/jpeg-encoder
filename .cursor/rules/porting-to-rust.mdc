@@ -8,18 +8,20 @@ alwaysApply: true
 
 Use cargo test
 
-Above all, make sure jpeg-encoder's defaults and API aren't broken, every change is CORRECT, never disabling tests.  We want a clean pull request that adds well-structured code that can be opted into. And if changes fail to apply, reload files from disk since they must have been applied early. 
+Be ABSOLUTELY MINIMAL in making changes outside of the src/jpegli/ directory, we want to preserve the jpeg-encoder API and make as few changes as needed to support the jpegli algorithm. Do NOT make tests pass by skipping or commenting them out. Be CORRECT. NEVER INFER A FILE's CONTENTS, READ IT.
+
+And if changes fail to apply, reload files from disk since they must have been applied early.
 
 1. The jpegli encoder source is in @jpegli/lib/jpegli jpegli/lib/jpegli
-2. external/rust-lcms2 is the source for lcms2, and @lcms.md has info. external/image-png and external/image are useful for loading png files, if you lack utility functions for that. 
+2. external/rust-lcms2 is the source for lcms2, and @lcms.md has info. external/image-png and external/image are useful for loading png files, if you lack utility functions for that. We have docs indexed for most crates we use.
 3. We target stable Rust, and keep any unsafe code (like SIMD abstractions) simple; study jpeg-encoder and follow those patterns. Auto-vectorization is the goal.
 4. Before porting a C++ component, we examine all the headers it references and build a list of all the functions it actually depends on, and add that info as comments in the C++ header.
-5. We work methodically, search for a replacement in jpeg-encoder or create one, and try to create idomatic but performant and correct solutions. 
+5. We work methodically, search for a replacement in jpeg-encoder or create one, and try to create idomatic but performant and correct solutions.
 6. We add new rules when we glean insight about jpegli, its structure, organization
 7. We add rules whenever we establish a mapping from a C++ component to a rust component, including function signatures.
 8. We always port tests and run them regularly.
-9. Create new functions, and don't delete existing quanitzation tables or methods. We want to be able to compare and benchmark new and old, side by side. 
-10. We put testdata images in reference_dct/testdata/, see referenced_dct/dct.sh for ones we found most useful. 
+9. Create new functions, and don't delete existing quanitzation tables or methods. We want to be able to compare and benchmark new and old, side by side.
+10. We put testdata images in reference_dct/testdata/, see referenced_dct/dct.sh for ones we found most useful.AS
 
 
 ## Rule 9: Dependencies of jpegli/lib/jpegli/encode.cc
@@ -42,12 +44,28 @@ The main encoder implementation in `jpegli/lib/jpegli/encode.cc` depends on the 
     *   `jpegli/lib/jpegli/encode_streaming.h`, `jpegli/lib/jpegli/encode_finish.h`
 *   **Internal Helpers:** `jpegli/lib/jpegli/encode_internal.h`
 
+**Relevant Files from jpegli/lib/jpegli/ C++:**
+
+| Feature                     | Jpegli Source (`jpegli/lib/jpegli/`)        |
+| :-------------------------- | :----------------------------------- |
+| Quantization (Base Tables)  | `quant.cc`                           |
+| Quantization (Distance)   | `quant.cc`                           |
+| Quantization (Zero Bias)  | `quant.cc`                           |
+| Adaptive Quantization     | `adaptive_quantization.cc/.h`        |
+| Float DCT                   | `dct-inl.h`                          |
+| Encoder API/Logic         | `encode.cc/.h`                       |
+| Encoding Loop Integration | `encode_streaming.cc`, `encode.cc` |
+| Color Transform (YCbCr)   | `color_transform.cc/.h`              |
+| Color Transform (XYB)     | `color_transform.cc/.h`              |
+| Input Handling              | `input.cc/.h`                        |
+
+
 These represent the primary modules involved in the JPEG encoding process within jpegli.
 
 
 ## Jpegli Algorithmic Differences vs. Standard libjpeg-turbo
 
-Based on our analysis of the `jpegli` encoder source code and its API (`encode.h`, `encode.cc`), here are some key algorithmic differences compared to a standard `libjpeg-turbo` implementation:
+Based on analysis of the `jpegli` encoder source code and its API (`encode.h`, `encode.cc`), here are some key algorithmic differences compared to a standard `libjpeg-turbo` implementation:
 
 1.  **Adaptive Quantization:** Jpegli implements and enables *adaptive quantization* by default (`jpegli_enable_adaptive_quantization`, `ComputeAdaptiveQuantField`). This means it analyzes local image features (like edges and textures) and adjusts the quantization strength accordingly, aiming to preserve detail where it's visually important and save bits where it's not. Standard libjpeg uses non-adaptive quantization unless specific extensions (like Trellis quantization, often slower) are enabled.
 2.  **Psychovisually Tuned Quantization Tables & Distance Metric:** Jpegli uses different default quantization tables than the standard Annex K tables used by libjpeg-turbo. These tables are likely derived from psychovisual modeling (related to the Butteraugli metric). Instead of just a `quality` factor (0-100), jpegli allows setting a target *Butteraugli distance* (`jpegli_set_distance`) which provides a more perceptually uniform measure of image quality/difference. While `jpegli_set_quality` exists for compatibility, it maps to an underlying distance. Libjpeg-turbo's quality setting directly scales the standard tables. Jpegli *can* use the standard tables if requested (`jpegli_use_standard_quant_tables`).
@@ -55,14 +73,12 @@ Based on our analysis of the `jpegli` encoder source code and its API (`encode.h
 4.  **Default DCT Method:** Jpegli seems to default to a floating-point DCT (`cinfo->dct_method = JDCT_FLOAT;` in `InitializeCompressParams`). While libjpeg-turbo *supports* float DCT, its default and often faster options are integer DCTs (`JDCT_ISLOW`, `JDCT_IFAST`).
 5.  **Different Defaults:** Jpegli uses different defaults for parameters like progressive scan scripts (`jpegli_set_progressive_level`, `SetDefaultScanScript`) aiming for potentially better compression or perceived quality out-of-the-box.
 
-**In summary:** While `jpegli` maintains API compatibility with `libjpeg-turbo`, its internal algorithms are significantly enhanced with techniques focused on psychovisual optimization. It leverages adaptive quantization, perceptually derived quantization tables (Butteraugli-based), and the XYB color space to achieve higher quality compression for a given file size compared to standard JPEG encoders like `libjpeg-turbo`, often at comparable or slightly slower speeds depending on the features used.
+**In summary:** While `jpegli` maintains API compatibility with `libjpeg-turbo`, its internal algorithms are significantly enhanced with techniques focused on psychovisual optimization. It leverages adaptive quantization, perceptually derived quantization tables (Butteraugli-based), and the XYB color space to achieve higher quality compression for a given file size compared to standard JPEG encoders like `libjpeg-turbo`.
 
 
-## `jpeg-encoder` Crate Structure & Reusability Analysis
+## Original `jpeg-encoder` Crate Structure Analysis
 
-Okay, based on the analysis of the `jpeg-encoder` crate's source code (`lib.rs`, `encoder.rs`, and other modules), here's an outline of its structure and an assessment of what can be reused for porting `jpegli`:
-
-**Structure of `jpeg-encoder`:**
+Based on analysis of the `jpeg-encoder` crate's source code (`lib.rs`, `encoder.rs`, and other non-jpegli modules), here's an outline of its structure before significant jpegli porting:
 
 1.  **Main Entry Point (`lib.rs`, `encoder.rs`):**
     *   Defines the public API (`Encoder`, `ColorType`, `SamplingFactor`, etc.).
@@ -72,136 +88,118 @@ Okay, based on the analysis of the `jpeg-encoder` crate's source code (`lib.rs`,
 
 2.  **Input Handling (`image_buffer.rs`):**
     *   Defines the `ImageBuffer` trait to abstract different input image formats (Grayscale, RGB, RGBA, CMYK, etc.).
-    *   Provides concrete implementations for common color types.
-    *   Includes color conversion logic (e.g., `rgb_to_ycbcr`, `cmyk_to_ycck`) needed for standard JPEG encoding.
+    *   Provides concrete implementations for common color types based on `&[u8]` slices.
+    *   Includes standard color conversion logic (`rgb_to_ycbcr`, `cmyk_to_ycck`).
 
 3.  **Core JPEG Stages (Separate Modules):**
-    *   **FDCT (`fdct.rs`):** Implements the Forward Discrete Cosine Transform. Likely a standard floating-point or integer version.
-    *   **Quantization (`quantization.rs`):** Defines `QuantizationTable` and `QuantizationTableType`. Handles creating tables based on quality (scaling standard Annex K tables) or using custom tables.
+    *   **FDCT (`fdct.rs`):** Implements the Forward Discrete Cosine Transform, specifically the standard integer DCT (based on Loeffler/Ligtenberg/Moschytz, ported from libjpeg/mozjpeg).
+    *   **Quantization (`quantization.rs`):** Defines `QuantizationTable` and `QuantizationTableType`. Handles creating tables based on quality (scaling standard Annex K or other predefined tables) or using custom tables.
     *   **Huffman Coding (`huffman.rs`, `writer.rs`):**
-        *   `huffman.rs`: Defines `HuffmanTable`, provides default tables (Annex K), and includes logic (`optimize_huffman_table` in `encoder.rs`) to build optimized tables based on coefficient frequencies.
-        *   `writer.rs`: Contains the logic within `JfifWriter` to actually encode the quantized DCT coefficients using the selected Huffman tables and write them to the bitstream.
+        *   `huffman.rs`: Defines `HuffmanTable`, provides default tables (Annex K), and includes logic (`new_optimized`) to build optimized tables based on coefficient frequencies.
+        *   `writer.rs`: Contains logic within `JfifWriter` to encode quantized DCT coefficients using selected Huffman tables and write them to the bitstream.
     *   **Writing (`writer.rs`):**
-        *   Defines the `JfifWrite` trait for output abstraction.
-        *   `JfifWriter` handles writing all JPEG markers (SOI, EOI, SOF, DQT, DHT, SOS, DRI, RST, APPn) and manages the bitstream buffering.
+        *   Defines the `JfifWrite` trait for output abstraction (supports `no_std`).
+        *   `JfifWriter` handles writing all standard JPEG markers (SOI, EOI, SOF, DQT, DHT, SOS, DRI, RST, APPn) and manages bitstream buffering and byte stuffing.
 
 4.  **Encoding Modes (`encoder.rs`):**
     *   Implements different encoding strategies based on configuration:
-        *   `encode_image_interleaved`: Baseline encoding where all component data for an MCU is written together (requires compatible sampling factors).
-        *   `encode_image_sequential`: Baseline encoding where each component is written in a separate scan. Used for incompatible sampling or when optimization is enabled.
-        *   `encode_image_progressive`: Progressive encoding using spectral selection across multiple scans.
+        *   `encode_image_interleaved`: Baseline encoding for compatible sampling factors.
+        *   `encode_image_sequential`: Baseline encoding for incompatible sampling or optimization.
+        *   `encode_image_progressive`: Progressive encoding using spectral selection.
 
-5.  **SIMD Optimization (`avx2.rs`, `encoder.rs`):**
-    *   Uses the `Operations` trait to abstract potential SIMD implementations (currently AVX2).
-    *   Provides optimized versions of FDCT and potentially color conversion (`RgbImageAVX2`, etc. in `encoder.rs`).
+5.  **SIMD Optimization (`avx2.rs`, `avx2/fdct.rs`, `avx2/ycbcr.rs`, `encoder.rs`):**
+    *   Uses the `Operations` trait in `encoder.rs` to abstract potential SIMD implementations.
+    *   Provides AVX2 optimized versions of integer FDCT (`avx2::fdct::fdct_avx2`) and RGB->YCbCr conversion (`avx2::ycbcr::*ImageAVX2`).
+    *   The `AVX2Operations` struct implements `Operations` to select these AVX2 routines when the `simd` feature is enabled.
 
-**Reusability for Porting `jpegli`:**
+## Current `src/` Structure Overview
 
-*   **High Reusability:**
-    *   **Overall Crate Structure:** The modular design separating concerns (encoder, writer, fdct, quantization, huffman, image buffer) is a solid foundation.
-    *   **`Encoder` Struct & API:** The main `Encoder` struct and its configuration methods (`set_sampling_factor`, `set_progressive`, `add_app_segment`, etc.) provide a good starting point for the user-facing API.
-    *   **Marker Writing (`writer.rs`):** The logic for writing standard JPEG markers (SOI, SOF, DQT, DHT, SOS, APPn, etc.) and the bitstream writing infrastructure (`JfifWriter`) are directly applicable and highly reusable.
-    *   **Input Abstraction (`image_buffer.rs`):** The concept of the `ImageBuffer` trait is valuable for handling different input types.
-    *   **SIMD Abstraction (`Operations` trait):** The pattern of using a trait to abstract SIMD implementations is good and can be adapted for jpegli's specific SIMD code.
-    *   **Basic Huffman Infrastructure (`huffman.rs`):** Storing Huffman tables and the basic structure for encoding AC/DC coefficients is standard.
+This describes the current state of the source files based on recent analysis, without asserting completion status.
 
-*   **Medium Reusability / Needs Modification:**
-    *   **Quantization (`quantization.rs`):** The `QuantizationTable` struct itself is fine, but the core logic needs replacement. Instead of scaling standard tables based on a 0-100 quality, we need to implement `jpegli`'s psychovisually tuned default tables and its Butteraugli distance-based scaling. The `QuantizationTableType` enum might need adjustment.
-    *   **FDCT (`fdct.rs`):** `jpegli` defaults to `JDCT_FLOAT`. We need to ensure the implementation matches `jpegli`'s requirements (precision, potentially specific float algorithm) or replace it. The existing `Operations` trait can help integrate `jpegli`'s SIMD FDCT.
-    *   **Color Conversion (`image_buffer.rs`):** Existing conversions (RGB->YCbCr) might be reusable *if* XYB mode isn't used. Needs extension/modification to support the XYB color transform (`jpegli_set_xyb_mode`).
-    *   **Huffman Optimization (`encoder.rs::optimize_huffman_table`):** If `jpegli` uses a different strategy than simple frequency counting for optimized tables, this logic needs modification/replacement. Default Huffman tables might also differ.
-    *   **Encoding Loop Logic (`encoder.rs`):** The loops in `encode_image_interleaved`, `encode_image_sequential`, etc., provide a skeleton but will need significant changes to integrate adaptive quantization.
+*   **`src/lib.rs`:**
+    *   Crate root, defines modules (`encoder`, `error`, `fdct`, `huffman`, `image_buffer`, `marker`, `quantization`, `writer`).
+    *   Conditionally includes `avx2` and `jpegli` modules based on features.
+    *   Re-exports public API types (`Encoder`, `ColorType`, `EncodingError`, `QuantizationTableType`, `SamplingFactor`, etc.).
+    *   Contains extensive integration tests.
 
-*   **Low Reusability / Needs Replacement / New Components:**
-    *   **Core Quantization Logic:** The standard quality->scaling mechanism in `quantization.rs` must be replaced with `jpegli`'s distance-based psychovisual quantization model.
-    *   **Adaptive Quantization:** This is a major `jpegli` feature currently absent. We need to implement the logic for:
-        *   Analyzing the input image (likely after color transform/downsampling).
-        *   Calculating masking/activity.
-        *   Generating the per-block quantization multiplier field (`ComputeAdaptiveQuantField`).
-        *   Applying this field during the quantization step. This will likely require a new module and modifications to the main encoding loop.
-    *   **XYB Color Transform:** Logic for converting to/from XYB color space needs to be added, likely within the `image_buffer.rs` structure or a dedicated module.
-    *   **Jpegli Defaults:** Default settings (quantization tables, Huffman tables, progressive scan scripts, sampling factors based on quality/distance) need to be updated to match `jpegli`.
+*   **`src/encoder.rs`:**
+    *   Defines the main `Encoder` struct, holding configuration state (quality, quantization tables, Huffman tables, sampling factor, progressive settings, output writer).
+    *   Includes jpegli-specific configuration fields: `jpegli_distance`, `use_float_dct`, `use_adaptive_quantization`.
+    *   Provides public methods for configuration (`set_quality`, `set_jpegli_distance`, `set_float_dct`, `set_adaptive_quantization`, `set_sampling_factor`, etc.).
+    *   Contains the primary encoding entry points (`encode`, `encode_image`) and internal orchestration logic (`encode_image_internal`).
+    *   Dispatches to different encoding paths (`encode_image_interleaved`, `encode_image_sequential`, `encode_image_progressive`) based on settings.
+    *   Defines the `Operations` trait used for SIMD dispatch (currently for FDCT and quantization). The `DefaultOperations` struct provides scalar implementations.
+    *   Includes helper functions for color conversion setup (`init_components`), block processing (`encode_blocks`), Huffman table optimization (`optimize_huffman_table`), etc.
+    *   Contains jpegli-specific logic like `quality_to_distance`, `new_with_jpegli_distance`, `compute_zero_bias_tables`.
 
-**In Summary:**
+*   **`src/image_buffer.rs`:**
+    *   Defines the `ImageBuffer` trait for abstracting image input. Key methods: `get_jpeg_color_type`, `width`, `height`, `fill_buffers` (provides one row of component data), `get_adaptive_quant_channel` (provides Luma/Y channel for AQ).
+    *   Provides implementations for common `&[u8]` slice formats (`GrayImage`, `RgbImage`, `RgbaImage`, `BgrImage`, `BgraImage`, `YCbCrImage`, `CmykImage`, `CmykAsYcckImage`, `YcckImage`).
+    *   Contains standard `rgb_to_ycbcr` and `cmyk_to_ycck` fixed-point conversion functions.
+    *   Implementations generally provide the `get_adaptive_quant_channel` method.
 
-The `jpeg-encoder` crate provides a well-structured foundation with reusable components for file writing, marker handling, API design, and SIMD abstraction. However, the core algorithmic parts – particularly **quantization (psychovisual tuning and adaptive quantization)** and **color transformation (XYB)** – which are the key differentiators of `jpegli`, will need to be ported and integrated, replacing or significantly modifying the existing standard JPEG logic in those areas.
+*   **`src/quantization.rs`:**
+    *   Defines `QuantizationTableType` enum (Standard Annex K, Flat, other presets, `Custom`).
+    *   Defines the `QuantizationTable` struct holding the 64 `u16` values and precomputed reciprocals/corrections for faster quantization.
+    *   Provides `new_with_quality` constructor to scale a base table according to a 0-100 quality factor.
+    *   Contains the `quantize` method for standard DCT coefficient quantization.
+    *   Holds static arrays for various standard Luma and Chroma tables (`DEFAULT_LUMA_TABLES`, `DEFAULT_CHROMA_TABLES`).
+    *   **Note:** Jpegli distance-based table generation (`new_with_jpegli_distance`) and zero-bias logic (`compute_zero_bias_tables`) are currently implemented directly in `src/encoder.rs`, not here.
+
+*   **`src/fdct.rs`:**
+    *   Contains the standard, portable integer Forward DCT implementation (`fdct`) based on the Loeffler/Ligtenberg/Moschytz algorithm (ported from libjpeg/mozjpeg).
+
+*   **`src/huffman.rs`:**
+    *   Defines `HuffmanTable` struct holding lookup tables and raw table data.
+    *   Provides constructors for default Annex K tables (`default_luma_dc`, etc.).
+    *   Contains `new_optimized` function to generate optimized tables from frequency counts.
+    *   Includes static arrays for default Annex K table definitions.
+
+*   **`src/writer.rs`:**
+    *   Defines `JfifWrite` trait for output byte writing (works in `no_std`).
+    *   Defines `JfifWriter` struct for managing bitstream output, handling bit buffering and byte stuffing.
+    *   Provides methods for writing standard JPEG markers (APP0, DQT, DHT, SOF, SOS, DRI).
+    *   Includes methods for Huffman encoding DC and AC coefficients (`write_dc`, `write_ac_block`, `write_block`).
+    *   Defines the `ZIGZAG` coefficient ordering array.
+
+*   **`src/marker.rs`:**
+    *   Defines the `Marker` enum representing JPEG markers.
+    *   Contains structs for segment headers (e.g., `SOF`, `SOSHeader`).
+
+*   **`src/error.rs`:**
+    *   Defines the `EncodingError` and `JpegError` enums for error handling.
+
+*   **`src/avx2.rs`:**
+    *   Root of the AVX2 SIMD module (conditional on `simd` feature).
+    *   Declares `fdct` and `ycbcr` submodules.
+    *   Defines `AVX2Operations` struct implementing the `Operations` trait, overriding `fdct` to use the AVX2 version.
+
+*   **`src/avx2/fdct.rs`:**
+    *   Contains AVX2-accelerated integer FDCT implementation (`fdct_avx2`) using intrinsics, ported from libjpeg-turbo/mozjpeg assembly.
+
+*   **`src/avx2/ycbcr.rs`:**
+    *   Contains AVX2-accelerated `ImageBuffer` implementations (`RgbImageAVX2`, etc.) providing faster `rgb_to_ycbcr` conversion using intrinsics.
+
+*   **`src/jpegli/mod.rs`:**
+    *   Root of the Jpegli-specific module (conditional on `jpegli` feature).
+    *   Declares submodules: `adaptive_quantization`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`.
+
+*   **`src/jpegli/adaptive_quantization.rs`:**
+    *   Contains the scalar Rust implementation of Jpegli's adaptive quantization algorithm.
+    *   Key function: `compute_adaptive_quant_field`, which takes scaled Y channel data and distance, and produces the per-block quantization multiplier field.
+    *   Includes helper functions mirroring Jpegli stages (`compute_pre_erosion_scalar`, `fuzzy_erosion_scalar`, `compute_mask_scalar`, etc.) and image processing utilities (`gaussian_blur_scalar`, `downsample_to_blocks`).
+
+*   **`src/jpegli/fdct_jpegli.rs`:**
+    *   Contains the scalar Rust implementation of Jpegli's floating-point FDCT (`forward_dct_float`).
+    *   Uses a recursive approach (`DCT1DImplTrait`) and helper functions (`add_reverse`, `sub_reverse`, `multiply`, `b`, etc.).
+
+  **`src/jpegli/quant.rs`:**
+    *   Contains constants (e.g., default Jpegli tables, zero-bias values) and functions related to Jpegli's quantization logic, ported from C++. Handles quality-to-distance mapping and distance-based quantization table generation.
+
+*   **`src/jpegli/color_transform.rs`, `src/jpegli/tf.rs`, `src/jpegli/xyb.rs`, `src/jpegli/cms.rs`:**
+    *   **`color_transform.rs`**: Provides functions for basic color space conversions (Linear RGB <-> YCbCr, CMYK <-> YCCK, Gray -> RGB) operating on planar f32 data.
+    *   **`tf.rs`**: Implements transfer functions (sRGB, PQ, HLG) for converting between linear and encoded values. Provides `before_transform` and `after_transform` wrappers used by `cms.rs`.
+    *   **`xyb.rs`**: Implements the Opsin Absorbance (XYB) color transformation from linear RGB, including scaling.
+    *   **`cms.rs`**: The main Color Management System interface using `lcms2`. Defines `ColorProfile` (wrapping ICC data and parsed info), `JxlCms` (managing the LCMS transform and pre/post processing TFs), and `set_fields_from_icc` (parsing profiles).
 
 
-## Migration Plan & Current Status (Phase 1-4 Focused)
-
-**Phase 1: API and Data Setup**
-
-*   **[DONE]** API Modification (`src/encoder.rs`, `lib.rs`):
-    *   Added `Encoder::set_jpegli_distance(&mut self, distance: f32)` API.
-    *   Implemented `quality_to_distance` helper (`src/quantization.rs`).
-    *   Internal logic uses distance when set.
-*   **[DONE]** Embed Jpegli Default Quantization Tables (`src/quantization.rs`):
-    *   `JPEGLI_DEFAULT_LUMA_QTABLE_F32` and `JPEGLI_DEFAULT_CHROMA_QTABLE_F32` constants defined.
-*   **[DONE]** Refine `QuantizationTableType` (`src/quantization.rs`):
-    *   Added `JpegliDefault` variant.
-    *   `set_jpegli_distance` implicitly uses this logic path now.
-
-**Phase 2: Core Logic Implementation**
-
-*   **[DONE]** Implement Jpegli Distance Scaling (`src/quantization.rs`):
-    *   Ported logic from `jpegli` (`quant.cc`) for scaling based on distance (using `distance_to_scale` helper).
-    *   Implemented in `QuantizationTable::new_with_jpegli_distance`, using the embedded `JPEGLI_DEFAULT_*` tables.
-
-**Phase 3: Integration**
-
-*   **[DONE]** Update `Encoder` Logic (`src/encoder.rs`):
-    *   `encode_image_internal` correctly selects between standard quality scaling (`new_with_quality`) and Jpegli distance scaling (`new_with_jpegli_distance`).
-    *   `set_quality` resets the mode to standard.
-    *   `set_jpegli_distance` sets the mode to Jpegli distance.
-
-**Phase 4: Testing**
-
-*   **[DONE]** Unit Tests (`src/quantization.rs`):
-    *   Tested `quality_to_distance`.
-    *   Tested `new_with_jpegli_distance` against internally recalculated expected values for distance 1.0.
-*   **[DONE]** Integration Tests (`src/encoder.rs`):
-    *   Added smoke tests for various configurations (`test_encode_default`, `test_encode_jpegli_distance`, etc.).
-    *   Most paths pass basic execution checks (don't panic), **except float DCT path**.
-
-**Additional Features & Status:**
-
-*   **Zero-Bias Quantization:**
-    *   **[DONE]** Ported `K_ZERO_BIAS_*` constants (`src/quantization.rs`).
-    *   **[DONE]** Implemented `compute_zero_bias_tables` based on distance (`src/quantization.rs`).
-    *   **[DONE]** Integrated zero-bias thresholding into quantization (`quantize_block`, `quantize_float_block` in `src/encoder.rs`).
-*   **Adaptive Quantization (AQ):**
-    *   **[DONE]** Added `Encoder::set_adaptive_quantization` flag.
-    *   **[IN PROGRESS]** Implemented skeleton `compute_adaptive_quant_field` (`src/adaptive_quantization.rs`) mirroring `jpegli`'s structure (PreErosion, FuzzyErosion, PerBlockModulations).
-    *   **[IN PROGRESS]** Internal AQ calculations use scalar approximations or placeholders; output does not match `jpegli` precisely yet. Several helper functions (`gaussian_kernel`, `convolve_*`, etc.) are present but currently unused pending full implementation.
-    *   **[DONE]** Integration: AQ field is passed to quantization functions (`quantize_block`, `quantize_float_block`).
-    *   **[LEARNING]** AQ likely requires full image buffering to compute the `quant_field`, matching `jpegli`'s probable behavior.
-*   **Float DCT:**
-    *   **[DONE]** Added `Encoder::set_float_dct` flag.
-    *   **[DONE]** Ported scalar version of `jpegli`'s float DCT (`TransformFromPixels` logic) to `forward_dct_float` and helpers in `src/fdct.rs`.
-    *   **[DONE]** Integrated into encoding loops (`encode_blocks`, `encode_image_interleaved`) via `Operations` trait, selectable by the flag.
-    *   **[BLOCKED]** Tests enabling float DCT (`test_encode_float_dct`, etc.) panic with an index out-of-bounds error (index 56, len 32) inside `fdct::b`. The root cause is unclear after several debugging attempts (checking slice lengths, call order, removing inlining). Float DCT path is currently unusable.
-*   **XYB Color Space:**
-    *   **[NOT STARTED]**
-*   **HDR Input (`f32`/`u16`):**
-    *   **[NOT STARTED]** Encoder currently expects `u8` input.
-    *   **[LEARNING]** `jpegli` C API also likely expects `u8`; pre-scaling/conversion would be needed in Rust entry points.
-*   **Streaming:**
-    *   **[PARTIAL]** Core encoding stages (`encode_image_interleaved`) process MCU rows (8/16 scanlines).
-    *   **[BLOCKED by AQ]** Enabling AQ forces full image buffering due to the nature of `compute_adaptive_quant_field`. True streaming is only possible if AQ is disabled.
-
-**Relevant Files Map:**
-
-| Feature                     | Jpegli Source (`jpegli/lib/jpegli/`)        | Jpeg-Encoder Target (`src/`) | Status Notes                     |
-| :-------------------------- | :----------------------------------- | :---------------------------------------- | :------------------------------- |
-| Quantization (Base Tables)  | `quant.cc`                           | `quantization.rs` (Constants)             | DONE                             |
-| Quantization (Distance)   | `quant.cc`                           | `quantization.rs`                         | DONE                             |
-| Quantization (Zero Bias)  | `quant.cc`                           | `quantization.rs`                         | DONE                             |
-| Adaptive Quantization     | `adaptive_quantization.cc/.h`        | `adaptive_quantization.rs`                | IN PROGRESS (Scalar/Placeholders)|
-| Float DCT                   | `dct-inl.h`                          | `fdct.rs`                                 | BLOCKED (Test panic)             |
-| Encoder API/Logic         | `encode.cc/.h`                       | `encoder.rs`, `lib.rs`                    | DONE (for ported features)       |
-| Encoding Loop Integration | `encode_streaming.cc`, `encode.cc` | `encoder.rs`                              | DONE (for ported features)       |
-| Color Transform (YCbCr)   | `color_transform.cc/.h`              | `image_buffer.rs`                         | Mostly reusable                  |
-| Color Transform (XYB)     | `color_transform.cc/.h`              | *(Not implemented)*                       | NOT STARTED                      |
-| Input Handling              | `input.cc/.h`                        | `image_buffer.rs`                         | Needs extension for HDR          |
-
-This provides a comprehensive overview of the progress and outstanding issues.

@@ -4,14 +4,14 @@ globs:
 alwaysApply: true
 ---
 *(This file is managed by an AI, please describe desired changes.)*
-# Rules for porting the C++ jpegli encoder algorithms to the Rust jpeg-encoder crate
+# Rules for porting the C++ jpegli encoder algorithms to the Rust jpeg-encoder crate (workspace root)
 
-Use cd jpeg-encoder && cargo test
+Use cargo test
 
 Above all, make sure jpeg-encoder's defaults and API aren't broken, we want a clean pull request that adds well-structured code that can be opted into. And if changes fail to apply, reload files from disk since they must have been applied early. 
 
 1. The jpegli encoder source is in @jpegli/lib/jpegli jpegli/lib/jpegli
-2. jpeg-encoder is in the root
+2. external/rust-lcms2 is the source for lcms2, and @lcms.md has info. external/image-png and external/image are useful for loading png files, if you lack utility functions for that. 
 3. We target stable Rust, and keep any unsafe code (like SIMD abstractions) simple; study jpeg-encoder and follow those patterns. 
 4. Before porting a C++ component, we examine all the headers it references and build a list of all the functions it actually depends on, and add that info as comments in the C++ header.
 5. We work methodically, search for a replacement in jpeg-encoder or create one, and try to create idomatic but performant and correct solutions. 
@@ -19,26 +19,28 @@ Above all, make sure jpeg-encoder's defaults and API aren't broken, we want a cl
 7. We add rules whenever we establish a mapping from a C++ component to a rust component, including function signatures.
 8. We always port tests and run them regularly.
 9. Create new functions, and don't delete existing quanitzation tables or methods. We want to be able to compare and benchmark new and old, side by side. 
+10. We put testdata images in reference_dct/testdata/, see referenced_dct/dct.sh for ones we found most useful. 
 
-## Rule 9: Dependencies of lib/jpegli/encode.cc
 
-The main encoder implementation in `lib/jpegli/encode.cc` depends on the following headers (relative to the jpegli subdir)
+## Rule 9: Dependencies of jpegli/lib/jpegli/encode.cc
 
-*   **C API:** `lib/jpegli/encode.h`
+The main encoder implementation in `jpegli/lib/jpegli/encode.cc` depends on the following headers (relative to the jpegli subdir)
+
+*   **C API:** `jpegli/lib/jpegli/encode.h`
 *   **Standard Libraries:** `<algorithm>`, `<cstddef>`, `<cstdint>`, `<cstring>`, `<vector>`
-*   **Jpegli Base:** `lib/base/types.h`
-*   **Jpegli Common:** `lib/jpegli/common.h`, `lib/jpegli/common_internal.h`, `lib/jpegli/types.h`, `lib/jpegli/error.h`, `lib/jpegli/memory_manager.h`, `lib/jpegli/simd.h`
+*   **Jpegli Base:** `jpegli/lib/base/types.h`
+*   **Jpegli Common:** `jpegli/lib/jpegli/common.h`, `jpegli/lib/jpegli/common_internal.h`, `jpegli/lib/jpegli/types.h`, `jpegli/lib/jpegli/error.h`, `jpegli/lib/jpegli/memory_manager.h`, `jpegli/lib/jpegli/simd.h`
 *   **Jpegli Encoding Stages:**
-    *   `lib/jpegli/input.h`
-    *   `lib/jpegli/color_transform.h`
-    *   `lib/jpegli/downsample.h`
-    *   `lib/jpegli/adaptive_quantization.h`
-    *   `lib/jpegli/quant.h`
-    *   `lib/jpegli/entropy_coding.h`
-    *   `lib/jpegli/huffman.h`
-    *   `lib/jpegli/bitstream.h`, `lib/jpegli/bit_writer.h`
-    *   `lib/jpegli/encode_streaming.h`, `lib/jpegli/encode_finish.h`
-*   **Internal Helpers:** `lib/jpegli/encode_internal.h`
+    *   `jpegli/lib/jpegli/input.h`
+    *   `jpegli/lib/jpegli/color_transform.h`
+    *   `jpegli/lib/jpegli/downsample.h`
+    *   `jpegli/lib/jpegli/adaptive_quantization.h`
+    *   `jpegli/lib/jpegli/quant.h`
+    *   `jpegli/lib/jpegli/entropy_coding.h`
+    *   `jpegli/lib/jpegli/huffman.h`
+    *   `jpegli/lib/jpegli/bitstream.h`, `jpegli/lib/jpegli/bit_writer.h`
+    *   `jpegli/lib/jpegli/encode_streaming.h`, `jpegli/lib/jpegli/encode_finish.h`
+*   **Internal Helpers:** `jpegli/lib/jpegli/encode_internal.h`
 
 These represent the primary modules involved in the JPEG encoding process within jpegli.
 
@@ -129,53 +131,53 @@ The `jpeg-encoder` crate provides a well-structured foundation with reusable com
 
 **Phase 1: API and Data Setup**
 
-*   **[DONE]** API Modification (`jpeg-encoder/src/encoder.rs`, `lib.rs`):
+*   **[DONE]** API Modification (`src/encoder.rs`, `lib.rs`):
     *   Added `Encoder::set_jpegli_distance(&mut self, distance: f32)` API.
-    *   Implemented `quality_to_distance` helper (`jpeg-encoder/src/quantization.rs`).
+    *   Implemented `quality_to_distance` helper (`src/quantization.rs`).
     *   Internal logic uses distance when set.
-*   **[DONE]** Embed Jpegli Default Quantization Tables (`jpeg-encoder/src/quantization.rs`):
+*   **[DONE]** Embed Jpegli Default Quantization Tables (`src/quantization.rs`):
     *   `JPEGLI_DEFAULT_LUMA_QTABLE_F32` and `JPEGLI_DEFAULT_CHROMA_QTABLE_F32` constants defined.
-*   **[DONE]** Refine `QuantizationTableType` (`jpeg-encoder/src/quantization.rs`):
+*   **[DONE]** Refine `QuantizationTableType` (`src/quantization.rs`):
     *   Added `JpegliDefault` variant.
     *   `set_jpegli_distance` implicitly uses this logic path now.
 
 **Phase 2: Core Logic Implementation**
 
-*   **[DONE]** Implement Jpegli Distance Scaling (`jpeg-encoder/src/quantization.rs`):
+*   **[DONE]** Implement Jpegli Distance Scaling (`src/quantization.rs`):
     *   Ported logic from `jpegli` (`quant.cc`) for scaling based on distance (using `distance_to_scale` helper).
     *   Implemented in `QuantizationTable::new_with_jpegli_distance`, using the embedded `JPEGLI_DEFAULT_*` tables.
 
 **Phase 3: Integration**
 
-*   **[DONE]** Update `Encoder` Logic (`jpeg-encoder/src/encoder.rs`):
+*   **[DONE]** Update `Encoder` Logic (`src/encoder.rs`):
     *   `encode_image_internal` correctly selects between standard quality scaling (`new_with_quality`) and Jpegli distance scaling (`new_with_jpegli_distance`).
     *   `set_quality` resets the mode to standard.
     *   `set_jpegli_distance` sets the mode to Jpegli distance.
 
 **Phase 4: Testing**
 
-*   **[DONE]** Unit Tests (`jpeg-encoder/src/quantization.rs`):
+*   **[DONE]** Unit Tests (`src/quantization.rs`):
     *   Tested `quality_to_distance`.
     *   Tested `new_with_jpegli_distance` against internally recalculated expected values for distance 1.0.
-*   **[DONE]** Integration Tests (`jpeg-encoder/src/encoder.rs`):
+*   **[DONE]** Integration Tests (`src/encoder.rs`):
     *   Added smoke tests for various configurations (`test_encode_default`, `test_encode_jpegli_distance`, etc.).
     *   Most paths pass basic execution checks (don't panic), **except float DCT path**.
 
 **Additional Features & Status:**
 
 *   **Zero-Bias Quantization:**
-    *   **[DONE]** Ported `K_ZERO_BIAS_*` constants (`jpeg-encoder/src/quantization.rs`).
-    *   **[DONE]** Implemented `compute_zero_bias_tables` based on distance (`jpeg-encoder/src/quantization.rs`).
-    *   **[DONE]** Integrated zero-bias thresholding into quantization (`quantize_block`, `quantize_float_block` in `jpeg-encoder/src/encoder.rs`).
+    *   **[DONE]** Ported `K_ZERO_BIAS_*` constants (`src/quantization.rs`).
+    *   **[DONE]** Implemented `compute_zero_bias_tables` based on distance (`src/quantization.rs`).
+    *   **[DONE]** Integrated zero-bias thresholding into quantization (`quantize_block`, `quantize_float_block` in `src/encoder.rs`).
 *   **Adaptive Quantization (AQ):**
     *   **[DONE]** Added `Encoder::set_adaptive_quantization` flag.
-    *   **[IN PROGRESS]** Implemented skeleton `compute_adaptive_quant_field` (`jpeg-encoder/src/adaptive_quantization.rs`) mirroring `jpegli`'s structure (PreErosion, FuzzyErosion, PerBlockModulations).
+    *   **[IN PROGRESS]** Implemented skeleton `compute_adaptive_quant_field` (`src/adaptive_quantization.rs`) mirroring `jpegli`'s structure (PreErosion, FuzzyErosion, PerBlockModulations).
     *   **[IN PROGRESS]** Internal AQ calculations use scalar approximations or placeholders; output does not match `jpegli` precisely yet. Several helper functions (`gaussian_kernel`, `convolve_*`, etc.) are present but currently unused pending full implementation.
     *   **[DONE]** Integration: AQ field is passed to quantization functions (`quantize_block`, `quantize_float_block`).
     *   **[LEARNING]** AQ likely requires full image buffering to compute the `quant_field`, matching `jpegli`'s probable behavior.
 *   **Float DCT:**
     *   **[DONE]** Added `Encoder::set_float_dct` flag.
-    *   **[DONE]** Ported scalar version of `jpegli`'s float DCT (`TransformFromPixels` logic) to `forward_dct_float` and helpers in `jpeg-encoder/src/fdct.rs`.
+    *   **[DONE]** Ported scalar version of `jpegli`'s float DCT (`TransformFromPixels` logic) to `forward_dct_float` and helpers in `src/fdct.rs`.
     *   **[DONE]** Integrated into encoding loops (`encode_blocks`, `encode_image_interleaved`) via `Operations` trait, selectable by the flag.
     *   **[BLOCKED]** Tests enabling float DCT (`test_encode_float_dct`, etc.) panic with an index out-of-bounds error (index 56, len 32) inside `fdct::b`. The root cause is unclear after several debugging attempts (checking slice lengths, call order, removing inlining). Float DCT path is currently unusable.
 *   **XYB Color Space:**
@@ -189,7 +191,7 @@ The `jpeg-encoder` crate provides a well-structured foundation with reusable com
 
 **Relevant Files Map:**
 
-| Feature                     | Jpegli Source (`lib/jpegli/`)        | Jpeg-Encoder Target (`jpeg-encoder/src/`) | Status Notes                     |
+| Feature                     | Jpegli Source (`jpegli/lib/jpegli/`)        | Jpeg-Encoder Target (`src/`) | Status Notes                     |
 | :-------------------------- | :----------------------------------- | :---------------------------------------- | :------------------------------- |
 | Quantization (Base Tables)  | `quant.cc`                           | `quantization.rs` (Constants)             | DONE                             |
 | Quantization (Distance)   | `quant.cc`                           | `quantization.rs`                         | DONE                             |

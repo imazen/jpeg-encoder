@@ -760,115 +760,82 @@ impl<W: JfifWrite> Encoder<W> {
         self.writer
             .write_scan_header(&self.components.iter().collect::<Vec<_>>(), None)?;
 
-        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_size();
-
-        let width = image.width();
-        let height = image.height();
-
-        let num_cols = ceil_div(usize::from(width), 8 * max_h_sampling);
-        let num_rows = ceil_div(usize::from(height), 8 * max_v_sampling);
-
-        let buffer_width = num_cols * 8 * max_h_sampling;
-        let buffer_size = buffer_width * 8 * max_v_sampling;
-
-        let mut row: [Vec<_>; 4] = self.init_rows(buffer_size);
+        let mut rows = self.init_rows(self.get_max_sampling_size().1 * 8);
+        let num_components = self.components.len();
 
         let mut prev_dc = [0i16; 4];
 
-        let restart_interval = self.restart_interval.unwrap_or(0);
-        let mut restarts = 0;
-        let mut restarts_to_go = restart_interval;
+        for y in 0..image.height() / (self.get_max_sampling_size().1 as u16 * 8) {
+            image.fill_buffers(y as u16, &mut rows);
 
-        for block_y in 0..num_rows {
-            for r in &mut row {
-                r.clear();
-            }
-
-            for y in 0..(8 * max_v_sampling) {
-                let y = y + block_y * 8 * max_v_sampling;
-                let y = (y.min(height as usize - 1)) as u16;
-
-                image.fill_buffers(y, &mut row);
-
-                for _ in usize::from(width)..buffer_width {
-                    for channel in &mut row {
-                        if !channel.is_empty() {
-                            channel.push(channel[channel.len() - 1]);
-                        }
-                    }
-                }
-            }
-
-            for block_x in 0..num_cols {
-                if restart_interval > 0 && restarts_to_go == 0 {
-                    self.writer.finalize_bit_buffer()?;
-                    self.writer
-                        .write_marker(Marker::RST((restarts % 8) as u8))?;
-
-                    prev_dc[0] = 0;
-                    prev_dc[1] = 0;
-                    prev_dc[2] = 0;
-                    prev_dc[3] = 0;
-                }
-
-                for (i, component) in self.components.iter().enumerate() {
-                    for v_offset in 0..component.vertical_sampling_factor as usize {
-                        for h_offset in 0..component.horizontal_sampling_factor as usize {
+            for x in 0..image.width() / (self.get_max_sampling_size().0 as u16 * 8) {
+                for (component_index, component) in self.components.iter().enumerate() {
+                    for v_block in 0..component.vertical_sampling_factor {
+                        for h_block in 0..component.horizontal_sampling_factor {
                             let mut block = get_block(
-                                &row[i],
-                                block_x * 8 * max_h_sampling + (h_offset * 8),
-                                v_offset * 8,
-                                max_h_sampling
-                                    / component.horizontal_sampling_factor as usize,
-                                max_v_sampling
-                                    / component.vertical_sampling_factor as usize,
-                                buffer_width,
+                                &rows[component_index],
+                                x as usize * component.horizontal_sampling_factor as usize
+                                    + h_block as usize,
+                                v_block as usize,
+                                self.get_max_sampling_size().0
+                                    * component.horizontal_sampling_factor as usize,
+                                8 * component.horizontal_sampling_factor as usize,
+                                self.get_max_sampling_size().0
+                                    * component.horizontal_sampling_factor as usize,
                             );
 
-                            // --- Jpegli Integration Point: DCT ---
                             if self.use_float_dct {
-                                 // Use float DCT (assuming `forward_dct_float` is available)
-                                 forward_dct_float(&mut block);
+                                // Prepare data for float DCT
+                                let mut block_f32 = [0.0f32; 64];
+                                let mut coeffs_f32 = [0.0f32; 64];
+                                let mut scratch_f32 = [0.0f32; 64];
+                                for i in 0..64 {
+                                    // Level shift: pixel_u8 as f32 - 128.0
+                                    // Assuming get_block returns non-level-shifted data.
+                                    // If get_block already level-shifts, just convert.
+                                    block_f32[i] = block[i] as f32; // Assume block is already level-shifted i16
+                                }
+                                forward_dct_float(&block_f32, &mut coeffs_f32, &mut scratch_f32);
+                                // Convert back to i16 (rounding)
+                                for i in 0..64 {
+                                     block[i] = coeffs_f32[i].round() as i16;
+                                }
                             } else {
-                                 OP::fdct(&mut block); // Use default (int) DCT
+                                // Standard Integer DCT
+                                OP::fdct(&mut block);
                             }
 
-                            let mut q_block = [0i16; 64];
 
-                            OP::quantize_block(
-                                &block,
-                                &mut q_block,
-                                &q_tables[component.quantization_table as usize],
-                                adaptive_quant_field,
-                                block_x,
-                                block_y
-                            );
+                            let q_table = &q_tables[component.quantization_table as usize];
+                            let mut q_block = [0i16; 64];
+                            OP::quantize_block(&block, &mut q_block, q_table, adaptive_quant_field, x as usize, y as usize);
 
                             self.writer.write_block(
                                 &q_block,
-                                prev_dc[i],
+                                prev_dc[component_index],
                                 &self.huffman_tables[component.dc_huffman_table as usize].0,
                                 &self.huffman_tables[component.ac_huffman_table as usize].1,
                             )?;
-
-                            prev_dc[i] = q_block[0];
+                            prev_dc[component_index] = q_block[0];
                         }
                     }
                 }
 
-                if restart_interval > 0 {
-                    if restarts_to_go == 0 {
-                        restarts_to_go = restart_interval;
-                        restarts += 1;
-                        restarts &= 7;
+                // Check if restart interval is reached
+                if let Some(restart_interval) = self.restart_interval {
+                    // Calculate restart marker index (ensure it's u16 for calculations)
+                    let current_mcu_index = (x + y * (image.width() / 8)) as u16;
+                    if current_mcu_index > 0 && current_mcu_index % restart_interval == 0 {
+                        let restart_index = (current_mcu_index / restart_interval - 1) % 8;
+                        self.writer.finalize_bit_buffer()?;
+                        // Cast the final index to u8 for the marker
+                        self.writer.write_marker(Marker::RST(restart_index as u8))?;
+                        prev_dc = [0i16; 4];
                     }
-                    restarts_to_go -= 1;
                 }
             }
         }
-
         self.writer.finalize_bit_buffer()?;
-
         Ok(())
     }
 
@@ -1048,85 +1015,58 @@ impl<W: JfifWrite> Encoder<W> {
         q_tables: &[QuantizationTable; 2],
         adaptive_quant_field: Option<&[f32]>
     ) -> [Vec<[i16; 64]>; 4] {
-        let width = image.width();
-        let height = image.height();
+        let mut rows = self.init_rows(self.get_max_sampling_size().1 * 8);
 
-        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_size();
+        let mut blocks = self.init_block_buffers(
+            (image.height() * image.width()) as usize
+                / (self.get_max_sampling_size().0 * self.get_max_sampling_size().1 * 64),
+        );
 
-        let num_cols = ceil_div(usize::from(width), 8 * max_h_sampling) * max_h_sampling;
-        let num_rows = ceil_div(usize::from(height), 8 * max_v_sampling) * max_v_sampling;
+        for y in 0..image.height() / (self.get_max_sampling_size().1 as u16 * 8) {
+            image.fill_buffers(y as u16, &mut rows);
 
-        debug_assert!(num_cols > 0);
-        debug_assert!(num_rows > 0);
+            for x in 0..image.width() / (self.get_max_sampling_size().0 as u16 * 8) {
+                for (component_index, component) in self.components.iter().enumerate() {
+                    for v_block in 0..component.vertical_sampling_factor {
+                        for h_block in 0..component.horizontal_sampling_factor {
+                            let mut block = get_block(
+                                &rows[component_index],
+                                x as usize * component.horizontal_sampling_factor as usize
+                                    + h_block as usize,
+                                v_block as usize,
+                                self.get_max_sampling_size().0
+                                    * component.horizontal_sampling_factor as usize,
+                                8 * component.horizontal_sampling_factor as usize,
+                                self.get_max_sampling_size().0
+                                    * component.horizontal_sampling_factor as usize,
+                            );
 
-        let buffer_width = num_cols * 8;
-        let buffer_size = num_cols * num_rows * 64;
+                           if self.use_float_dct {
+                                // Prepare data for float DCT
+                                let mut block_f32 = [0.0f32; 64];
+                                let mut coeffs_f32 = [0.0f32; 64];
+                                let mut scratch_f32 = [0.0f32; 64];
+                                for i in 0..64 {
+                                     // Assume block is already level-shifted i16
+                                    block_f32[i] = block[i] as f32;
+                                }
+                                forward_dct_float(&block_f32, &mut coeffs_f32, &mut scratch_f32);
+                                // Convert back to i16 (rounding)
+                                for i in 0..64 {
+                                     block[i] = coeffs_f32[i].round() as i16;
+                                }
+                            } else {
+                                // Standard Integer DCT
+                                OP::fdct(&mut block);
+                            }
 
-        let mut row: [Vec<_>; 4] = self.init_rows(buffer_size);
+                            let q_table = &q_tables[component.quantization_table as usize];
+                            let mut q_block = [0i16; 64];
+                             OP::quantize_block(&block, &mut q_block, q_table, adaptive_quant_field, x as usize, y as usize);
 
-        for y in 0..num_rows * 8 {
-            let y = (y.min(usize::from(height) - 1)) as u16;
-
-            image.fill_buffers(y, &mut row);
-
-            for _ in usize::from(width)..num_cols * 8 {
-                for channel in &mut row {
-                    if !channel.is_empty() {
-                        channel.push(channel[channel.len() - 1]);
+                            blocks[component_index].push(q_block);
+                        }
                     }
-                }
-            }
-        }
-
-        let num_cols = ceil_div(usize::from(width), 8);
-        let num_rows = ceil_div(usize::from(height), 8);
-
-        debug_assert!(num_cols > 0);
-        debug_assert!(num_rows > 0);
-
-        let mut blocks: [Vec<_>; 4] = self.init_block_buffers(buffer_size / 64);
-
-        for (i, component) in self.components.iter().enumerate() {
-            let h_scale = max_h_sampling / component.horizontal_sampling_factor as usize;
-            let v_scale = max_v_sampling / component.vertical_sampling_factor as usize;
-
-            let cols = ceil_div(num_cols, h_scale);
-            let rows = ceil_div(num_rows, v_scale);
-
-            debug_assert!(cols > 0);
-            debug_assert!(rows > 0);
-
-            for block_y in 0..rows {
-                for block_x in 0..cols {
-                    let mut block = get_block(
-                        &row[i],
-                        block_x * 8 * h_scale,
-                        block_y * 8 * v_scale,
-                        h_scale,
-                        v_scale,
-                        buffer_width,
-                    );
-
-                    // --- Jpegli Integration Point: DCT ---
-                    if self.use_float_dct {
-                         // Use float DCT (assuming `forward_dct_float` is available)
-                         forward_dct_float(&mut block);
-                    } else {
-                         OP::fdct(&mut block); // Use default (int) DCT
-                    }
-
-                    let mut q_block = [0i16; 64];
-
-                    OP::quantize_block(
-                        &block,
-                        &mut q_block,
-                        &q_tables[component.quantization_table as usize],
-                        adaptive_quant_field,
-                        block_x,
-                        block_y
-                    );
-
-                    blocks[i].push(q_block);
                 }
             }
         }

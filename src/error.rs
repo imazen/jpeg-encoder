@@ -30,6 +30,32 @@ pub enum EncodingError {
 
     /// An error occurred during color management (e.g., profile parsing, transform creation)
     CmsError(String),
+
+    /// Invalid input
+    InvalidInput(String),
+
+    /// Unsupported feature
+    Unsupported(UnsupportedFeature),
+
+    /// Quantization error
+    QuantizationError(String),
+
+    /// Huffman error
+    HuffmanError(String),
+
+    /// Writer error
+    WriterError(String),
+
+    /// Internal error
+    InternalError(String),
+}
+
+#[derive(Debug)]
+pub enum UnsupportedFeature {
+    Progressive,
+    SamplingFactor,
+    ColorType,
+    AdaptiveQuantComplexity,
 }
 
 pub type EncoderResult<T> = Result<T, EncodingError>;
@@ -68,6 +94,12 @@ impl Display for EncodingError {
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
             CmsError(err) => write!(f, "CMS Error: {}", err),
+            InvalidInput(err) => write!(f, "Invalid input: {}", err),
+            Unsupported(feature) => write!(f, "Unsupported feature: {:?}", feature),
+            QuantizationError(err) => write!(f, "Quantization error: {}", err),
+            HuffmanError(err) => write!(f, "Huffman error: {}", err),
+            WriterError(err) => write!(f, "Writer error: {}", err),
+            InternalError(err) => write!(f, "Internal error: {}", err),
         }
     }
 }

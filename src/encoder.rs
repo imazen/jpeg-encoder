@@ -5,13 +5,13 @@ use alloc::string::ToString; // Import ToString for .to_string()
 use crate::huffman::{CodingClass, HuffmanTable, HuffmanCode};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::adaptive_quantization::{compute_adaptive_quant_field, K_INPUT_SCALING};
+use crate::adaptive_quantization::{compute_adaptive_quant_field, K_INPUT_SCALING_PUB as K_INPUT_SCALING};
 use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance, compute_zero_bias_tables};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
-use crate::error::{EncodingError, EncoderResult}; // Use EncoderResult alias
+use crate::error::{EncodingError, EncoderResult, UnsupportedFeature}; // Use EncoderResult alias
 use crate::fdct::{fdct, forward_dct_float}; // Import both DCT functions
 use crate::Density; // Add import for Density from lib.rs
-use crate::cms::{self, ColorProfile, JxlCms, ColorSpaceSignature};
+use crate::cms::{self, ColorProfile, JxlCms};
 use crate::tf::{self, ExtraTF}; // Import ExtraTF
 use crate::xyb; // Import xyb module
 use crate::color_transform; // Import color_transform module
@@ -596,8 +596,10 @@ impl<W: JfifWrite> Encoder<W> {
     }
 
     fn encode_image_internal<I: ImageBuffer, OP: Operations>(
-        mut self,
-        image: I,
+        &mut self,
+        image: &I,
+        ops: OP,
+        mut f32_planes: Option<Vec<Vec<f32>>>
     ) -> EncoderResult<()> {
         let color = image.get_jpeg_color_type(); // Get JPEG color type
         self.init_components(color);
@@ -626,23 +628,13 @@ impl<W: JfifWrite> Encoder<W> {
             _ => false,
         };
 
-        let q_tables = [
-            // Use correct QuantizationTable constructor based on whether distance is set
-            if self.jpegli_distance.is_some() {
-                // Correct args: distance, is_luma, is_yuv420, force_baseline
-                QuantizationTable::new_with_jpegli_distance(distance, true, is_yuv420, false)
-            } else {
-                // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
-                QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true, is_yuv420, false)
-            },
-            if self.jpegli_distance.is_some() {
-                // Correct args: distance, is_luma, is_yuv420, force_baseline
-                QuantizationTable::new_with_jpegli_distance(distance, false, is_yuv420, false)
-            } else {
-                // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
-                QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false, is_yuv420, false)
-            },
-        ];
+        let q_tables = if self.jpegli_distance.is_some() {
+            // Correct args: distance, is_luma, is_yuv420, force_baseline
+            QuantizationTable::new_with_jpegli_distance(distance, true, is_yuv420, false)
+        } else {
+            // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
+            QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true, is_yuv420, false)
+        };
 
         // --- Adaptive Quantization Field Calculation (if enabled) ---
         let mut adapt_quant_field: Option<Vec<f32>> = None;
@@ -651,7 +643,7 @@ impl<W: JfifWrite> Encoder<W> {
         if self.use_adaptive_quantization {
             // Needs the Y (luma) channel data as f32 scaled to [0, 1]
             // Run CMS/Color Conversion *before* AQ calculation
-            temp_f32_planes = image_to_f32_planes(&image, use_cms, self.cms_state.as_deref())?;
+            temp_f32_planes = image_to_f32_planes(image, use_cms, self.cms_state.as_deref())?;
 
             // Determine which plane to use for AQ based on the *target* color space
             let target_cs = target_profile.internal.as_ref().ok_or(
@@ -677,7 +669,7 @@ impl<W: JfifWrite> Encoder<W> {
                 image.height(),
                 &y_channel_div_255,
                 distance,
-                q_tables[0].get_raw(1) as i32, // Pass base quant for AC(0,1) (Luma table)
+                q_tables.get_raw(1) as i32, // Pass base quant for AC(0,1) (Luma table)
             ));
         }
 
@@ -690,7 +682,7 @@ impl<W: JfifWrite> Encoder<W> {
         // --- Prepare F32 Planes for Block Processing --- 
         // If AQ wasn't used, compute the f32 planes now.
         if temp_f32_planes.is_empty() {
-            temp_f32_planes = image_to_f32_planes(&image, use_cms, self.cms_state.as_deref())?;
+            temp_f32_planes = image_to_f32_planes(image, use_cms, self.cms_state.as_deref())?;
         }
 
         // Apply post-CMS transforms (XYB, YCbCr) if needed
@@ -756,7 +748,7 @@ impl<W: JfifWrite> Encoder<W> {
         let width = image.width() as usize;
         let height = image.height() as usize;
         let num_pixels = width * height;
-        let num_components = image.get_num_components(); // Use correct method
+        let num_components = image.get_jpeg_color_type().get_num_components(); // Use get_num_components
 
         let mut blocks: [Vec<[i16; 64]>; 4] = Default::default();
         let mut block_buffers: [Vec<[f32; 64]>; 4] = Default::default();
@@ -821,7 +813,7 @@ impl<W: JfifWrite> Encoder<W> {
                         OP::quantize_float_block(
                             coeff_block,
                             &mut blocks[c][block_idx],
-                            &q_tables[comp.quantization_table as usize],
+                            &q_tables,
                             adapt_quant_field.as_deref(),
                             block_idx, // TODO: Need correct block index for AQ field lookup
                             &self.zero_bias_offsets[c],
@@ -1001,7 +993,8 @@ impl Encoder<BufWriter<File>> {
     ) -> Result<Encoder<BufWriter<File>>, EncodingError> {
         let file = File::create(path)?;
         let buf = BufWriter::new(file);
-        Ok(Self::new(buf, quality))
+        let encoder = Self::new(buf, quality)?;
+        Ok(encoder)
     }
 }
 
@@ -1269,23 +1262,47 @@ mod tests {
 }
 
 // Helper to convert ImageBuffer (u8) to Vec<Vec<f32>> (planar)
-fn image_to_f32_planes<I: ImageBuffer>(image: &I) -> EncoderResult<Vec<Vec<f32>>> {
+fn image_to_f32_planes<I: ImageBuffer>(
+    image: &I,
+    use_cms: bool,
+    cms_state: Option<&JxlCms>,
+) -> EncoderResult<Vec<Vec<f32>>> {
     let width = image.width() as usize;
     let height = image.height() as usize;
-    let num_pixels = width * height;
-    let num_components = image.color_type().get_num_components();
-    let mut planes = vec![vec![0.0f32; num_pixels]; num_components];
+    let num_components = image.get_jpeg_color_type().get_num_components(); // Use get_num_components
+    let mut planes = vec![vec![0.0f32; width * height]; num_components];
+    let mut cms_input_buf = if use_cms { vec![0.0f32; width * height * num_components] } else { Vec::new() };
 
-    // TODO: This assumes get_pixel gives components in the expected order (R,G,B or L or C,M,Y,K)
-    // Needs careful checking based on ImageBuffer implementations.
     for y in 0..height {
         for x in 0..width {
-            let pixel_idx = y * width + x;
-            let pixel_data = image.get_pixel(x, y);
-            for c in 0..num_components {
-                // Scale u8 [0, 255] to f32 [0.0, 1.0]
-                planes[c][pixel_idx] = (pixel_data[c] as f32) / 255.0;
+            let pixel_index = y * width + x;
+            let pixel_u8 = image.get_pixel(x as u32, y as u32);
+            let pixel_comps = pixel_u8.get_components();
+            if use_cms {
+                for c in 0..num_components {
+                    cms_input_buf[pixel_index * num_components + c] = pixel_comps[c] as f32 * K_INPUT_SCALING;
+                }
+            } else {
+                for c in 0..num_components {
+                    planes[c][pixel_index] = pixel_comps[c] as f32 * K_INPUT_SCALING;
+                }
             }
+        }
+    }
+
+    if use_cms {
+        if let Some(cms) = cms_state {
+            let out_num_components = cms.channels_dst;
+            let mut cms_output_buf = vec![0.0f32; width * height * out_num_components];
+            cms::cms_run(cms, &cms_input_buf, &mut cms_output_buf, width * height)?;
+            planes = vec![vec![0.0f32; width * height]; out_num_components];
+            for pixel_index in 0..(width * height) {
+                for c in 0..out_num_components {
+                    planes[c][pixel_index] = cms_output_buf[pixel_index * out_num_components + c];
+                }
+            }
+        } else {
+            return Err(EncodingError::CmsError("CMS requested but state is missing".into()));
         }
     }
     Ok(planes)

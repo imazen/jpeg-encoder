@@ -92,8 +92,8 @@ pub fn linear_rgb_row_to_xyb(
     debug_assert!(row_g.len() >= xsize);
     debug_assert!(row_b.len() >= xsize);
 
-    let premul_matrix = array_ref!(premul_absorb, 0, 9); // First 9 elements are the matrix
-    let bias_cbrt = array_ref!(premul_absorb, 9, 3);     // Last 3 are the bias_cbrt terms
+    let premul_matrix = array_ref!(premul_absorb, 0, 9); // Use local macro directly
+    let bias_cbrt = array_ref!(premul_absorb, 9, 3);     // Use local macro directly
 
     for x in 0..xsize {
         let r = row_r[x];
@@ -150,26 +150,11 @@ pub fn scale_xyb_row(
 
 // --- Helpers --- //
 
-// Helper to get fixed-size array reference from slice
-// Use `arrayref` crate if available, otherwise implement manually
-#[macro_export]
-macro_rules! array_ref {
-    ($arr:expr, $offset:expr, $len:expr) => {{
-        // Unsafe block for slice-to-array reference conversion.
-        // Ensure $arr.len() >= $offset + $len before calling.
-        #[allow(unused_unsafe)]
-        unsafe {
-            debug_assert!($arr.len() >= $offset + $len);
-            & *($arr.as_ptr().add($offset) as *const [f32; $len])
-        }
-    }};
-}
-
 // --- Tests --- //
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::array_ref;
+    // Keep local macro use: use crate::array_ref;
     use alloc::vec;
 
     const TOLERANCE: f32 = 1e-6;

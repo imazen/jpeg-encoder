@@ -1,7 +1,7 @@
 // Ported from lib/jpegli/color_transform.cc
 
 use alloc::vec::Vec;
-use crate::error::EncoderError;
+use crate::error::EncodingError;
 
 // --- Constants for BT.601 Full Range YCbCr <-> RGB ---
 const KR: f32 = 0.299;

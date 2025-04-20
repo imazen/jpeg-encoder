@@ -31,6 +31,14 @@ extern crate std;
 extern crate alloc;
 extern crate core;
 
+#[cfg(feature = "cms")]
+extern crate lcms2;
+
+extern crate arrayref;
+extern crate log;
+extern crate crc32fast;
+extern crate byteorder;
+
 #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 mod avx2;
 mod encoder;
@@ -257,7 +265,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 80).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F422);
+        encoder.set_sampling_factor(SamplingFactor::Ratio422);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -271,7 +279,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 80).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F422);
+        encoder.set_sampling_factor(SamplingFactor::Ratio422);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -285,7 +293,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 80).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F411);
+        encoder.set_sampling_factor(SamplingFactor::Ratio411);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -299,7 +307,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 80).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F444);
+        encoder.set_sampling_factor(SamplingFactor::Ratio444);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -313,7 +321,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 80).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F440);
+        encoder.set_sampling_factor(SamplingFactor::Ratio440);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -326,7 +334,8 @@ mod tests {
         let (data, width, height) = create_test_img_rgb();
 
         let mut result = Vec::new();
-        let mut encoder = Encoder::new_progressive(&mut result, 80).unwrap();
+        let mut encoder = Encoder::new(&mut result, 80).unwrap();
+        encoder.set_progressive(true);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -353,8 +362,9 @@ mod tests {
         let (data, width, height) = create_test_img_rgb();
 
         let mut result = Vec::new();
-        let mut encoder = Encoder::new_progressive(&mut result, 80).unwrap();
+        let mut encoder = Encoder::new(&mut result, 80).unwrap();
         encoder.set_optimized_huffman_tables(true);
+        encoder.set_progressive(true);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
@@ -381,9 +391,8 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 100).unwrap();
-        encoder.set_jpeg_color_type(crate::JpegColorType::YCCK);
         encoder
-            .encode(&data, width, height, ColorType::Cmyk)
+            .encode(&data, width, height, ColorType::CmykAsYcck)
             .unwrap();
 
         check_result(data, width, height, &mut result, PixelFormat::CMYK32);
@@ -402,8 +411,8 @@ mod tests {
 
         assert!(result
             .as_slice()
-            .windows(DRI_DATA.len())
-            .any(|w| w == DRI_DATA));
+            .windows(marker::DRI_DATA.len())
+            .any(|w| w == marker::DRI_DATA));
 
         check_result(data, width, height, &mut result, PixelFormat::RGB24);
     }
@@ -414,7 +423,7 @@ mod tests {
 
         let mut result = Vec::new();
         let mut encoder = Encoder::new(&mut result, 100).unwrap();
-        encoder.set_sampling_factor(SamplingFactor::F411);
+        encoder.set_sampling_factor(SamplingFactor::Ratio411);
         encoder.set_restart_interval(16);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
@@ -422,8 +431,8 @@ mod tests {
 
         assert!(result
             .as_slice()
-            .windows(DRI_DATA.len())
-            .any(|w| w == DRI_DATA));
+            .windows(marker::DRI_DATA.len())
+            .any(|w| w == marker::DRI_DATA));
 
         check_result(data, width, height, &mut result, PixelFormat::RGB24);
     }
@@ -433,16 +442,17 @@ mod tests {
         let (data, width, height) = create_test_img_rgb();
 
         let mut result = Vec::new();
-        let mut encoder = Encoder::new_progressive(&mut result, 100).unwrap();
+        let mut encoder = Encoder::new(&mut result, 100).unwrap();
         encoder.set_restart_interval(8);
+        encoder.set_progressive(true);
         encoder
             .encode(&data, width, height, ColorType::Rgb)
             .unwrap();
 
         assert!(result
             .as_slice()
-            .windows(DRI_DATA.len())
-            .any(|w| w == DRI_DATA));
+            .windows(marker::DRI_DATA.len())
+            .any(|w| w == marker::DRI_DATA));
 
         check_result(data, width, height, &mut result, PixelFormat::RGB24);
     }
@@ -516,14 +526,25 @@ mod tests {
 
         check_result(data, width, height, &mut result, PixelFormat::RGB24);
     }
+
+    // Helper function for checking markers
+    fn has_marker(data: &[u8], marker: u8) -> bool {
+        data.windows(2).any(|window| window == &[marker::MARKER_PREFIX, marker])
+    }
+
+    #[test]
+    fn test_restart_interval() {
+        let (data, width, height) = create_test_img_rgb();
+
+        let mut result = Vec::new();
+        let mut encoder = Encoder::new(&mut result, 100).unwrap();
+        encoder.set_restart_interval(8);
+        encoder
+            .encode(&data, width, height, ColorType::Rgb)
+            .unwrap();
+
+        assert!(has_marker(&result, marker::DRI));
+
+        check_result(data, width, height, &mut result, PixelFormat::RGB24);
+    }
 }
-
-#[macro_use]
-extern crate alloc;
-
-#[cfg(test)]
-#[macro_use]
-extern crate std;
-
-#[macro_use]
-mod xyb;

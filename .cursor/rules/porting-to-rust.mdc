@@ -8,11 +8,11 @@ alwaysApply: true
 
 Use cargo test
 
-Above all, make sure jpeg-encoder's defaults and API aren't broken, we want a clean pull request that adds well-structured code that can be opted into. And if changes fail to apply, reload files from disk since they must have been applied early. 
+Above all, make sure jpeg-encoder's defaults and API aren't broken, every change is CORRECT, never disabling tests.  We want a clean pull request that adds well-structured code that can be opted into. And if changes fail to apply, reload files from disk since they must have been applied early. 
 
 1. The jpegli encoder source is in @jpegli/lib/jpegli jpegli/lib/jpegli
 2. external/rust-lcms2 is the source for lcms2, and @lcms.md has info. external/image-png and external/image are useful for loading png files, if you lack utility functions for that. 
-3. We target stable Rust, and keep any unsafe code (like SIMD abstractions) simple; study jpeg-encoder and follow those patterns. 
+3. We target stable Rust, and keep any unsafe code (like SIMD abstractions) simple; study jpeg-encoder and follow those patterns. Auto-vectorization is the goal.
 4. Before porting a C++ component, we examine all the headers it references and build a list of all the functions it actually depends on, and add that info as comments in the C++ header.
 5. We work methodically, search for a replacement in jpeg-encoder or create one, and try to create idomatic but performant and correct solutions. 
 6. We add new rules when we glean insight about jpegli, its structure, organization

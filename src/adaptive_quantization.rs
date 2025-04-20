@@ -3,7 +3,10 @@
 use alloc::vec;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
+use core::cmp::{max, min};
 
+#[cfg(feature = "std")]
+use std::println;
 #[cfg(feature = "std")]
 use std::eprintln;
 
@@ -31,11 +34,14 @@ const K_GAMMA_MOD_GAMMA: f32 = -0.15526878023684174 * K_INV_LOG2E;
 const K_HF_MOD_COEFF: f32 = -2.0052193233688884 / 112.0;
 
 // Constants for ComputeMask (from C++)
-const K_MASK_BASE: f32 = -0.74174993;
+const K_MASK_BASE: f32 = 0.6109318733215332;
+const K_MUL4: f32 = 0.03879999369382858;
+const K_MUL2: f32 = 0.17580001056194305;
 const K_MASK_MUL4: f32 = 3.2353257320940401;
 const K_MASK_MUL2: f32 = 12.906028311180409;
 const K_MASK_OFFSET2: f32 = 305.04035728311436;
 const K_MASK_MUL3: f32 = 5.0220313103171232;
+const K_MUL3: f32 = 0.30230000615119934;
 const K_MASK_OFFSET3: f32 = 2.1925739705298404;
 const K_MASK_OFFSET4: f32 = 0.25 * K_MASK_OFFSET3;
 const K_MASK_MUL0: f32 = 0.74760422233706747;
@@ -566,7 +572,9 @@ pub(crate) fn compute_adaptive_quant_field(
     // FuzzyErosion, and PerBlockModulations.
 
     if aq_map.len() != num_blocks {
-         eprintln!("AQ map length mismatch: expected {}, got {}", num_blocks, aq_map.len());
+        // Gate the debug print
+        #[cfg(feature = "std")]
+        eprintln!("AQ map length mismatch: expected {}, got {}", num_blocks, aq_map.len());
          // Fallback to zeros? Or panic? For now, return potentially incorrect map.
     }
 
@@ -577,6 +585,8 @@ pub(crate) fn compute_adaptive_quant_field(
 /// Helper for blurring the AQ map itself (used in C++ but potentially not needed with scalar approach?)
 // fn gaussian_blur_scalar_on_blocks(...) { ... }
 
+// Make K_INPUT_SCALING public for encoder.rs
+pub(crate) const K_INPUT_SCALING_PUB: f32 = K_INPUT_SCALING;
 
 #[cfg(test)]
 mod tests {

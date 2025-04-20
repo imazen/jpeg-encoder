@@ -1,6 +1,8 @@
 // Ported from lib/cms/transfer_functions-inl.h and jxl_cms_internal.h
 
-use crate::error::{EncoderError, EncoderResult, EncodingError};
+#![allow(non_camel_case_types)]
+
+use crate::error::{EncodingError, EncoderResult};
 use alloc::vec::Vec;
 use alloc::string::ToString;
 
@@ -315,4 +317,28 @@ mod tests {
         assert_approx_eq(hlg::display_from_encoded(1.0, 1.0, None), 12.0, 12.0 * TOLERANCE); // Inverse calculation
 
     }
+}
+
+#[cfg(feature = "std")] // Gate this function
+fn linear_to_srgb(v: f32) -> f32 {
+    if v <= 0.0031308 {
+        v * 12.92
+    } else {
+        1.055 * v.powf(1.0 / 2.4) - 0.055
+    }
+}
+
+#[cfg(feature = "std")] // Gate this function
+fn pq_to_linear(pq: f32) -> f32 {
+    use core::f32::EPSILON;
+    const M1: f32 = 0.1593017578125;
+    const M2: f32 = 78.84375;
+    const C1: f32 = 0.8359375;
+    const C2: f32 = 18.8515625;
+    const C3: f32 = 18.6875;
+
+    let pq_pow_m2 = pq.powf(1.0 / M2);
+    let num = (C1 - pq_pow_m2).max(EPSILON);
+    let den = (C2 - C3 * pq_pow_m2).max(EPSILON);
+    10000.0 * (num / den).powf(1.0 / M1)
 } 

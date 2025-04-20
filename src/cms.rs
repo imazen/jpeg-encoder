@@ -3,6 +3,7 @@ use std::ffi::c_void;
 use std::sync::Mutex;
 use alloc::vec::Vec;
 use alloc::string::{String, ToString};
+use alloc::format;
 
 use crate::error::{EncodingError, EncoderResult};
 use crate::tf::{self, ExtraTF};

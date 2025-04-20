@@ -1,4 +1,5 @@
 use alloc::fmt::Display;
+use alloc::string::String;
 #[cfg(feature = "std")]
 use std::error::Error;
 
@@ -26,7 +27,38 @@ pub enum EncodingError {
 
     /// An io error occurred during writing (Should be used in no_std cases instead of IoError)
     Write(alloc::string::String),
+
+    /// An error occurred during color management (e.g., profile parsing, transform creation)
+    CmsError(String),
+
+    /// Invalid input
+    InvalidInput(String),
+
+    /// Unsupported feature
+    Unsupported(UnsupportedFeature),
+
+    /// Quantization error
+    QuantizationError(String),
+
+    /// Huffman error
+    HuffmanError(String),
+
+    /// Writer error
+    WriterError(String),
+
+    /// Internal error
+    InternalError(String),
 }
+
+#[derive(Debug)]
+pub enum UnsupportedFeature {
+    Progressive,
+    SamplingFactor,
+    ColorType,
+    AdaptiveQuantComplexity,
+}
+
+pub type EncoderResult<T> = Result<T, EncodingError>;
 
 #[cfg(feature = "std")]
 impl From<std::io::Error> for EncodingError {
@@ -61,6 +93,13 @@ impl Display for EncodingError {
             #[cfg(feature = "std")]
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
+            CmsError(err) => write!(f, "CMS Error: {}", err),
+            InvalidInput(err) => write!(f, "Invalid input: {}", err),
+            Unsupported(feature) => write!(f, "Unsupported feature: {:?}", feature),
+            QuantizationError(err) => write!(f, "Quantization error: {}", err),
+            HuffmanError(err) => write!(f, "Huffman error: {}", err),
+            WriterError(err) => write!(f, "Writer error: {}", err),
+            InternalError(err) => write!(f, "Internal error: {}", err),
         }
     }
 }

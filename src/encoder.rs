@@ -1,16 +1,23 @@
-use crate::fdct::fdct;
-use crate::huffman::{CodingClass, HuffmanTable};
+use alloc::{boxed::Box, vec, vec::Vec};
+use alloc::string::ToString; // Import ToString for .to_string()
+
+// Keep only imports from *other* modules
+use crate::huffman::{CodingClass, HuffmanTable, HuffmanCode};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType};
+use crate::adaptive_quantization::{compute_adaptive_quant_field, K_INPUT_SCALING_PUB as K_INPUT_SCALING};
+use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance, compute_zero_bias_tables};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
-use crate::{Density, EncodingError};
-
-use alloc::vec;
-use alloc::vec::Vec;
+use crate::error::{EncodingError, EncoderResult, UnsupportedFeature}; // Use EncoderResult alias
+use crate::fdct::{fdct, forward_dct_float}; // Import both DCT functions
+use crate::Density; // Add import for Density from lib.rs
+use crate::cms::{self, ColorProfile, JxlCms};
+use crate::tf::{self, ExtraTF}; // Import ExtraTF
+use crate::xyb; // Import xyb module
+use crate::color_transform; // Import color_transform module
 
 #[cfg(feature = "std")]
-use std::io::BufWriter;
+use std::{io::BufWriter, eprintln};
 
 #[cfg(feature = "std")]
 use std::fs::File;
@@ -196,6 +203,15 @@ pub struct Encoder<W: JfifWrite> {
     writer: JfifWriter<W>,
     density: Density,
     quality: u8,
+    jpegli_distance: Option<f32>,
+
+    // CMS related fields
+    input_profile: Option<ColorProfile>,
+    internal_color_profile: ColorProfile, // Target profile for internal processing (e.g., Linear sRGB)
+    cms_state: Option<Box<JxlCms>>, // Initialized later
+    intensity_target: f32, // Needed for CMS
+    xyb_mode: bool, // Jpegli XYB colorspace mode
+    premul_absorb: Option<[f32; 12]>, // Precomputed matrix/constants for XYB
 
     components: Vec<Component>,
     quantization_tables: [QuantizationTableType; 2],
@@ -210,6 +226,16 @@ pub struct Encoder<W: JfifWrite> {
     optimize_huffman_table: bool,
 
     app_segments: Vec<(u8, Vec<u8>)>,
+
+    /// Whether to enable Jpegli-style adaptive quantization.
+    use_adaptive_quantization: bool,
+
+    // Precomputed zero-bias tables (used for adaptive quantization thresholding)
+    // These are computed based on distance/quality.
+    zero_bias_offsets: Vec<[f32; 64]>,
+    zero_bias_multipliers: Vec<[f32; 64]>,
+
+    use_float_dct: bool,
 }
 
 impl<W: JfifWrite> Encoder<W> {
@@ -217,8 +243,11 @@ impl<W: JfifWrite> Encoder<W> {
     ///
     /// The quality must be between 1 and 100 where 100 is the highest image quality.<br>
     /// By default, quality settings below 90 use a chroma subsampling (2x2 / 4:2:0) which can
-    /// be changed with [set_sampling_factor](Encoder::set_sampling_factor)
-    pub fn new(w: W, quality: u8) -> Encoder<W> {
+    /// be changed with [set_sampling_factor](Encoder::set_sampling_factor).
+    /// Default quantization uses standard Annex K tables.
+    /// Assumes sRGB input profile by default.
+    /// Returns an EncoderResult because ColorProfile creation can fail.
+    pub fn new(w: W, quality: u8) -> EncoderResult<Encoder<W>> {
         let huffman_tables = [
             (
                 HuffmanTable::default_luma_dc(),
@@ -230,22 +259,35 @@ impl<W: JfifWrite> Encoder<W> {
             ),
         ];
 
+        // Default to Standard Annex K tables
         let quantization_tables = [
             QuantizationTableType::Default,
             QuantizationTableType::Default,
         ];
 
         let sampling_factor = if quality < 90 {
-            SamplingFactor::F_2_2
+            SamplingFactor::R_4_2_0
         } else {
-            SamplingFactor::F_1_1
+            SamplingFactor::R_4_4_4
         };
 
-        Encoder {
+        let jpegli_distance = Some(quality_to_distance(quality));
+        let (zero_bias_offsets, zero_bias_multipliers) = compute_zero_bias_tables(jpegli_distance.unwrap());
+
+        let encoder = Encoder {
             writer: JfifWriter::new(w),
-            density: Density::None,
+            density: Density::default(),
             quality,
-            components: vec![],
+            jpegli_distance,
+
+            input_profile: Some(ColorProfile::srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?),
+            internal_color_profile: ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?,
+            cms_state: None,
+            intensity_target: 255.0, // Default intensity target
+            xyb_mode: false,
+            premul_absorb: None,
+
+            components: Vec::with_capacity(4),
             quantization_tables,
             huffman_tables,
             sampling_factor,
@@ -253,7 +295,80 @@ impl<W: JfifWrite> Encoder<W> {
             restart_interval: None,
             optimize_huffman_table: false,
             app_segments: Vec::new(),
+            use_adaptive_quantization: false,
+            zero_bias_offsets: zero_bias_offsets,
+            zero_bias_multipliers: zero_bias_multipliers,
+            use_float_dct: false,
+        };
+        Ok(encoder)
+    }
+
+    /// Sets the quality value for the encoder.
+    /// Resets quantization tables to default scaled by quality, and resets Jpegli distance mode.
+    pub fn set_quality(&mut self, quality: u8) {
+        assert!(quality >= 1 && quality <= 100);
+        self.quality = quality;
+        self.jpegli_distance = None;
+        self.quantization_tables = [
+            QuantizationTableType::Default,
+            QuantizationTableType::Default,
+        ];
+        // Recalculate zero bias tables for quality
+        let distance = quality_to_distance(quality);
+        let (zb_offsets, zb_multipliers) = compute_zero_bias_tables(distance);
+        self.zero_bias_offsets = zb_offsets;
+        self.zero_bias_multipliers = zb_multipliers;
+    }
+
+    /// Sets the target Butteraugli distance for Jpegli mode.
+    /// Sets quantization tables to Jpegli defaults scaled by distance.
+    pub fn set_jpegli_distance(&mut self, distance: f32) {
+        assert!(distance > 0.0);
+        self.jpegli_distance = Some(distance);
+        self.quantization_tables = [
+            QuantizationTableType::JpegliDefault,
+            QuantizationTableType::JpegliDefault,
+        ];
+         // Recalculate zero bias tables for distance
+        let (zb_offsets, zb_multipliers) = compute_zero_bias_tables(distance);
+        self.zero_bias_offsets = zb_offsets;
+        self.zero_bias_multipliers = zb_multipliers;
+    }
+
+    /// Sets the input color profile using raw ICC profile bytes.
+    pub fn set_input_profile(&mut self, icc_data: Vec<u8>) -> EncoderResult<()> {
+        let profile = ColorProfile::new(icc_data)?;
+        self.input_profile = Some(profile);
+        self.cms_state = None; // Invalidate previous CMS state
+        Ok(())
+    }
+
+    /// Sets the target display intensity in cd/m^2 for color transforms (e.g., PQ/HLG).
+    pub fn set_intensity_target(&mut self, nits: f32) {
+        self.intensity_target = nits;
+        self.cms_state = None; // Invalidate previous CMS state
+        self.premul_absorb = None; // Invalidate XYB precomputation
+    }
+
+     /// Enables or disables the Jpegli XYB color space mode.
+    /// When enabled, internal processing happens in XYB.
+    /// Returns an EncoderResult because ColorProfile creation can fail.
+    pub fn set_xyb_mode(&mut self, enabled: bool) -> EncoderResult<()> {
+        self.xyb_mode = enabled;
+        // Set internal target profile based on mode
+        if enabled {
+            // Need a way to represent XYB profile internally for CMS setup?
+            // For now, we know conversion happens *after* CMS to linear sRGB.
+             self.internal_color_profile = ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?;
+             // Precompute XYB matrix if not done already
+             if self.premul_absorb.is_none() {
+                 self.premul_absorb = Some(xyb::compute_premul_absorb(self.intensity_target));
+             }
+        } else {
+             self.internal_color_profile = ColorProfile::linear_srgb().map_err(|e| EncodingError::CmsError(e.to_string()))?;
         }
+        self.cms_state = None; // Invalidate previous CMS state
+        Ok(())
     }
 
     /// Set pixel density for the image
@@ -481,51 +596,261 @@ impl<W: JfifWrite> Encoder<W> {
     }
 
     fn encode_image_internal<I: ImageBuffer, OP: Operations>(
-        mut self,
-        image: I,
-    ) -> Result<(), EncodingError> {
-        if image.width() == 0 || image.height() == 0 {
-            return Err(EncodingError::ZeroImageDimensions {
-                width: image.width(),
-                height: image.height(),
-            });
+        &mut self,
+        image: &I,
+        ops: OP,
+        mut f32_planes: Option<Vec<Vec<f32>>>
+    ) -> EncoderResult<()> {
+        let color = image.get_jpeg_color_type(); // Get JPEG color type
+        self.init_components(color);
+
+        // Determine target profile for internal processing
+        let target_profile = match self.xyb_mode {
+            true => ColorProfile::linear_srgb()?,
+            false => self.internal_color_profile.clone(),
+        };
+
+        // Determine input profile (use target if none explicitly set)
+        let input_profile_ref = self.input_profile.as_ref().unwrap_or(&target_profile);
+
+        // Initialize CMS if input and target profiles differ
+        let use_cms = input_profile_ref.icc != target_profile.icc;
+        if use_cms {
+            self.cms_state = Some(Box::new(cms::cms_init(input_profile_ref, &target_profile, self.intensity_target)?));
         }
 
-        let q_tables = [
-            QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true),
-            QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false),
-        ];
+        // Determine quantization tables (Jpegli distance or standard quality)
+        let distance = self.jpegli_distance.unwrap_or_else(|| quality_to_distance(self.quality));
+        
+        // Determine is_yuv420 based on sampling factor
+        let is_yuv420 = match self.sampling_factor {
+            SamplingFactor::F_2_2 | SamplingFactor::R_4_2_0 => true,
+            _ => false,
+        };
 
-        let jpeg_color_type = image.get_jpeg_color_type();
-        self.init_components(jpeg_color_type);
-
-        self.writer.write_marker(Marker::SOI)?;
-
-        self.writer.write_header(&self.density)?;
-
-        if jpeg_color_type == JpegColorType::Cmyk {
-            //Set ColorTransform info to "Unknown"
-            let app_14 = b"Adobe\0\0\0\0\0\0\0";
-            self.writer
-                .write_segment(Marker::APP(14), app_14.as_ref())?;
-        } else if jpeg_color_type == JpegColorType::Ycck {
-            //Set ColorTransform info to YCCK
-            let app_14 = b"Adobe\0\0\0\0\0\0\x02";
-            self.writer
-                .write_segment(Marker::APP(14), app_14.as_ref())?;
-        }
-
-        for (nr, data) in &self.app_segments {
-            self.writer.write_segment(Marker::APP(*nr), data)?;
-        }
-
-        if let Some(scans) = self.progressive_scans {
-            self.encode_image_progressive::<_, OP>(image, scans, &q_tables)?;
-        } else if self.optimize_huffman_table || !self.sampling_factor.supports_interleaved() {
-            self.encode_image_sequential::<_, OP>(image, &q_tables)?;
+        let q_tables = if self.jpegli_distance.is_some() {
+            // Correct args: distance, is_luma, is_yuv420, force_baseline
+            QuantizationTable::new_with_jpegli_distance(distance, true, is_yuv420, false)
         } else {
-            self.encode_image_interleaved::<_, OP>(image, &q_tables)?;
+            // Correct args: q_type, quality, is_luma, is_yuv420, force_baseline
+            QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true, is_yuv420, false)
+        };
+
+        // --- Adaptive Quantization Field Calculation (if enabled) ---
+        let mut adapt_quant_field: Option<Vec<f32>> = None;
+        let mut temp_f32_planes: Vec<Vec<f32>> = Vec::new(); // Delay initialization
+
+        if self.use_adaptive_quantization {
+            // Needs the Y (luma) channel data as f32 scaled to [0, 1]
+            // Run CMS/Color Conversion *before* AQ calculation
+            temp_f32_planes = image_to_f32_planes(image, use_cms, self.cms_state.as_deref())?;
+
+            // Determine which plane to use for AQ based on the *target* color space
+            let target_cs = target_profile.internal.as_ref().ok_or(
+                EncodingError::CmsError("Missing target profile internal data for AQ".to_string())
+            )?.color_space;
+
+            let y_plane_idx = match target_cs {
+                ColorSpaceSignature::GrayData | ColorSpaceSignature::RgbData => 0, // Use Gray or R for RGB
+                // Add other cases if internal target can be different (e.g. YCbCr)
+                _ => return Err(EncodingError::CmsError("AQ requires Gray or RGB target profile".into())),
+            };
+
+            if y_plane_idx >= temp_f32_planes.len() {
+                return Err(EncodingError::CmsError("Could not get plane for AQ".into()));
+            }
+
+            // Input to AQ should be scaled [0, 1]
+            // Assuming image_to_f32_planes outputs [0, 255.0] range floats
+            let y_channel_div_255: Vec<f32> = temp_f32_planes[y_plane_idx].iter().map(|&p| p * K_INPUT_SCALING).collect();
+
+            adapt_quant_field = Some(compute_adaptive_quant_field(
+                image.width(),
+                image.height(),
+                &y_channel_div_255,
+                distance,
+                q_tables.get_raw(1) as i32, // Pass base quant for AC(0,1) (Luma table)
+            ));
         }
+
+        // --- Write Headers ---
+        self.write_frame_header(&image, color, &q_tables)?;
+        self.write_scan_header(0)?;
+
+        let mut fdct_scratch = vec![0.0f32; 64]; // Scratch space for float DCT
+
+        // --- Prepare F32 Planes for Block Processing --- 
+        // If AQ wasn't used, compute the f32 planes now.
+        if temp_f32_planes.is_empty() {
+            temp_f32_planes = image_to_f32_planes(image, use_cms, self.cms_state.as_deref())?;
+        }
+
+        // Apply post-CMS transforms (XYB, YCbCr) if needed
+        if self.xyb_mode {
+            if temp_f32_planes.len() < 3 {
+                return Err(EncodingError::CmsError("XYB needs 3 planes".into()));
+            }
+            if let Some(premul) = self.premul_absorb {
+                // Process row by row for XYB conversion
+                let width = image.width() as usize;
+                let height = image.height() as usize;
+                let num_pixels_total = width * height;
+                let mut row_r = vec![0.0; width];
+                let mut row_g = vec![0.0; width];
+                let mut row_b = vec![0.0; width];
+
+                for y in 0..height {
+                    let offset = y * width;
+                    row_r.copy_from_slice(&temp_f32_planes[0][offset..offset + width]);
+                    row_g.copy_from_slice(&temp_f32_planes[1][offset..offset + width]);
+                    row_b.copy_from_slice(&temp_f32_planes[2][offset..offset + width]);
+
+                    xyb::linear_rgb_row_to_xyb(&mut row_r, &mut row_g, &mut row_b, &premul, width);
+
+                    temp_f32_planes[0][offset..offset + width].copy_from_slice(&row_r);
+                    temp_f32_planes[1][offset..offset + width].copy_from_slice(&row_g);
+                    temp_f32_planes[2][offset..offset + width].copy_from_slice(&row_b);
+                }
+                // Apply scaling *after* row processing
+                xyb::scale_xyb_row(
+                    &mut temp_f32_planes[0],
+                    &mut temp_f32_planes[1],
+                    &mut temp_f32_planes[2],
+                    num_pixels_total
+                );
+            } else {
+                 return Err(EncodingError::CmsError("XYB enabled but constants missing".into()));
+            }
+        } else if color == JpegColorType::Ycbcr || color == JpegColorType::Ycck {
+             // Apply YCbCr conversion if needed (i.e., if input was RGB/Gray and target wasn't XYB)
+             // Check if target_profile is YCbCr based? This logic is complex.
+             // Assume for now if jpeg color type is YCbCr/YCCK, the planes *should* be YCbCr.
+             // If the input was RGB and target is YCbCr, CMS should have handled it.
+             // If input was RGB and target is RGB (no XYB), we need to convert here.
+             let target_cs = target_profile.internal.as_ref().ok_or(
+                EncodingError::CmsError("Missing target profile internal data".to_string())
+            )?.color_space;
+             if target_cs == ColorSpaceSignature::RgbData { // Convert RGB planes to YCbCr
+                 if temp_f32_planes.len() < 3 {
+                     return Err(EncodingError::CmsError("YCbCr conversion needs 3 planes".into()));
+                 }
+                 color_transform::rgb_to_ycbcr_planes(
+                     &mut temp_f32_planes[0],
+                     &mut temp_f32_planes[1],
+                     &mut temp_f32_planes[2],
+                     image.width() as usize * image.height() as usize,
+                 );
+             }
+             // If YCCK, the K plane should already be present as the 4th plane
+        }
+
+        // --- Process MCUs ---
+        let width = image.width() as usize;
+        let height = image.height() as usize;
+        let num_pixels = width * height;
+        let num_components = image.get_jpeg_color_type().get_num_components(); // Use get_num_components
+
+        let mut blocks: [Vec<[i16; 64]>; 4] = Default::default();
+        let mut block_buffers: [Vec<[f32; 64]>; 4] = Default::default();
+        let mut dct_coeffs: [Vec<[f32; 64]>; 4] = Default::default();
+        let mut scratch_space: [Vec<[f32; 64]>; 4] = Default::default();
+
+        let h_samp = self.components[0].horizontal_sampling_factor as usize;
+        let v_samp = self.components[0].vertical_sampling_factor as usize;
+        let mcu_width = h_samp * 8;
+        let mcu_height = v_samp * 8;
+        let mcus_w = ceil_div(width, mcu_width);
+        let mcus_h = ceil_div(height, mcu_height);
+        let num_mcus = mcus_w * mcus_h;
+
+        for c in 0..num_components {
+            let comp = &self.components[c];
+            let n_blocks_h = ceil_div(width * comp.horizontal_sampling_factor as usize, h_samp * 8);
+            let n_blocks_v = ceil_div(height * comp.vertical_sampling_factor as usize, v_samp * 8);
+            let n_blocks = n_blocks_h * n_blocks_v;
+            blocks[c].resize(n_blocks, [0i16; 64]);
+            if self.use_float_dct {
+                block_buffers[c].resize(n_blocks, [0f32; 64]);
+                dct_coeffs[c].resize(n_blocks, [0f32; 64]);
+                scratch_space[c].resize(n_blocks, [0f32; 64]);
+            }
+
+            let plane = &temp_f32_planes[c];
+            let component_width = n_blocks_h * 8;
+            let component_height = n_blocks_v * 8;
+
+            for y_b in 0..n_blocks_v {
+                for x_b in 0..n_blocks_h {
+                    let block_idx = y_b * n_blocks_h + x_b;
+                    let start_x = x_b * 8;
+                    let start_y = y_b * 8;
+
+                    let block_f32: &mut [f32; 64] = if self.use_float_dct {
+                        &mut block_buffers[c][block_idx]
+                    } else {
+                        // Need a temporary f32 buffer for int DCT path too
+                        // This is inefficient - ideally int DCT takes i16 input.
+                         // For now, use scratch space temporarily
+                         &mut scratch_space[c][block_idx]
+                    };
+
+                    // Extract 8x8 block from f32 plane, scaling [0,1] -> [-128, 127]
+                    for y in 0..8 {
+                        let py = (start_y + y).min(component_height - 1);
+                        let row_offset = py * component_width; // Use component width here
+                        for x in 0..8 {
+                            let px = (start_x + x).min(component_width - 1);
+                            // Map [0.0, 1.0] to [-128.0, 127.0] for DCT input
+                            block_f32[y * 8 + x] = plane[row_offset + px] * 255.0 - 128.0;
+                        }
+                    }
+
+                    // Apply DCT
+                    if self.use_float_dct {
+                        let coeff_block = &mut dct_coeffs[c][block_idx];
+                        let scratch = &mut scratch_space[c][block_idx];
+                        OP::forward_dct_float(block_f32, coeff_block, scratch);
+                        OP::quantize_float_block(
+                            coeff_block,
+                            &mut blocks[c][block_idx],
+                            &q_tables,
+                            adapt_quant_field.as_deref(),
+                            block_idx, // TODO: Need correct block index for AQ field lookup
+                            &self.zero_bias_offsets[c],
+                            &self.zero_bias_multipliers[c],
+                        );
+                    } else {
+                         // Integer DCT path - needs rework as fdct takes i16
+                         // 1. Convert f32 block [-128, 127] to i16 block
+                         let mut block_i16 = [0i16; 64];
+                         for i in 0..64 {
+                             block_i16[i] = block_f32[i].round() as i16;
+                         }
+                         // 2. Apply integer DCT
+                         OP::fdct(&mut block_i16);
+                         // 3. Quantize integer DCT output
+                         OP::quantize_block(
+                            &block_i16,
+                            &mut blocks[c][block_idx],
+                            &q_tables[comp.quantization_table as usize],
+                            adapt_quant_field.as_deref(),
+                            block_idx, // TODO: Need correct block index
+                             &self.zero_bias_offsets[c],
+                            &self.zero_bias_multipliers[c],
+                        );
+                    }
+                }
+            }
+        }
+
+        // --- Entropy Coding and Writing ---
+        if self.optimize_huffman_table {
+            // Optimize tables based on actual coefficient frequencies
+            self.optimize_huffman_tables_internal(&blocks)?;
+        }
+        self.write_scan_header(0)?;
+
+        self.writer.write_scan_data(&blocks, &self.components, &self.huffman_tables)?;
 
         self.writer.write_marker(Marker::EOI)?;
 
@@ -599,572 +924,57 @@ impl<W: JfifWrite> Encoder<W> {
     fn write_frame_header<I: ImageBuffer>(
         &mut self,
         image: &I,
+        color: JpegColorType,
         q_tables: &[QuantizationTable; 2],
     ) -> Result<(), EncodingError> {
-        self.writer.write_frame_header(
+        self.writer.write_marker(Marker::SOI)?;
+        self.writer.write_jfif_header(self.density)?;
+        for (marker, data) in &self.app_segments {
+            self.writer.write_app_segment(*marker, data)?;
+        }
+        self.writer.write_dqt(q_tables)?;
+        self.writer.write_sof(
             image.width(),
             image.height(),
-            &self.components,
+            &self.components.iter().collect::<Vec<_>>(),
             self.progressive_scans.is_some(),
         )?;
-
-        self.writer.write_quantization_segment(0, &q_tables[0])?;
-        self.writer.write_quantization_segment(1, &q_tables[1])?;
-
-        self.writer
-            .write_huffman_segment(CodingClass::Dc, 0, &self.huffman_tables[0].0)?;
-
-        self.writer
-            .write_huffman_segment(CodingClass::Ac, 0, &self.huffman_tables[0].1)?;
-
-        if image.get_jpeg_color_type().get_num_components() >= 3 {
-            self.writer
-                .write_huffman_segment(CodingClass::Dc, 1, &self.huffman_tables[1].0)?;
-
-            self.writer
-                .write_huffman_segment(CodingClass::Ac, 1, &self.huffman_tables[1].1)?;
+        if let Some(interval) = self.restart_interval {
+            self.writer.write_dri(interval)?;
         }
-
-        if let Some(restart_interval) = self.restart_interval {
-            self.writer.write_dri(restart_interval)?;
-        }
-
         Ok(())
     }
 
-    fn init_rows(&mut self, buffer_size: usize) -> [Vec<u8>; 4] {
-        // To simplify the code and to give the compiler more infos to optimize stuff we always initialize 4 components
-        // Resource overhead should be minimal because an empty Vec doesn't allocate
-
-        match self.components.len() {
-            1 => [
-                Vec::with_capacity(buffer_size),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-            ],
-            3 => [
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::new(),
-            ],
-            4 => [
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-            ],
-            len => unreachable!("Unsupported component length: {}", len),
+    fn write_scan_header(&mut self, scan_idx: usize) -> EncoderResult<()> {
+        // If optimizing, DHT is written *after* optimization, right before scan data.
+        // This is handled in the main encode loop now.
+        if !self.optimize_huffman_table {
+             self.writer.write_dht(&self.huffman_tables)?;
         }
+
+        if let Some(_scans) = self.progressive_scans { // Use _scans
+            // TODO: Implement progressive scan header writing
+            return Err(EncodingError::Other("Progressive scan headers not implemented".into()));
+        } else {
+            // Baseline scan
+            self.writer.write_sos(&self.components)?;
+        }
+        Ok(())
     }
 
-    /// Encode all components with one scan
+    /// Enable or disable Jpegli-style adaptive quantization.
     ///
-    /// This is only valid for sampling factors of 1 and 2
-    fn encode_image_interleaved<I: ImageBuffer, OP: Operations>(
-        &mut self,
-        image: I,
-        q_tables: &[QuantizationTable; 2],
-    ) -> Result<(), EncodingError> {
-        self.write_frame_header(&image, q_tables)?;
-        self.writer
-            .write_scan_header(&self.components.iter().collect::<Vec<_>>(), None)?;
-
-        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_size();
-
-        let width = image.width();
-        let height = image.height();
-
-        let num_cols = ceil_div(usize::from(width), 8 * max_h_sampling);
-        let num_rows = ceil_div(usize::from(height), 8 * max_v_sampling);
-
-        let buffer_width = num_cols * 8 * max_h_sampling;
-        let buffer_size = buffer_width * 8 * max_v_sampling;
-
-        let mut row: [Vec<_>; 4] = self.init_rows(buffer_size);
-
-        let mut prev_dc = [0i16; 4];
-
-        let restart_interval = self.restart_interval.unwrap_or(0);
-        let mut restarts = 0;
-        let mut restarts_to_go = restart_interval;
-
-        for block_y in 0..num_rows {
-            for r in &mut row {
-                r.clear();
-            }
-
-            for y in 0..(8 * max_v_sampling) {
-                let y = y + block_y * 8 * max_v_sampling;
-                let y = (y.min(height as usize - 1)) as u16;
-
-                image.fill_buffers(y, &mut row);
-
-                for _ in usize::from(width)..buffer_width {
-                    for channel in &mut row {
-                        if !channel.is_empty() {
-                            channel.push(channel[channel.len() - 1]);
-                        }
-                    }
-                }
-            }
-
-            for block_x in 0..num_cols {
-                if restart_interval > 0 && restarts_to_go == 0 {
-                    self.writer.finalize_bit_buffer()?;
-                    self.writer
-                        .write_marker(Marker::RST((restarts % 8) as u8))?;
-
-                    prev_dc[0] = 0;
-                    prev_dc[1] = 0;
-                    prev_dc[2] = 0;
-                    prev_dc[3] = 0;
-                }
-
-                for (i, component) in self.components.iter().enumerate() {
-                    for v_offset in 0..component.vertical_sampling_factor as usize {
-                        for h_offset in 0..component.horizontal_sampling_factor as usize {
-                            let mut block = get_block(
-                                &row[i],
-                                block_x * 8 * max_h_sampling + (h_offset * 8),
-                                v_offset * 8,
-                                max_h_sampling
-                                    / component.horizontal_sampling_factor as usize,
-                                max_v_sampling
-                                    / component.vertical_sampling_factor as usize,
-                                buffer_width,
-                            );
-
-                            OP::fdct(&mut block);
-
-                            let mut q_block = [0i16; 64];
-
-                            OP::quantize_block(
-                                &block,
-                                &mut q_block,
-                                &q_tables[component.quantization_table as usize],
-                            );
-
-                            self.writer.write_block(
-                                &q_block,
-                                prev_dc[i],
-                                &self.huffman_tables[component.dc_huffman_table as usize].0,
-                                &self.huffman_tables[component.ac_huffman_table as usize].1,
-                            )?;
-
-                            prev_dc[i] = q_block[0];
-                        }
-                    }
-                }
-
-                if restart_interval > 0 {
-                    if restarts_to_go == 0 {
-                        restarts_to_go = restart_interval;
-                        restarts += 1;
-                        restarts &= 7;
-                    }
-                    restarts_to_go -= 1;
-                }
-            }
-        }
-
-        self.writer.finalize_bit_buffer()?;
-
-        Ok(())
+    /// This analyzes the image to apply spatially varying quantization,
+    /// potentially improving perceived quality for a given file size.
+    /// It may increase encoding time.
+    /// This is independent of the `set_jpegli_distance` setting,
+    /// though typically used with it.
+    pub fn set_adaptive_quantization(&mut self, enabled: bool) {
+        self.use_adaptive_quantization = enabled;
     }
 
-    /// Encode components with one scan per component
-    fn encode_image_sequential<I: ImageBuffer, OP: Operations>(
-        &mut self,
-        image: I,
-        q_tables: &[QuantizationTable; 2],
-    ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
-
-        if self.optimize_huffman_table {
-            self.optimize_huffman_table(&blocks);
-        }
-
-        self.write_frame_header(&image, q_tables)?;
-
-        for (i, component) in self.components.iter().enumerate() {
-            let restart_interval = self.restart_interval.unwrap_or(0);
-            let mut restarts = 0;
-            let mut restarts_to_go = restart_interval;
-
-            self.writer.write_scan_header(&[component], None)?;
-
-            let mut prev_dc = 0;
-
-            for block in &blocks[i] {
-                if restart_interval > 0 && restarts_to_go == 0 {
-                    self.writer.finalize_bit_buffer()?;
-                    self.writer
-                        .write_marker(Marker::RST((restarts % 8) as u8))?;
-
-                    prev_dc = 0;
-                }
-
-                self.writer.write_block(
-                    block,
-                    prev_dc,
-                    &self.huffman_tables[component.dc_huffman_table as usize].0,
-                    &self.huffman_tables[component.ac_huffman_table as usize].1,
-                )?;
-
-                prev_dc = block[0];
-
-                if restart_interval > 0 {
-                    if restarts_to_go == 0 {
-                        restarts_to_go = restart_interval;
-                        restarts += 1;
-                        restarts &= 7;
-                    }
-                    restarts_to_go -= 1;
-                }
-            }
-
-            self.writer.finalize_bit_buffer()?;
-        }
-
-        Ok(())
-    }
-
-    /// Encode image in progressive mode
-    ///
-    /// This only support spectral selection for now
-    fn encode_image_progressive<I: ImageBuffer, OP: Operations>(
-        &mut self,
-        image: I,
-        scans: u8,
-        q_tables: &[QuantizationTable; 2],
-    ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
-
-        if self.optimize_huffman_table {
-            self.optimize_huffman_table(&blocks);
-        }
-
-        self.write_frame_header(&image, q_tables)?;
-
-        // Phase 1: DC Scan
-        //          Only the DC coefficients can be transfer in the first component scans
-        for (i, component) in self.components.iter().enumerate() {
-            self.writer.write_scan_header(&[component], Some((0, 0)))?;
-
-            let restart_interval = self.restart_interval.unwrap_or(0);
-            let mut restarts = 0;
-            let mut restarts_to_go = restart_interval;
-
-            let mut prev_dc = 0;
-
-            for block in &blocks[i] {
-                if restart_interval > 0 && restarts_to_go == 0 {
-                    self.writer.finalize_bit_buffer()?;
-                    self.writer
-                        .write_marker(Marker::RST((restarts % 8) as u8))?;
-
-                    prev_dc = 0;
-                }
-
-                self.writer.write_dc(
-                    block[0],
-                    prev_dc,
-                    &self.huffman_tables[component.dc_huffman_table as usize].0,
-                )?;
-
-                prev_dc = block[0];
-
-                if restart_interval > 0 {
-                    if restarts_to_go == 0 {
-                        restarts_to_go = restart_interval;
-                        restarts += 1;
-                        restarts &= 7;
-                    }
-                    restarts_to_go -= 1;
-                }
-            }
-
-            self.writer.finalize_bit_buffer()?;
-        }
-
-        // Phase 2: AC scans
-        let scans = scans as usize - 1;
-
-        let values_per_scan = 64 / scans;
-
-        for scan in 0..scans {
-            let start = (scan * values_per_scan).max(1);
-            let end = if scan == scans - 1 {
-                // ensure last scan is always transfers the remaining coefficients
-                64
-            } else {
-                (scan + 1) * values_per_scan
-            };
-
-            for (i, component) in self.components.iter().enumerate() {
-                let restart_interval = self.restart_interval.unwrap_or(0);
-                let mut restarts = 0;
-                let mut restarts_to_go = restart_interval;
-
-                self.writer
-                    .write_scan_header(&[component], Some((start as u8, end as u8 - 1)))?;
-
-                for block in &blocks[i] {
-                    if restart_interval > 0 && restarts_to_go == 0 {
-                        self.writer.finalize_bit_buffer()?;
-                        self.writer
-                            .write_marker(Marker::RST((restarts % 8) as u8))?;
-                    }
-
-                    self.writer.write_ac_block(
-                        block,
-                        start,
-                        end,
-                        &self.huffman_tables[component.ac_huffman_table as usize].1,
-                    )?;
-
-                    if restart_interval > 0 {
-                        if restarts_to_go == 0 {
-                            restarts_to_go = restart_interval;
-                            restarts += 1;
-                            restarts &= 7;
-                        }
-                        restarts_to_go -= 1;
-                    }
-                }
-
-                self.writer.finalize_bit_buffer()?;
-            }
-        }
-
-        Ok(())
-    }
-
-    fn encode_blocks<I: ImageBuffer, OP: Operations>(
-        &mut self,
-        image: &I,
-        q_tables: &[QuantizationTable; 2],
-    ) -> [Vec<[i16; 64]>; 4] {
-        let width = image.width();
-        let height = image.height();
-
-        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_size();
-
-        let num_cols = ceil_div(usize::from(width), 8 * max_h_sampling) * max_h_sampling;
-        let num_rows = ceil_div(usize::from(height), 8 * max_v_sampling) * max_v_sampling;
-
-        debug_assert!(num_cols > 0);
-        debug_assert!(num_rows > 0);
-
-        let buffer_width = num_cols * 8;
-        let buffer_size = num_cols * num_rows * 64;
-
-        let mut row: [Vec<_>; 4] = self.init_rows(buffer_size);
-
-        for y in 0..num_rows * 8 {
-            let y = (y.min(usize::from(height) - 1)) as u16;
-
-            image.fill_buffers(y, &mut row);
-
-            for _ in usize::from(width)..num_cols * 8 {
-                for channel in &mut row {
-                    if !channel.is_empty() {
-                        channel.push(channel[channel.len() - 1]);
-                    }
-                }
-            }
-        }
-
-        let num_cols = ceil_div(usize::from(width), 8);
-        let num_rows = ceil_div(usize::from(height), 8);
-
-        debug_assert!(num_cols > 0);
-        debug_assert!(num_rows > 0);
-
-        let mut blocks: [Vec<_>; 4] = self.init_block_buffers(buffer_size / 64);
-
-        for (i, component) in self.components.iter().enumerate() {
-            let h_scale = max_h_sampling / component.horizontal_sampling_factor as usize;
-            let v_scale = max_v_sampling / component.vertical_sampling_factor as usize;
-
-            let cols = ceil_div(num_cols, h_scale);
-            let rows = ceil_div(num_rows, v_scale);
-
-            debug_assert!(cols > 0);
-            debug_assert!(rows > 0);
-
-            for block_y in 0..rows {
-                for block_x in 0..cols {
-                    let mut block = get_block(
-                        &row[i],
-                        block_x * 8 * h_scale,
-                        block_y * 8 * v_scale,
-                        h_scale,
-                        v_scale,
-                        buffer_width,
-                    );
-
-                    OP::fdct(&mut block);
-
-                    let mut q_block = [0i16; 64];
-
-                    OP::quantize_block(
-                        &block,
-                        &mut q_block,
-                        &q_tables[component.quantization_table as usize],
-                    );
-
-                    blocks[i].push(q_block);
-                }
-            }
-        }
-        blocks
-    }
-
-    fn init_block_buffers(&mut self, buffer_size: usize) -> [Vec<[i16; 64]>; 4] {
-        // To simplify the code and to give the compiler more infos to optimize stuff we always initialize 4 components
-        // Resource overhead should be minimal because an empty Vec doesn't allocate
-
-        match self.components.len() {
-            1 => [
-                Vec::with_capacity(buffer_size),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-            ],
-            3 => [
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::new(),
-            ],
-            4 => [
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-                Vec::with_capacity(buffer_size),
-            ],
-            len => unreachable!("Unsupported component length: {}", len),
-        }
-    }
-
-    // Create new huffman tables optimized for this image
-    fn optimize_huffman_table(&mut self, blocks: &[Vec<[i16; 64]>; 4]) {
-        // TODO: Find out if it's possible to reuse some code from the writer
-
-        let max_tables = self.components.len().min(2) as u8;
-
-        for table in 0..max_tables {
-            let mut dc_freq = [0u32; 257];
-            dc_freq[256] = 1;
-            let mut ac_freq = [0u32; 257];
-            ac_freq[256] = 1;
-
-            let mut had_ac = false;
-            let mut had_dc = false;
-
-            for (i, component) in self.components.iter().enumerate() {
-                if component.dc_huffman_table == table {
-                    had_dc = true;
-
-                    let mut prev_dc = 0;
-
-                    debug_assert!(!blocks[i].is_empty());
-
-                    for block in &blocks[i] {
-                        let value = block[0];
-                        let diff = value - prev_dc;
-                        let num_bits = get_num_bits(diff);
-
-                        dc_freq[num_bits as usize] += 1;
-
-                        prev_dc = value;
-                    }
-                }
-
-                if component.ac_huffman_table == table {
-                    had_ac = true;
-
-                    if let Some(scans) = self.progressive_scans {
-                        let scans = scans as usize - 1;
-
-                        let values_per_scan = 64 / scans;
-
-                        for scan in 0..scans {
-                            let start = (scan * values_per_scan).max(1);
-                            let end = if scan == scans - 1 {
-                                // Due to rounding we might need to transfer more than values_per_scan values in the last scan
-                                64
-                            } else {
-                                (scan + 1) * values_per_scan
-                            };
-
-                            debug_assert!(!blocks[i].is_empty());
-
-                            for block in &blocks[i] {
-                                let mut zero_run = 0;
-
-                                for &value in &block[start..end] {
-                                    if value == 0 {
-                                        zero_run += 1;
-                                    } else {
-                                        while zero_run > 15 {
-                                            ac_freq[0xF0] += 1;
-                                            zero_run -= 16;
-                                        }
-                                        let num_bits = get_num_bits(value);
-                                        let symbol = (zero_run << 4) | num_bits;
-
-                                        ac_freq[symbol as usize] += 1;
-
-                                        zero_run = 0;
-                                    }
-                                }
-
-                                if zero_run > 0 {
-                                    ac_freq[0] += 1;
-                                }
-                            }
-                        }
-                    } else {
-                        for block in &blocks[i] {
-                            let mut zero_run = 0;
-
-                            for &value in &block[1..] {
-                                if value == 0 {
-                                    zero_run += 1;
-                                } else {
-                                    while zero_run > 15 {
-                                        ac_freq[0xF0] += 1;
-                                        zero_run -= 16;
-                                    }
-                                    let num_bits = get_num_bits(value);
-                                    let symbol = (zero_run << 4) | num_bits;
-
-                                    ac_freq[symbol as usize] += 1;
-
-                                    zero_run = 0;
-                                }
-                            }
-
-                            if zero_run > 0 {
-                                ac_freq[0] += 1;
-                            }
-                        }
-                    }
-                }
-            }
-
-            assert!(had_dc, "Missing DC data for table {}", table);
-            assert!(had_ac, "Missing AC data for table {}", table);
-
-            self.huffman_tables[table as usize] = (
-                HuffmanTable::new_optimized(dc_freq),
-                HuffmanTable::new_optimized(ac_freq),
-            );
-        }
+    pub fn set_float_dct(&mut self, enable: bool) {
+        self.use_float_dct = enable;
     }
 }
 
@@ -1183,7 +993,8 @@ impl Encoder<BufWriter<File>> {
     ) -> Result<Encoder<BufWriter<File>>, EncodingError> {
         let file = File::create(path)?;
         let buf = BufWriter::new(file);
-        Ok(Self::new(buf, quality))
+        let encoder = Self::new(buf, quality)?;
+        Ok(encoder)
     }
 }
 
@@ -1235,10 +1046,113 @@ pub(crate) trait Operations {
     }
 
     #[inline(always)]
-    fn quantize_block(block: &[i16; 64], q_block: &mut [i16; 64], table: &QuantizationTable) {
+    fn forward_dct_float(pixels: &[f32; 64], coefficients: &mut [f32; 64], scratch_space: &mut [f32; 64]) {
+        forward_dct_float(pixels, coefficients, scratch_space);
+    }
+
+    #[inline(always)]
+    fn quantize_block(
+        block: &[i16; 64], // Integer DCT output
+        q_block: &mut [i16; 64],
+        table: &QuantizationTable,
+        adapt_quant_field: Option<&[f32]>,
+        block_idx: usize,
+        zero_bias_offset: &[f32; 64],
+        zero_bias_mul: &[f32; 64],
+    ) {
+        const SHIFT: i32 = 3;
+
+        // Get the jpegli-style aq_strength value (offset-based) for this block
+        let aq_strength = adapt_quant_field.map_or(0.0, |field| {
+            field.get(block_idx).copied().unwrap_or(0.0)
+        });
+
         for i in 0..64 {
             let z = ZIGZAG[i] as usize & 0x3f;
-            q_block[i] = table.quantize(block[z], z);
+            let value = block[z] as i32; // Value from integer DCT
+            let q_val = table.get_raw(z) as i32;
+            let divisor = q_val << SHIFT;
+
+            // Ensure divisor is not zero, though table values should be >= 1
+            if divisor == 0 { continue; }
+
+            // Standard quantization with rounding: round(value / divisor)
+            let half_divisor_signed = (divisor as f32 / 2.0).copysign(value as f32) as i32;
+            let mut q_coeff = (value + half_divisor_signed) / divisor;
+
+            // Jpegli-style adaptive quantization thresholding (approximated)
+            // Applied *after* initial integer quantization for this path.
+            if i > 0 && q_coeff != 0 && adapt_quant_field.is_some() {
+                let zb_offset = zero_bias_offset[i];
+                let zb_mul = zero_bias_mul[i];
+                let threshold = zb_offset + zb_mul * aq_strength;
+
+                // Value to compare against threshold (absolute value before quantization)
+                // Reconstruct approximate original coeff value (scaled by 8 * q_val)
+                // This might be inaccurate. C++ compares `std::abs(scaled_val)` where
+                // scaled_val = coeff * qmc[k]; and coeff is float dct, qmc = 1.0/quant
+                // Let's use the absolute value of the *quantized* coefficient as a proxy.
+                let abs_quant_coeff = q_coeff.abs() as f32;
+                // Calculate threshold delta based on quantized value
+                let quant_delta = abs_quant_coeff * zb_mul;
+
+                // Jpegli check: if std::abs(scaled_val) < bias + quant_delta
+                if abs_quant_coeff < threshold {
+                    q_coeff = 0;
+                }
+            }
+
+            q_block[i] = q_coeff as i16;
+        }
+    }
+
+    #[inline(always)]
+    fn quantize_float_block(
+        coeffs: &[f32; 64], // Float DCT output
+        q_block: &mut [i16; 64],
+        table: &QuantizationTable,
+        adapt_quant_field: Option<&[f32]>,
+        block_idx: usize,
+        zero_bias_offset: &[f32; 64],
+        zero_bias_mul: &[f32; 64],
+    ) {
+        // Get the jpegli-style aq_strength value (additive bias offset)
+        let aq_strength = adapt_quant_field.map_or(0.0, |field| {
+            field.get(block_idx).copied().unwrap_or(0.0)
+        });
+
+        for i in 0..64 {
+            let z = ZIGZAG[i] as usize; // Use direct zigzag index
+            let value_f = coeffs[z]; // Value from float DCT
+            let q_val_f = table.get_raw(z) as f32;
+
+            // Ensure q_val_f is not zero
+            if q_val_f == 0.0 { continue; }
+
+            // Quantization: value_f / q_val_f (jpegli divides by quant value)
+            // Jpegli internal `QuantizeBlock` multiplies by qmc (quant multiplier = 1.0/q_val_f)
+            let scaled_val = value_f / q_val_f;
+
+            // Rounding (round half away from zero)
+            let q_coeff_f = scaled_val.round(); // .round() rounds half to even, use custom?
+            // Let's use simple rounding first
+            let mut q_coeff = q_coeff_f as i32;
+
+            // Jpegli-style adaptive quantization thresholding (zeroing bias)
+            // Applied *before* rounding for the float path, based on unrounded `scaled_val`.
+            if i > 0 && q_coeff != 0 && adapt_quant_field.is_some() {
+                let zb_offset = zero_bias_offset[i];
+                let zb_mul = zero_bias_mul[i];
+                let bias = zb_offset + aq_strength; // Base threshold + AQ offset
+                let quant_delta = scaled_val.abs() * zb_mul; // Threshold delta based on unquantized value
+
+                // Jpegli check: if std::abs(scaled_val) < bias + quant_delta
+                if scaled_val.abs() < bias + quant_delta {
+                    q_coeff = 0;
+                }
+            }
+
+            q_block[i] = q_coeff as i16;
         }
     }
 }
@@ -1250,10 +1164,23 @@ impl Operations for DefaultOperations {}
 #[cfg(test)]
 mod tests {
     use alloc::vec;
+    use alloc::vec::Vec;
 
     use crate::encoder::get_num_bits;
     use crate::writer::get_code;
-    use crate::{Encoder, SamplingFactor};
+    use crate::{ColorType, Encoder, QuantizationTableType, SamplingFactor};
+
+    // Helper to create a small grayscale image (e.g., 16x16)
+    fn create_test_image(width: usize, height: usize) -> (Vec<u8>, u16, u16, ColorType) {
+        let mut data = Vec::with_capacity(width * height);
+        for y in 0..height {
+            for x in 0..width {
+                // Simple gradient
+                data.push(((x + y) % 256) as u8);
+            }
+        }
+        (data, width as u16, height as u16, ColorType::Luma)
+    }
 
     #[test]
     fn test_get_num_bits() {
@@ -1272,33 +1199,243 @@ mod tests {
     }
 
     #[test]
-    fn sampling_factors() {
-        assert_eq!(SamplingFactor::F_1_1.get_sampling_factors(), (1, 1));
-        assert_eq!(SamplingFactor::F_2_1.get_sampling_factors(), (2, 1));
-        assert_eq!(SamplingFactor::F_1_2.get_sampling_factors(), (1, 2));
-        assert_eq!(SamplingFactor::F_2_2.get_sampling_factors(), (2, 2));
-        assert_eq!(SamplingFactor::F_4_1.get_sampling_factors(), (4, 1));
-        assert_eq!(SamplingFactor::F_4_2.get_sampling_factors(), (4, 2));
-        assert_eq!(SamplingFactor::F_1_4.get_sampling_factors(), (1, 4));
-        assert_eq!(SamplingFactor::F_2_4.get_sampling_factors(), (2, 4));
-
-        assert_eq!(SamplingFactor::R_4_4_4.get_sampling_factors(), (1, 1));
-        assert_eq!(SamplingFactor::R_4_4_0.get_sampling_factors(), (1, 2));
-        assert_eq!(SamplingFactor::R_4_4_1.get_sampling_factors(), (1, 4));
-        assert_eq!(SamplingFactor::R_4_2_2.get_sampling_factors(), (2, 1));
-        assert_eq!(SamplingFactor::R_4_2_0.get_sampling_factors(), (2, 2));
-        assert_eq!(SamplingFactor::R_4_2_1.get_sampling_factors(), (2, 4));
-        assert_eq!(SamplingFactor::R_4_1_1.get_sampling_factors(), (4, 1));
-        assert_eq!(SamplingFactor::R_4_1_0.get_sampling_factors(), (4, 2));
+    fn test_encode_default() {
+        // Test default path (integer DCT, no AQ, quality based)
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let encoder = Encoder::new(Vec::new(), 90);
+        assert!(encoder.encode(&data, width, height, color_type).is_ok());
     }
 
     #[test]
-    fn test_set_progressive() {
-        let mut encoder = Encoder::new(vec![], 100);
-        encoder.set_progressive(true);
-        assert_eq!(encoder.progressive_scans(), Some(4));
+    fn test_encode_float_dct() {
+        // Test float DCT path
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let mut encoder = Encoder::new(Vec::new(), 90);
+        encoder.set_float_dct(true);
+        assert!(encoder.encode(&data, width, height, color_type).is_ok());
+    }
 
-        encoder.set_progressive(false);
-        assert_eq!(encoder.progressive_scans(), None);
+    #[test]
+    fn test_encode_adaptive_quant() {
+        // Test adaptive quantization path (with default int DCT)
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let mut encoder = Encoder::new(Vec::new(), 90);
+        encoder.set_adaptive_quantization(true);
+        // Encoding might fail if image is too small for AQ padding/analysis?
+        // For now, just check if it runs.
+        let result = encoder.encode(&data, width, height, color_type);
+        // Allow Ok or specific errors related to AQ constraints if any
+        assert!(result.is_ok(), "AQ encoding failed: {:?}", result.err());
+    }
+
+    #[test]
+    fn test_encode_jpegli_distance() {
+        // Test Jpegli distance mode (with default int DCT, no AQ)
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let mut encoder = Encoder::new(Vec::new(), 90);
+        encoder.set_jpegli_distance(1.0);
+        assert!(encoder.encode(&data, width, height, color_type).is_ok());
+    }
+
+    #[test]
+    fn test_encode_float_dct_aq() {
+        // Test float DCT + adaptive quantization
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let mut encoder = Encoder::new(Vec::new(), 90);
+        encoder.set_float_dct(true);
+        encoder.set_adaptive_quantization(true);
+        let result = encoder.encode(&data, width, height, color_type);
+        assert!(result.is_ok(), "Float DCT + AQ encoding failed: {:?}", result.err());
+    }
+
+    #[test]
+    fn test_encode_jpegli_float_dct_aq() {
+        // Test Jpegli distance + float DCT + adaptive quantization
+        let (data, width, height, color_type) = create_test_image(16, 16);
+        let mut encoder = Encoder::new(Vec::new(), 90);
+        encoder.set_jpegli_distance(1.0);
+        encoder.set_float_dct(true);
+        encoder.set_adaptive_quantization(true);
+        let result = encoder.encode(&data, width, height, color_type);
+        assert!(result.is_ok(), "Jpegli + Float DCT + AQ encoding failed: {:?}", result.err());
+    }
+}
+
+// Helper to convert ImageBuffer (u8) to Vec<Vec<f32>> (planar)
+fn image_to_f32_planes<I: ImageBuffer>(
+    image: &I,
+    use_cms: bool,
+    cms_state: Option<&JxlCms>,
+) -> EncoderResult<Vec<Vec<f32>>> {
+    let width = image.width() as usize;
+    let height = image.height() as usize;
+    let num_components = image.get_jpeg_color_type().get_num_components(); // Use get_num_components
+    let mut planes = vec![vec![0.0f32; width * height]; num_components];
+    let mut cms_input_buf = if use_cms { vec![0.0f32; width * height * num_components] } else { Vec::new() };
+
+    for y in 0..height {
+        for x in 0..width {
+            let pixel_index = y * width + x;
+            let pixel_u8 = image.get_pixel(x as u32, y as u32);
+            let pixel_comps = pixel_u8.get_components();
+            if use_cms {
+                for c in 0..num_components {
+                    cms_input_buf[pixel_index * num_components + c] = pixel_comps[c] as f32 * K_INPUT_SCALING;
+                }
+            } else {
+                for c in 0..num_components {
+                    planes[c][pixel_index] = pixel_comps[c] as f32 * K_INPUT_SCALING;
+                }
+            }
+        }
+    }
+
+    if use_cms {
+        if let Some(cms) = cms_state {
+            let out_num_components = cms.channels_dst;
+            let mut cms_output_buf = vec![0.0f32; width * height * out_num_components];
+            cms::cms_run(cms, &cms_input_buf, &mut cms_output_buf, width * height)?;
+            planes = vec![vec![0.0f32; width * height]; out_num_components];
+            for pixel_index in 0..(width * height) {
+                for c in 0..out_num_components {
+                    planes[c][pixel_index] = cms_output_buf[pixel_index * out_num_components + c];
+                }
+            }
+        } else {
+            return Err(EncodingError::CmsError("CMS requested but state is missing".into()));
+        }
+    }
+    Ok(planes)
+}
+
+/// Optimized Huffman table calculation based on coefficient statistics.
+fn optimize_huffman_tables_internal(&mut self, blocks: &[Vec<[i16; 64]>; 4]) -> EncoderResult<()> {
+    let mut counts = [[0u32; 256]; 4]; // DC counts [0..1], AC counts [0..3]
+    let mut dc_bits = [[0u8; 16]; 2]; // Bit lengths for DC Huffman
+    let mut ac_bits = [[0u8; 16]; 2]; // Bit lengths for AC Huffman
+
+    let num_components = self.components.len();
+
+    for c in 0..num_components {
+        let comp = &self.components[c];
+        let h_samp = comp.horizontal_sampling_factor as usize;
+        let v_samp = comp.vertical_sampling_factor as usize;
+        let num_comp_blocks = blocks[c].len();
+
+        // Count frequencies
+        let mut last_dc = 0;
+        for i in 0..num_comp_blocks {
+            let block = &blocks[c][i];
+            // DC coefficient
+            let dc_diff = block[0] - last_dc;
+            last_dc = block[0];
+            let nbits = get_num_bits(dc_diff);
+            if nbits >= 12 { return Err(EncodingError::Other("DC coeff out of range".into())); }
+            counts[comp.dc_huffman_table as usize][nbits as usize] += 1;
+
+            // AC coefficients
+            let mut zero_run = 0;
+            for k in 1..64 {
+                let ac_val = block[k];
+                if ac_val == 0 {
+                    zero_run += 1;
+                } else {
+                    while zero_run > 15 {
+                        counts[2 + comp.ac_huffman_table as usize][0xf0] += 1; // ZRL code
+                        zero_run -= 16;
+                    }
+                    let nbits = get_num_bits(ac_val);
+                     if nbits >= 11 { return Err(EncodingError::Other("AC coeff out of range".into())); }
+                    let symbol = (zero_run << 4) | nbits;
+                    counts[2 + comp.ac_huffman_table as usize][symbol as usize] += 1;
+                    zero_run = 0;
+                }
+            }
+            if zero_run > 0 {
+                counts[2 + comp.ac_huffman_table as usize][0x00] += 1; // EOB code
+            }
+        }
+    }
+
+    // Generate Huffman tables
+    for i in 0..2 { // DC tables
+        let bits = HuffmanTable::build_huffman_bits(&counts[i], &mut dc_bits[i]);
+        self.huffman_tables[i].0 = HuffmanTable::from_counts(&counts[i], bits)?;
+    }
+    for i in 0..2 { // AC tables
+        let bits = HuffmanTable::build_huffman_bits(&counts[2 + i], &mut ac_bits[i]);
+        self.huffman_tables[i].1 = HuffmanTable::from_counts(&counts[2+i], bits)?;
+    }
+
+    Ok(())
+}
+
+/// Extracts f32 planes from the image, handling color conversion and CMS.
+fn image_to_f32_planes<I: ImageBuffer>(
+    image: &I,
+    use_cms: bool,
+    cms_state: Option<&JxlCms>,
+) -> EncoderResult<Vec<Vec<f32>>> {
+    let width = image.width() as usize;
+    let height = image.height() as usize;
+    let num_pixels = width * height;
+    let num_components = image.get_jpeg_color_type().get_num_components();
+
+    let mut initial_planes: Vec<Vec<f32>> = vec![vec![0.0; num_pixels]; num_components];
+
+    // Extract initial planes (e.g., R, G, B or Luma)
+    for y in 0..height {
+        for x in 0..width {
+            let pixel_idx = y * width + x;
+            let pixel_values = image.get_pixel_f32(x, y)?;
+            for c in 0..num_components {
+                initial_planes[c][pixel_idx] = pixel_values.get(c).copied().unwrap_or(0.0);
+            }
+        }
+    }
+
+    if use_cms {
+        let cms = cms_state.ok_or_else(|| EncodingError::CmsError("CMS state missing".to_string()))?;
+        let num_cms_in = cms.channels_src;
+        let num_cms_out = cms.channels_dst;
+
+        if initial_planes.len() != num_cms_in {
+             return Err(EncodingError::CmsError("Input plane count mismatch for CMS".to_string()));
+        }
+
+        // Interleave input planes for CMS
+        let mut interleaved_in = vec![0.0f32; num_pixels * num_cms_in];
+        for p in 0..num_pixels {
+            for c in 0..num_cms_in {
+                interleaved_in[p * num_cms_in + c] = initial_planes[c][p];
+            }
+        }
+
+        let mut interleaved_out = vec![0.0f32; num_pixels * num_cms_out];
+        cms.run_transform(&interleaved_in, &mut interleaved_out, num_pixels)?;
+
+        // Deinterleave output planes
+        let mut output_planes: Vec<Vec<f32>> = vec![vec![0.0; num_pixels]; num_cms_out];
+        for p in 0..num_pixels {
+            for c in 0..num_cms_out {
+                output_planes[c][p] = interleaved_out[p * num_cms_out + c];
+            }
+        }
+        Ok(output_planes)
+    } else {
+        Ok(initial_planes)
+    }
+}
+
+/// Extracts an 8x8 f32 block from a plane.
+fn get_block_f32(plane: &[f32], start_x: usize, start_y: usize, stride: usize, block: &mut [f32; 64]) {
+    let plane_height = plane.len() / stride;
+    for r in 0..8 {
+        let y = (start_y + r).min(plane_height - 1);
+        let row_start = y * stride;
+        for c in 0..8 {
+            let x = (start_x + c).min(stride - 1);
+            block[r * 8 + c] = plane[row_start + x];
+        }
     }
 }

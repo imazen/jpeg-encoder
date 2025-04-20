@@ -1,0 +1,3 @@
+[submodule "reference_dct/testdata"]
+	path = reference_dct/testdata
+	url = https://github.com/libjxl/testdata

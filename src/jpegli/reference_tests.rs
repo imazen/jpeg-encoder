@@ -1,5 +1,8 @@
 // This file contains the actual tests that use the generated reference data.
 
+use std::println;
+use std::vec::Vec;
+
 use crate::Encoder; // Assuming Encoder is in the crate root
 use crate::ColorType; // Assuming ColorType is in the crate root
 // Potentially need image decoders like png, ppm etc.
@@ -12,7 +15,7 @@ use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
 fn compare_quantization_with_reference() {
     for test_case in REFERENCE_QUANT_TEST_DATA {
         println!(
-            "Testing reference: {} (Source: {}, Format: {}, Distance: {:.1f})",
+            "Testing reference: {} (Source: {}, Format: {}, Distance: {:.1})",
             test_case.input_filename,
             test_case.source_group,
             test_case.input_format,
@@ -36,7 +39,7 @@ fn compare_quantization_with_reference() {
         // 2. Create a jpeg_encoder::Encoder instance.
         //    - Decide where to write the output (e.g., Vec<u8>).
         let mut encoded_output = Vec::new();
-        let mut encoder = Encoder::new(&mut encoded_output, 100).unwrap(); // Use dummy quality initially
+        let mut encoder = Encoder::new(&mut encoded_output, 100); // Use dummy quality initially
         
         // 3. Configure the encoder with the reference distance.
         encoder.set_jpegli_distance(test_case.cjpegli_distance);

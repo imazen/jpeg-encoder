@@ -64,6 +64,7 @@ impl Display for EncodingError {
             #[cfg(feature = "std")]
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
+            CmsError(err) => write!(f, "{}", err),
         }
     }
 }

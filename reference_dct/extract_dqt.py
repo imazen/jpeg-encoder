@@ -136,7 +136,7 @@ if __name__ == "__main__":
     print(f"            input_filename: \"{orig_filename_arg}\",")
     print(f"            input_format: \"{orig_extension_arg}\",")
     print(f"            input_data: include_bytes!(\"{relative_include_path_arg}\"),")
-    print(f"            cjpegli_distance: {distance_arg:.1f}, # Using .1f format")
+    print(f"            cjpegli_distance: {distance_arg:.1}, ")
     print(f"            expected_luma_dqt: {luma_rust_str},")
     print(f"            expected_chroma_dqt: {chroma_rust_str}")
     print(f"        }}") # No comma here, handled by bash script

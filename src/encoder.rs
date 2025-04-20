@@ -1,23 +1,18 @@
-use jpeg_decoder::{Density, Precision, SOFInfo, SOSInfo};
-use crate::fdct::DCT_SIZE;
-use crate::huffman::{EncoderHuffmanTable, DCHuffmanTable, HuffmanTable, HuffmanTableClass, ACHuffmanTable, HuffmanCode};
+use crate::{Density};
+use crate::huffman::*;
 use crate::quantization::QuantizationTable;
-use crate::marker::{RstManager, SOF, SOSHeader, SOS, ScanInfo};
-use crate::fdct;
 
-use std::io::Write;
-
-use crate::error::{Error, JpegError, UnsupportedFeature};
+use crate::error::*;
 
 use crate::fdct::fdct;
-use crate::huffman::{CodingClass, HuffmanTable};
+use crate::huffman::{CodingClass};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance, new_with_jpegli_distance, compute_zero_bias_tables};
+use crate::quantization::{QuantizationTableType};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
-use crate::{Density, EncodingError};
-use crate::fdct::forward_dct_float;
-use crate::adaptive_quantization::compute_adaptive_quant_field;
+use crate::{ EncodingError};
+use crate::jpegli::fdct_jpegli::forward_dct_float;
+use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
 
 use alloc::vec;
 use alloc::vec::Vec;

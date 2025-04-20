@@ -362,7 +362,7 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> EncoderResult<ColorEncodingIntern
 
             if let (Some(r_data), Some(g_data), Some(b_data)) = (r_tag, g_tag, b_tag) {
                  if let (Ok(r_xyz), Ok(g_xyz), Ok(b_xyz)) = (r_data.read_xyz(), g_data.read_xyz(), b_data.read_xyz()) {
-                    if let (Ok(r_xyy), Ok(g_xyy), Ok(b_xyy)) = (CIExyY::from(&r_xyz), CIExyY::from(&g_xyz), CIExyY::from(&b_xyz)) {
+                    if let (Ok(r_xyy), Ok(g_xyy), Ok(b_xyy)) = (CIExyY::try_from(&r_xyz), CIExyY::try_from(&g_xyz), CIExyY::try_from(&b_xyz)) {
                          encoding.primaries = Some(CIExyYTRIPLE {
                              Red: r_xyy,
                              Green: g_xyy,

@@ -1,6 +1,7 @@
 // Ported from lib/extras/xyb_transform.cc and lib/cms/opsin_params.h
 
 use alloc::vec::Vec;
+use arrayref::array_ref;
 
 // --- Constants --- //
 
@@ -154,7 +155,6 @@ pub fn scale_xyb_row(
 #[cfg(test)]
 mod tests {
     use super::*;
-    // Keep local macro use: use crate::array_ref;
     use alloc::vec;
 
     const TOLERANCE: f32 = 1e-6;

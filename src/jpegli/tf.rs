@@ -2,7 +2,7 @@
 
 #![allow(non_camel_case_types)]
 
-use crate::error::{EncodingError, EncoderResult};
+use crate::error::{EncodingError};
 use alloc::vec::Vec;
 use alloc::string::ToString;
 
@@ -172,7 +172,7 @@ pub fn before_transform(
     tf: ExtraTF,
     intensity_target: f32,
     input_buf: &mut [f32], // Changed to mutable
-) -> EncoderResult<()> {
+) -> Result<(), EncodingError> {
     if input_buf.is_empty() { return Ok(()); }
 
     match tf {
@@ -201,7 +201,7 @@ pub fn after_transform(
     tf: ExtraTF,
     intensity_target: f32,
     buffer: &mut [f32], // Operates in-place
-) -> EncoderResult<()> {
+) -> Result<(), EncodingError> {
     if buffer.is_empty() { return Ok(()); }
 
     match tf {
@@ -232,7 +232,7 @@ pub fn after_transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::f32::consts::EPSILON;
+    use core::f32::EPSILON;
 
     // Allow slightly larger tolerance due to f32 vs f64 and potential approximation differences
     const TOLERANCE: f32 = 1e-5;

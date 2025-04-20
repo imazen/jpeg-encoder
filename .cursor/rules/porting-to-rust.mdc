@@ -8,7 +8,7 @@ alwaysApply: true
 
 Use cargo test
 
-Be ABSOLUTELY MINIMAL in making changes outside of the src/jpegli/ directory, we want to preserve the jpeg-encoder API and make as few changes as needed to support the jpegli algorithm. Do NOT make tests pass by skipping or commenting them out. Be CORRECT.
+Be ABSOLUTELY MINIMAL in making changes outside of the src/jpegli/ directory, we want to preserve the jpeg-encoder API and make as few changes as needed to support the jpegli algorithm. Do NOT make tests pass by skipping or commenting them out. Be CORRECT. NEVER INFER A FILE's CONTENTS, READ IT.
 
 And if changes fail to apply, reload files from disk since they must have been applied early.
 
@@ -193,8 +193,13 @@ This describes the current state of the source files based on recent analysis, w
     *   Contains the scalar Rust implementation of Jpegli's floating-point FDCT (`forward_dct_float`).
     *   Uses a recursive approach (`DCT1DImplTrait`) and helper functions (`add_reverse`, `sub_reverse`, `multiply`, `b`, etc.).
 
-*   **`src/jpegli/quant.rs`:**
-    *   (File exists but wasn't explicitly read in this session - likely contains Jpegli-specific quantization helpers or table definitions).
+  **`src/jpegli/quant.rs`:**
+    *   Contains constants (e.g., default Jpegli tables, zero-bias values) and functions related to Jpegli's quantization logic, ported from C++. Handles quality-to-distance mapping and distance-based quantization table generation.
 
 *   **`src/jpegli/color_transform.rs`, `src/jpegli/tf.rs`, `src/jpegli/xyb.rs`, `src/jpegli/cms.rs`:**
-    *   (Files exist but weren't explicitly read - likely related to Jpegli color management, XYB transforms, or CMS integration).
+    *   **`color_transform.rs`**: Provides functions for basic color space conversions (Linear RGB <-> YCbCr, CMYK <-> YCCK, Gray -> RGB) operating on planar f32 data.
+    *   **`tf.rs`**: Implements transfer functions (sRGB, PQ, HLG) for converting between linear and encoded values. Provides `before_transform` and `after_transform` wrappers used by `cms.rs`.
+    *   **`xyb.rs`**: Implements the Opsin Absorbance (XYB) color transformation from linear RGB, including scaling.
+    *   **`cms.rs`**: The main Color Management System interface using `lcms2`. Defines `ColorProfile` (wrapping ICC data and parsed info), `JxlCms` (managing the LCMS transform and pre/post processing TFs), and `set_fields_from_icc` (parsing profiles).
+
+

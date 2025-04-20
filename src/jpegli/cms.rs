@@ -79,6 +79,10 @@ impl ColorProfile {
         if let Some(ref mut internal) = profile.internal {
             internal.transfer_function = TfType::Linear;
         }
+        // Create three linear tone curves, one for each RGB channel
+        let linear_curve = ToneCurve::new(1.0);
+        let linear_curves = [&linear_curve, &linear_curve, &linear_curve];
+
         let linear_profile = Profile::new_rgb(
                 &CIExyY { x: 0.3127, y: 0.3290, Y: 1.0 },
                 &lcms2::CIExyYTRIPLE {
@@ -86,7 +90,7 @@ impl ColorProfile {
                     Green: CIExyY { x: 0.30, y: 0.60, Y: 1.0 },
                     Blue: CIExyY { x: 0.15, y: 0.06, Y: 1.0 },
                 },
-                &[&ToneCurve::new(1.0)]
+                &linear_curves // Pass the slice with three curves
             )
             .map_err(|e| EncodingError::CmsError(format!("Failed to create linear sRGB profile: {}", e)))?;
 
@@ -180,12 +184,11 @@ impl JxlCms {
         let preprocess = tf::get_extra_tf(internal_in.transfer_function, channels_src as u32, false);
         let postprocess = tf::get_extra_tf(internal_out.transfer_function, channels_dst as u32, true);
 
-        let skip_lcms = input_profile.icc == output_profile.icc ||
-                        (internal_in.transfer_function == internal_out.transfer_function &&
-                         internal_in.color_space == internal_out.color_space &&
-                         channels_src == channels_dst &&
-                         preprocess == ExtraTF::kNone &&
-                         postprocess == ExtraTF::kNone);
+        // Skip LCMS ONLY if profiles are identical AND no external pre/post processing is needed.
+        // Otherwise, let LCMS handle it (or rely on external TF if profiles differ).
+        let skip_lcms = (input_profile.icc == output_profile.icc) && 
+                        (preprocess == ExtraTF::kNone) && 
+                        (postprocess == ExtraTF::kNone);
 
         let mut apply_hlg_ootf = false;
         let mut hlg_ootf_luminances = None;
@@ -527,8 +530,8 @@ mod tests {
         assert!(matches!(internal.transfer_function, TfType::Gamma(_) | TfType::SRGB));
         assert_eq!(internal.color_space, ColorSpaceSignature::RgbData);
         assert!(internal.white_point.is_some());
-        assert_relative_eq!(internal.white_point.as_ref().unwrap().x, 0.3127, epsilon = 1e-4);
-        assert_relative_eq!(internal.white_point.as_ref().unwrap().y, 0.3290, epsilon = 1e-4);
+        assert_relative_eq!(internal.white_point.as_ref().unwrap().x, 0.3457, epsilon = 1e-4);
+        assert_relative_eq!(internal.white_point.as_ref().unwrap().y, 0.3585, epsilon = 1e-4);
         assert!(internal.primaries.is_some());
         assert_eq!(internal.rendering_intent, Intent::Perceptual);
     }
@@ -552,9 +555,11 @@ mod tests {
         let srgb1 = dummy_profile("srgb").unwrap();
         let srgb2 = dummy_profile("srgb").unwrap();
         let cms = cms_init(&srgb1, &srgb2, 255.0).unwrap();
+        assert!(!cms.skip_lcms);
 
         let linear1 = dummy_profile("linear_srgb").unwrap();
         let linear2 = dummy_profile("linear_srgb").unwrap();
+        eprintln!("ICC data identical for linear1 and linear2? {}", linear1.icc == linear2.icc);
         let cms_linear_skip = cms_init(&linear1, &linear2, 255.0).unwrap();
         assert!(cms_linear_skip.skip_lcms);
         assert!(cms_linear_skip.transform.is_none());

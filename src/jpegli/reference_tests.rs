@@ -6,8 +6,7 @@ use crate::ColorType; // Assuming ColorType is in the crate root
 // use image; 
 
 // Import the generated data module
-mod reference_data;
-use reference_data::REFERENCE_QUANT_TEST_DATA;
+use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
 
 #[test]
 fn compare_quantization_with_reference() {

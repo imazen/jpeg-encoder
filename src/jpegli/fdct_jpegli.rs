@@ -1,40 +1,42 @@
+#[cfg(test)]
+mod tests {
+    use super::*; // Use super to bring items from parent module into scope
 
-#[test]
-#[ignore] // Requires reference values from C++ jpegli
-fn test_float_dct_basic() {
-    // Sample 8x8 block data (level-shifted: pixel_u8 as f32 - 128.0)
-    // Example: A simple gradient or constant block
-    let input_pixels: [f32; 64] = [
-        -128.0, -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,
-        -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,
-        -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,
-        -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,
-        -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,
-        -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,
-        -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,
-        -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,  96.0,
-    ]; // Replace with actual test data
-    let mut coeffs = [0.0f32; 64];
-    let mut scratch = [0.0f32; 64];
+    #[test]
+    #[ignore] // Requires reference values from C++ jpegli
+    fn test_float_dct_basic() {
+        // Sample 8x8 block data (level-shifted: pixel_u8 as f32 - 128.0)
+        // Example: A simple gradient or constant block
+        let input_pixels: [f32; 64] = [
+            -128.0, -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,
+            -112.0, -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,
+            -96.0, -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,
+            -80.0, -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,
+            -64.0, -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,
+            -48.0, -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,
+            -32.0, -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,
+            -16.0,   0.0,  16.0,  32.0,  48.0,  64.0,  80.0,  96.0,
+        ]; // Replace with actual test data
+        let mut coeffs = [0.0f32; 64];
+        let mut scratch = [0.0f32; 64];
 
-    super::forward_dct_float(&input_pixels, &mut coeffs, &mut scratch);
+        forward_dct_float(&input_pixels, &mut coeffs, &mut scratch);
 
-    // Reference coefficients obtained from running jpegli C++
-    // on the same input_pixels data.
-    let expected_coeffs: [f32; 64] = [
-        // Fill with reference values...
-        0.0; 64 // Placeholder
-    ];
+        // Reference coefficients obtained from running jpegli C++
+        // on the same input_pixels data.
+        let expected_coeffs: [f32; 64] = [
+            // Fill with reference values...
+            0.0; 64 // Placeholder
+        ];
 
-    // Compare coeffs with expected_coeffs (allow for small floating point differences)
-    let epsilon = 1e-4;
-    for i in 0..64 {
-        assert!((coeffs[i] - expected_coeffs[i]).abs() < epsilon,
-            "Mismatch at index {}: expected {}, got {}",
-             i, expected_coeffs[i], coeffs[i]);
+        // Compare coeffs with expected_coeffs (allow for small floating point differences)
+        let epsilon = 1e-4;
+        for i in 0..64 {
+            assert!((coeffs[i] - expected_coeffs[i]).abs() < epsilon,
+                "Mismatch at index {}: expected {}, got {}",
+                 i, expected_coeffs[i], coeffs[i]);
+        }
     }
-}
-
 }
 
 // Constants and functions for Jpegli Float DCT implementation
@@ -125,6 +127,7 @@ for i in 1..(N - 1) {
 }
 
 fn inverse_even_odd<const N: usize>(a_in: &[f32], a_out: &mut [f32]) {
+assert_eq!(a_in.len(), N * 8, "Input slice length mismatch in fn inverse_even_odd");
 for i in 0..(N / 2) {
     for k in 0..8 {
          a_out[2 * i * 8 + k] = a_in[i * 8 + k];

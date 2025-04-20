@@ -7,8 +7,7 @@ use alloc::string::{String, ToString};
 use alloc::format;
 
 use crate::error::{EncodingError, EncoderResult};
-use crate::tf::{self, ExtraTF};
-use crate::ColorProfile; // Import ColorProfile
+use super::tf::{self, ExtraTF};
 
 // TODO: Define equivalents for JxlColorEncoding if needed, or reuse lcms2 structures.
 

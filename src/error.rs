@@ -1,6 +1,7 @@
 use alloc::fmt::Display;
 #[cfg(feature = "std")]
 use std::error::Error;
+use alloc::string::String;
 
 /// # The error type for encoding
 #[derive(Debug)]
@@ -29,6 +30,10 @@ pub enum EncodingError {
 
     // A color management error occurred
     CmsError(alloc::string::String),
+
+    /// A Jpegli error occurred
+    #[cfg(feature = "jpegli")]
+    JpegliError(String),
 }
 
 #[cfg(feature = "std")]
@@ -60,11 +65,13 @@ impl Display for EncodingError {
             ),
             ZeroImageDimensions { width, height } => {
                 write!(f, "Image dimensions must be non zero: {}x{}", width, height)
-            }
+            },
             #[cfg(feature = "std")]
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
             CmsError(err) => write!(f, "{}", err),
+            #[cfg(feature = "jpegli")]
+            JpegliError(msg) => write!(f, "Jpegli internal error: {}", msg),
         }
     }
 }

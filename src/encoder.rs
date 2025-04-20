@@ -1,10 +1,23 @@
+use jpeg_decoder::{Density, Precision, SOFInfo, SOSInfo};
+use crate::fdct::DCT_SIZE;
+use crate::huffman::{EncoderHuffmanTable, DCHuffmanTable, HuffmanTable, HuffmanTableClass, ACHuffmanTable, HuffmanCode};
+use crate::quantization::QuantizationTable;
+use crate::marker::{RstManager, SOF, SOSHeader, SOS, ScanInfo};
+use crate::fdct;
+
+use std::io::Write;
+
+use crate::error::{Error, JpegError, UnsupportedFeature};
+
 use crate::fdct::fdct;
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType};
+use crate::quantization::{QuantizationTable, QuantizationTableType, quality_to_distance, new_with_jpegli_distance, compute_zero_bias_tables};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
 use crate::{Density, EncodingError};
+use crate::fdct::forward_dct_float;
+use crate::adaptive_quantization::compute_adaptive_quant_field;
 
 use alloc::vec;
 use alloc::vec::Vec;
@@ -210,6 +223,11 @@ pub struct Encoder<W: JfifWrite> {
     optimize_huffman_table: bool,
 
     app_segments: Vec<(u8, Vec<u8>)>,
+
+    // Jpegli specific fields
+    jpegli_distance: Option<f32>,
+    use_float_dct: bool,
+    use_adaptive_quantization: bool,
 }
 
 impl<W: JfifWrite> Encoder<W> {
@@ -253,6 +271,10 @@ impl<W: JfifWrite> Encoder<W> {
             restart_interval: None,
             optimize_huffman_table: false,
             app_segments: Vec::new(),
+            // Jpegli specific fields init
+            jpegli_distance: None,
+            use_float_dct: false,
+            use_adaptive_quantization: false,
         }
     }
 
@@ -345,6 +367,34 @@ impl<W: JfifWrite> Encoder<W> {
         self.optimize_huffman_table
     }
 
+    /// Set the target visual distance for Jpegli encoding.
+    ///
+    /// Setting this value enables Jpegli-specific quantization logic
+    /// and overrides the standard quality setting.
+    /// A distance of 1.0 is recommended for visually lossless encoding.
+    /// Lower values mean higher quality.
+    pub fn set_jpegli_distance(&mut self, distance: f32) {
+        self.jpegli_distance = Some(distance.max(0.0));
+        // Reset standard quality when distance is set explicitly
+        // Keep quality somewhat representative for potential internal logic checks
+        // We need the `quality_to_distance` helper function available first.
+        // self.quality = quality_to_distance(distance) as u8;
+    }
+
+    /// Enable or disable the use of floating-point DCT.
+    ///
+    /// Jpegli often defaults to float DCT.
+    pub fn set_float_dct(&mut self, enable: bool) {
+        self.use_float_dct = enable;
+    }
+
+    /// Enable or disable adaptive quantization.
+    ///
+    /// Enabling this may require buffering the entire image.
+    pub fn set_adaptive_quantization(&mut self, enable: bool) {
+        self.use_adaptive_quantization = enable;
+    }
+
     /// Appends a custom app segment to the JFIF file
     ///
     /// Segment numbers need to be in the range between 1 and 15<br>
@@ -419,6 +469,12 @@ impl<W: JfifWrite> Encoder<W> {
             });
         }
 
+        // Reset jpegli distance if quality is set explicitly via this encode path
+        // (Assuming quality is the primary driver if set via `encode`) 
+        // If set via `set_jpegli_distance`, that takes precedence later.
+        // However, the logic in `encode_image_internal` handles the actual selection.
+        // self.jpegli_distance = None; // Keep this commented for now, selection happens later.
+
         #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
         {
             if std::is_x86_feature_detected!("avx2") {
@@ -491,10 +547,44 @@ impl<W: JfifWrite> Encoder<W> {
             });
         }
 
-        let q_tables = [
-            QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true),
-            QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false),
-        ];
+        // --- Jpegli Integration Point: Quantization Table Selection ---
+        let q_tables = if let Some(distance) = self.jpegli_distance {
+             // Use Jpegli distance-based quantization
+             // Need `new_with_jpegli_distance` function available first.
+             // Placeholder: Use default tables for now
+             [ 
+                QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true),
+                QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false),
+             ]
+             // Correct version (once helper exists):
+             // [ 
+             //    new_with_jpegli_distance(distance, true),
+             //    new_with_jpegli_distance(distance, false),
+             // ]
+        } else {
+            // Use standard quality-based quantization
+            [
+                QuantizationTable::new_with_quality(&self.quantization_tables[0], self.quality, true),
+                QuantizationTable::new_with_quality(&self.quantization_tables[1], self.quality, false),
+            ]
+        };
+
+        // --- Jpegli Integration Point: AQ Field Computation ---
+        // AQ requires image data, potentially the whole image.
+        // This might force buffering if streaming was intended.
+        let adaptive_quant_field: Option<Vec<f32>> = if self.use_adaptive_quantization && self.jpegli_distance.is_some() {
+            // TODO: This compute_adaptive_quant_field needs the actual image data
+            // and needs to be properly implemented based on jpegli logic.
+            // It likely requires access to image dimensions, components, and potentially pixel data.
+            // For now, returning None as a placeholder.
+            // Need `compute_adaptive_quant_field` function available first.
+            None
+            // Placeholder version:
+            // compute_adaptive_quant_field(image.width(), image.height(), image.get_jpeg_color_type(), self.jpegli_distance.unwrap())
+        } else {
+            None
+        };
+
 
         let jpeg_color_type = image.get_jpeg_color_type();
         self.init_components(jpeg_color_type);
@@ -520,11 +610,14 @@ impl<W: JfifWrite> Encoder<W> {
         }
 
         if let Some(scans) = self.progressive_scans {
-            self.encode_image_progressive::<_, OP>(image, scans, &q_tables)?;
+            // Pass AQ field to progressive encoding
+            self.encode_image_progressive::<_, OP>(image, scans, &q_tables, adaptive_quant_field.as_deref())?; // Added aq field arg
         } else if self.optimize_huffman_table || !self.sampling_factor.supports_interleaved() {
-            self.encode_image_sequential::<_, OP>(image, &q_tables)?;
+            // Pass AQ field to sequential encoding
+            self.encode_image_sequential::<_, OP>(image, &q_tables, adaptive_quant_field.as_deref())?; // Added aq field arg
         } else {
-            self.encode_image_interleaved::<_, OP>(image, &q_tables)?;
+            // Pass AQ field to interleaved encoding
+            self.encode_image_interleaved::<_, OP>(image, &q_tables, adaptive_quant_field.as_deref())?; // Added aq field arg
         }
 
         self.writer.write_marker(Marker::EOI)?;
@@ -666,6 +759,7 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: I,
         q_tables: &[QuantizationTable; 2],
+        adaptive_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
         self.write_frame_header(&image, q_tables)?;
         self.writer
@@ -736,7 +830,13 @@ impl<W: JfifWrite> Encoder<W> {
                                 buffer_width,
                             );
 
-                            OP::fdct(&mut block);
+                            // --- Jpegli Integration Point: DCT ---
+                            if self.use_float_dct {
+                                 // Use float DCT (assuming `forward_dct_float` is available)
+                                 forward_dct_float(&mut block);
+                            } else {
+                                 OP::fdct(&mut block); // Use default (int) DCT
+                            }
 
                             let mut q_block = [0i16; 64];
 
@@ -744,6 +844,9 @@ impl<W: JfifWrite> Encoder<W> {
                                 &block,
                                 &mut q_block,
                                 &q_tables[component.quantization_table as usize],
+                                adaptive_quant_field,
+                                block_x,
+                                block_y
                             );
 
                             self.writer.write_block(
@@ -779,8 +882,9 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: I,
         q_tables: &[QuantizationTable; 2],
+        adaptive_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
+        let blocks = self.encode_blocks::<_, OP>(&image, q_tables, adaptive_quant_field);
 
         if self.optimize_huffman_table {
             self.optimize_huffman_table(&blocks);
@@ -839,8 +943,9 @@ impl<W: JfifWrite> Encoder<W> {
         image: I,
         scans: u8,
         q_tables: &[QuantizationTable; 2],
+        adaptive_quant_field: Option<&[f32]>,
     ) -> Result<(), EncodingError> {
-        let blocks = self.encode_blocks::<_, OP>(&image, q_tables);
+        let blocks = self.encode_blocks::<_, OP>(&image, q_tables, adaptive_quant_field);
 
         if self.optimize_huffman_table {
             self.optimize_huffman_table(&blocks);
@@ -946,6 +1051,7 @@ impl<W: JfifWrite> Encoder<W> {
         &mut self,
         image: &I,
         q_tables: &[QuantizationTable; 2],
+        adaptive_quant_field: Option<&[f32]>
     ) -> [Vec<[i16; 64]>; 4] {
         let width = image.width();
         let height = image.height();
@@ -1006,7 +1112,13 @@ impl<W: JfifWrite> Encoder<W> {
                         buffer_width,
                     );
 
-                    OP::fdct(&mut block);
+                    // --- Jpegli Integration Point: DCT ---
+                    if self.use_float_dct {
+                         // Use float DCT (assuming `forward_dct_float` is available)
+                         forward_dct_float(&mut block);
+                    } else {
+                         OP::fdct(&mut block); // Use default (int) DCT
+                    }
 
                     let mut q_block = [0i16; 64];
 
@@ -1014,6 +1126,9 @@ impl<W: JfifWrite> Encoder<W> {
                         &block,
                         &mut q_block,
                         &q_tables[component.quantization_table as usize],
+                        adaptive_quant_field,
+                        block_x,
+                        block_y
                     );
 
                     blocks[i].push(q_block);
@@ -1235,10 +1350,25 @@ pub(crate) trait Operations {
     }
 
     #[inline(always)]
-    fn quantize_block(block: &[i16; 64], q_block: &mut [i16; 64], table: &QuantizationTable) {
+    fn quantize_block(block: &[i16; 64], q_block: &mut [i16; 64], table: &QuantizationTable, adaptive_quant_field: Option<&[f32]>, block_x: usize, block_y: usize) {
+        // TODO: Implement AQ application using adaptive_quant_field, block_x, block_y
+        // Need to calculate the actual AQ field dimensions (num_cols_aq)
+        let aq_mult = 1.0f32; // Placeholder
+        // if let Some(aq_field) = adaptive_quant_field {
+        //     let num_cols_aq = ...; // Calculate based on image width and sampling factors
+        //     let field_index = block_y * num_cols_aq + block_x; 
+        //     if field_index < aq_field.len() { 
+        //         aq_mult = aq_field[field_index];
+        //     }
+        // }
+
         for i in 0..64 {
             let z = ZIGZAG[i] as usize & 0x3f;
-            q_block[i] = table.quantize(block[z], z);
+            // Apply AQ multiplier if needed (modify quantization logic)
+            // Need quantize_with_aq method available in QuantizationTable
+            // q_block[i] = table.quantize_with_aq(block[z], z, aq_mult); 
+            // Placeholder: Use standard quantization
+             q_block[i] = table.quantize(block[z], z);
         }
     }
 }

@@ -26,6 +26,9 @@ pub enum EncodingError {
 
     /// An io error occurred during writing (Should be used in no_std cases instead of IoError)
     Write(alloc::string::String),
+
+    // A color management error occurred
+    CmsError(alloc::string::String),
 }
 
 #[cfg(feature = "std")]

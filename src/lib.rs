@@ -31,6 +31,11 @@ extern crate std;
 extern crate alloc;
 extern crate core;
 
+#[cfg(feature = "cms")]
+extern crate lcms2;
+extern crate arrayref;
+
+
 #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 mod avx2;
 mod encoder;
@@ -41,6 +46,9 @@ mod image_buffer;
 mod marker;
 mod quantization;
 mod writer;
+
+#[cfg(feature = "jpegli")]
+mod jpegli;
 
 pub use encoder::{ColorType, Encoder, JpegColorType, SamplingFactor};
 pub use error::EncodingError;
@@ -528,4 +536,6 @@ mod tests {
 
         check_result(data, 1, 1, &mut result, PixelFormat::RGB24);
     }
+
+  
 }

@@ -267,7 +267,7 @@ pub struct Encoder<W: JfifWrite> {
 
     // Jpegli specific config
     #[cfg(feature = "jpegli")]
-    jpegli_config: Option<JpegliConfig>,
+    pub(crate) jpegli_config: Option<JpegliConfig>,
 
     // Store the operations enum directly
     operations: OperationsImpl,

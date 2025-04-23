@@ -1,7 +1,7 @@
 /target
 Cargo.lock
-external/rust-lcms2/
-external/moxcms/
-external/image/
-external/image-png/
-jpegli/
+# external/rust-lcms2/
+# external/moxcms/
+# external/image/
+# external/image-png/
+# jpegli/

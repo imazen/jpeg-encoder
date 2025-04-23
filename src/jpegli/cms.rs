@@ -156,6 +156,7 @@ pub struct JxlCms {
 }
 
 fn get_pixel_format(channels: u32, is_float: bool) -> Option<PixelFormat> {
+    // Revert to using combined constants
     match (channels, is_float) {
         (1, true) => Some(PixelFormat::GRAY_FLT),
         (1, false) => Some(PixelFormat::GRAY_8),

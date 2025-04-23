@@ -1,12 +1,15 @@
 use alloc::vec::Vec;
 
 pub(crate) mod adaptive_quantization;
-mod cms;
-mod tf;
-mod xyb;
-mod color_transform;
+pub mod cms;
+pub mod color_transform;
+pub mod fdct_jpegli;
 pub mod quant;
-pub(crate) mod fdct_jpegli;
+pub mod tf;
+pub mod xyb;
+
+pub mod jpegli_encoder;
+pub use jpegli_encoder::JpegliEncoder;
 
 #[cfg(test)]
 mod reference_test_data;
@@ -37,8 +40,8 @@ impl JpegliConfig {
         let force_baseline = false; // Assuming standard jpegli behavior
         let is_yuv420 = sampling_factor == crate::SamplingFactor::F_2_2 || sampling_factor == crate::SamplingFactor::R_4_2_0;
 
-        let luma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, true, is_yuv420, force_baseline);
-        let chroma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, false, is_yuv420, force_baseline);
+        let luma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, true, is_yuv420, force_baseline, None);
+        let chroma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, false, is_yuv420, force_baseline, None);
 
         let (zero_bias_offsets, zero_bias_multipliers) = crate::jpegli::quant::compute_zero_bias_tables(distance, num_components);
 

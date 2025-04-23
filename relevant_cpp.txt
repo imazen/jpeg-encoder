@@ -1,0 +1,136 @@
+jpegli/lib/extras/enc/exr.cc:      c_enc.transfer_function != JXL_TRANSFER_FUNCTION_LINEAR) {
+jpegli/lib/extras/enc/jpegli.cc:    jpegli_set_cicp_transfer_function(&cinfo, cicp_tf);
+jpegli/lib/extras/dec/color_hints.cc:    ppf->color_encoding.transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/lib/extras/dec/jpg.cc:      ppf->color_encoding.transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/lib/extras/dec/exr.cc:  ppf->color_encoding.transfer_function = JXL_TRANSFER_FUNCTION_LINEAR;
+jpegli/lib/jpegli/encode.cc:  cinfo->master->cicp_transfer_function = 2;  // unknown transfer function code
+jpegli/lib/jpegli/encode.cc:void jpegli_set_cicp_transfer_function(j_compress_ptr cinfo, int code) {
+jpegli/lib/jpegli/encode.cc:  cinfo->master->cicp_transfer_function = code;
+jpegli/lib/extras/dec/jpegli.cc:      ppf->color_encoding.transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/lib/jpegli/encode.h:// through jpegli_write_scanlines() has this transfer function. This must be
+jpegli/lib/jpegli/encode.h:void jpegli_set_cicp_transfer_function(j_compress_ptr cinfo, int code);
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/lib/extras/dec/color_description.cc:  if (ParseEnum(str, kJxlTransferFunctionNames, &c->transfer_function)) {
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_PQ;
+jpegli/lib/extras/dec/color_description.cc:    c->transfer_function = JXL_TRANSFER_FUNCTION_HLG;
+jpegli/lib/extras/codestream_header.h:   * transfer function if outputting to unsigned integers) but will not convert
+jpegli/lib/jpegli/encode_internal.h:  uint8_t cicp_transfer_function;
+jpegli/lib/extras/codec_test.cc:  c.transfer_function = JXL_TRANSFER_FUNCTION_LINEAR;
+jpegli/lib/extras/codec_test.cc:    EXPECT_EQ(ppf_in.color_encoding.transfer_function,
+jpegli/lib/extras/codec_test.cc:              ppf_out.color_encoding.transfer_function);
+jpegli/lib/jpegli/quant.cc:  if (m->cicp_transfer_function == kTransferFunctionPQ) {
+jpegli/lib/jpegli/quant.cc:  } else if (m->cicp_transfer_function == kTransferFunctionHLG) {
+jpegli/lib/jpegli/quant.cc:    if (m->cicp_transfer_function == kTransferFunctionPQ) {
+jpegli/lib/jpegli/quant.cc:    } else if (m->cicp_transfer_function == kTransferFunctionHLG) {
+jpegli/third_party/apngdis/dec.cc:  color_encoding->transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/third_party/apngdis/dec.cc:    color_enc.transfer_function = JXL_TRANSFER_FUNCTION_709;
+jpegli/third_party/apngdis/dec.cc:    color_enc.transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/third_party/apngdis/dec.cc:    color_enc.transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/third_party/apngdis/dec.cc:    color_enc.transfer_function = static_cast<JxlTransferFunction>(payload[1]);
+jpegli/third_party/apngdis/dec.cc:    JXL_WARNING("Unsupported transfer function specified in cICP chunk: %d",
+jpegli/third_party/apngdis/dec.cc:  color_encoding->transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/third_party/apngdis/dec.cc:  ppf->color_encoding.transfer_function = JXL_TRANSFER_FUNCTION_SRGB;
+jpegli/third_party/apngdis/dec.cc:  if (ppf->color_encoding.transfer_function != JXL_TRANSFER_FUNCTION_PQ) {
+jpegli/third_party/apngdis/enc.cc:  if (c_enc.transfer_function == JXL_TRANSFER_FUNCTION_UNKNOWN ||
+jpegli/third_party/apngdis/enc.cc:      c_enc.transfer_function == JXL_TRANSFER_FUNCTION_GAMMA) {
+jpegli/third_party/apngdis/enc.cc:  cicp_data[1] = static_cast<png_byte>(c_enc.transfer_function);
+jpegli/third_party/apngdis/enc.cc:  if (c_enc.transfer_function == JXL_TRANSFER_FUNCTION_SRGB &&
+jpegli/third_party/apngdis/enc.cc:  switch (c_enc.transfer_function) {
+jpegli/third_party/apngdis/enc.cc:  if (c_enc.transfer_function != JXL_TRANSFER_FUNCTION_PQ) return;
+jpegli/lib/cms/transfer_functions_test.cc:#define HWY_TARGET_INCLUDE "lib/cms/transfer_functions_test.cc"
+jpegli/lib/cms/transfer_functions_test.cc:#include "lib/cms/transfer_functions-inl.h"
+jpegli/lib/cms/transfer_functions_test.cc:#include "lib/cms/transfer_functions.h"
+jpegli/lib/cms/transfer_functions_test.cc:    TF_PQ tf_pq(intensity);
+jpegli/lib/cms/transfer_functions_test.cc:    const float actual = GetLane(tf_pq.EncodedFromDisplay(d, Set(d, f)));
+jpegli/lib/cms/transfer_functions_test.cc:    TF_PQ tf_pq(intensity);
+jpegli/lib/cms/transfer_functions_test.cc:    const float actual = GetLane(tf_pq.DisplayFromEncoded(d, Set(d, f)));
+jpegli/lib/cms/transfer_functions.h:// Definitions for BT.2100-2 transfer functions (used inside/outside SIMD):
+jpegli/lib/cms/transfer_functions.h:// Despite the stated ranges, we need unbounded transfer functions: see
+jpegli/lib/cms/transfer_functions.h:    // "display" (normalized [0, 1]) instead of nits. Our transfer function
+jpegli/lib/cms/color_encoding_internal.h:    storage_.transfer_function = TransferFunction::kSRGB;
+jpegli/lib/cms/color_encoding_internal.h:    storage_.tf.transfer_function = TransferFunction::kSRGB;
+jpegli/lib/cms/color_encoding.h:/** Built-in transfer functions for color encoding. Enum values match a subset
+jpegli/lib/cms/color_encoding.h:  /** None of the other table entries describe the transfer function. */
+jpegli/lib/cms/color_encoding.h:  JxlTransferFunction transfer_function;
+jpegli/lib/cms/color_encoding.h:  /** Gamma value used when transfer_function is JXL_TRANSFER_FUNCTION_GAMMA
+jpegli/lib/cms/jxl_cms.cc:#include "lib/cms/transfer_functions-inl.h"
+jpegli/lib/cms/jxl_cms.cc:      TF_PQ tf_pq(t->intensity_target);
+jpegli/lib/cms/jxl_cms.cc:        const auto result = tf_pq.DisplayFromEncoded(df, val);
+jpegli/lib/cms/jxl_cms.cc:      TF_PQ tf_pq(t->intensity_target);
+jpegli/lib/cms/jxl_cms.cc:        const auto result = tf_pq.EncodedFromDisplay(df, val);
+jpegli/lib/cms/jxl_cms.cc:    // Can only create profile from known transfer function.
+jpegli/lib/cms/jxl_cms.cc:    // Can only create profile from known transfer function.
+jpegli/lib/cms/jxl_cms.cc:               const uint8_t transfer_characteristics,
+jpegli/lib/cms/jxl_cms.cc:  const auto tf = static_cast<TransferFunction>(transfer_characteristics);
+jpegli/lib/cms/jxl_cms.cc:  c->transfer_function = JXL_TRANSFER_FUNCTION_UNKNOWN;
+jpegli/lib/cms/jxl_cms.cc:                profile.CICP.transfer_characteristics,
+jpegli/tools/benchmark/benchmark_args.cc:           "HLG transfer function)",
+jpegli/tools/benchmark/benchmark_xl.cc:      const auto& transfer_function = ppf.color_encoding.transfer_function;
+jpegli/tools/benchmark/benchmark_xl.cc:          (transfer_function == JXL_TRANSFER_FUNCTION_PQ)    ? 10000.f
+jpegli/tools/benchmark/benchmark_xl.cc:          : (transfer_function == JXL_TRANSFER_FUNCTION_HLG) ? 1000.f
+jpegli/tools/benchmark/benchmark_xl.cc:      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+jpegli/lib/cms/color_encoding_cms.h:  // Highest reasonable value for the gamma of a transfer curve.
+jpegli/lib/cms/color_encoding_cms.h:  TransferFunction transfer_function =
+jpegli/lib/cms/color_encoding_cms.h:    return have_gamma ? TransferFunction::kUnknown : transfer_function;
+jpegli/lib/cms/color_encoding_cms.h:    transfer_function = tf;
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kUnknown);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kSRGB);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kLinear);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kPQ);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kHLG);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::k709);
+jpegli/lib/cms/color_encoding_cms.h:    return !have_gamma && (transfer_function == TransferFunction::kDCI);
+jpegli/lib/cms/color_encoding_cms.h:      transfer_function = TransferFunction::kLinear;
+jpegli/lib/cms/color_encoding_cms.h:      transfer_function = TransferFunction::kDCI;
+jpegli/lib/cms/color_encoding_cms.h:    transfer_function = TransferFunction::kUnknown;
+jpegli/lib/cms/color_encoding_cms.h:      if (transfer_function != other.transfer_function) {
+jpegli/lib/cms/color_encoding_cms.h:  // same, but ignores the transfer function, rendering intent and ICC bytes.
+jpegli/lib/cms/color_encoding_cms.h:  // Checks if the color space and transfer function are the same, ignoring
+jpegli/lib/cms/color_encoding_cms.h:    tf.transfer_function = TransferFunction::kUnknown;
+jpegli/lib/cms/color_encoding_cms.h:      external.transfer_function = JXL_TRANSFER_FUNCTION_UNKNOWN;
+jpegli/lib/cms/color_encoding_cms.h:      external.transfer_function = JXL_TRANSFER_FUNCTION_GAMMA;
+jpegli/lib/cms/color_encoding_cms.h:      external.transfer_function =
+jpegli/lib/cms/color_encoding_cms.h:    if (external.transfer_function == JXL_TRANSFER_FUNCTION_GAMMA) {
+jpegli/lib/cms/color_encoding_cms.h:          external.transfer_function, &tf_enum));
+jpegli/lib/cms/tone_mapping-inl.h:#include "lib/cms/transfer_functions-inl.h"
+jpegli/lib/cms/tone_mapping-inl.h:    const V pq_mastering_min = Set(df_, pq_mastering_min_);
+jpegli/lib/cms/tone_mapping-inl.h:    const V inv_pq_mastering_range = Set(df_, inv_pq_mastering_range_);
+jpegli/lib/cms/tone_mapping-inl.h:    const V normalized_pq = Min(
+jpegli/lib/cms/tone_mapping-inl.h:        Mul(Sub(InvEOTF(luminance), pq_mastering_min), inv_pq_mastering_range));
+jpegli/lib/cms/tone_mapping-inl.h:        IfThenElse(Lt(normalized_pq, ks), normalized_pq, P(normalized_pq));
+jpegli/lib/cms/tone_mapping-inl.h:    const V pq_mastering_range = Set(df_, pq_mastering_range_);
+jpegli/lib/cms/tone_mapping-inl.h:    const V e4 = MulAdd(e3, pq_mastering_range, pq_mastering_min);
+jpegli/lib/cms/tone_mapping-inl.h:            ZeroIfNegative(tf_pq_.DisplayFromEncoded(df_, e4)));
+jpegli/lib/cms/tone_mapping-inl.h:    return tf_pq_.EncodedFromDisplay(df_, luminance);
+jpegli/lib/cms/tone_mapping-inl.h:  const TF_PQ tf_pq_ = TF_PQ(/*display_intensity_target=*/1.0);
+jpegli/lib/cms/jxl_cms_internal.h:#include "lib/cms/transfer_functions.h"
+jpegli/lib/cms/jxl_cms_internal.h:  JxlTransferFunction tf = c.transfer_function;
+jpegli/lib/cms/jxl_cms_internal.h:  JxlTransferFunction tf = encoding.transfer_function;
+jpegli/lib/cms/jxl_cms_internal.h:  JxlTransferFunction tf = c.transfer_function;
+jpegli/lib/cms/jxl_cms_internal.h:static std::string ToString(JxlTransferFunction transfer_function) {
+jpegli/lib/cms/jxl_cms_internal.h:  switch (transfer_function) {
+jpegli/lib/cms/jxl_cms_internal.h:                      static_cast<uint32_t>(transfer_function));
+jpegli/lib/cms/jxl_cms_internal.h:        c.transfer_function == JXL_TRANSFER_FUNCTION_SRGB) {
+jpegli/lib/cms/jxl_cms_internal.h:      if (c.transfer_function == JXL_TRANSFER_FUNCTION_PQ) return "Rec2100PQ";
+jpegli/lib/cms/jxl_cms_internal.h:      if (c.transfer_function == JXL_TRANSFER_FUNCTION_HLG) return "Rec2100HLG";
+jpegli/lib/cms/jxl_cms_internal.h:    JxlTransferFunction tf = c.transfer_function;
+jpegli/lib/cms/jxl_cms_internal.h:  JxlTransferFunction tf = c.transfer_function;
+jpegli/lib/cms/transfer_functions-inl.h:#include "lib/cms/transfer_functions.h"
+jpegli/lib/cms/transfer_functions-inl.h:// Definitions for BT.2100-2 transfer functions (used inside/outside SIMD):
+jpegli/lib/cms/transfer_functions-inl.h:// Despite the stated ranges, we need unbounded transfer functions: see
+jpegli/lib/cms/tone_mapping.h:#include "lib/cms/transfer_functions.h"
+jpegli/lib/cms/tone_mapping.h:    const float normalized_pq =
+jpegli/lib/cms/tone_mapping.h:        std::min(1.f, (InvEOTF(luminance) - pq_mastering_min_) *
+jpegli/lib/cms/tone_mapping.h:                          inv_pq_mastering_range_);
+jpegli/lib/cms/tone_mapping.h:    const float e2 = (normalized_pq < ks_) ? normalized_pq : P(normalized_pq);
+jpegli/lib/cms/tone_mapping.h:    const float e4 = e3 * pq_mastering_range_ + pq_mastering_min_;
+jpegli/lib/cms/tone_mapping.h:  const float pq_mastering_min_ = InvEOTF(source_range_[0]);
+jpegli/lib/cms/tone_mapping.h:  const float pq_mastering_max_ = InvEOTF(source_range_[1]);
+jpegli/lib/cms/tone_mapping.h:  const float pq_mastering_range_ = pq_mastering_max_ - pq_mastering_min_;
+jpegli/lib/cms/tone_mapping.h:  const float inv_pq_mastering_range_ = 1.0f / pq_mastering_range_;
+jpegli/lib/cms/tone_mapping.h:      (InvEOTF(target_range_[0]) - pq_mastering_min_) * inv_pq_mastering_range_;
+jpegli/lib/cms/tone_mapping.h:      (InvEOTF(target_range_[1]) - pq_mastering_min_) * inv_pq_mastering_range_;
+external/rust-lcms2/sys/vendor/src/lcms2_internal.h:cmsBool   _cmsBuildRGB2XYZtransferMatrix(cmsMAT3* r, const cmsCIExyY* WhitePoint, const cmsCIExyYTRIPLE* Primaries);

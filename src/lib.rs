@@ -22,8 +22,8 @@
 //! # Ok(())
 //! # }
 
-#![no_std]
-#![cfg_attr(not(feature = "simd"), forbid(unsafe_code))]
+// #![no_std]
+// #![cfg_attr(not(feature = "simd"), forbid(unsafe_code))]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -31,13 +31,13 @@ extern crate std;
 extern crate alloc;
 extern crate core;
 
-#[cfg(feature = "cms")]
+#[cfg(feature = "lcms")]
 extern crate lcms2;
 extern crate arrayref;
 
 
-#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 mod avx2;
+
 mod encoder;
 mod error;
 mod fdct;
@@ -60,6 +60,9 @@ pub use writer::{Density, JfifWrite};
 pub use fdct::fdct;
 #[cfg(all(feature = "benchmark", feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 pub use avx2::fdct_avx2;
+
+#[cfg(feature = "jpegli")]
+pub use jpegli::JpegliEncoder;
 
 #[cfg(test)]
 mod tests {

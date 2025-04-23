@@ -781,6 +781,7 @@ impl<W: JfifWrite> Encoder<W> {
 
         let mut prev_dc = [0i16; 4];
         let mut restart_markers_to_go = self.restart_interval.unwrap_or(0);
+        let mut restarts = 0u32; // Add a counter for restart markers
 
         for mcu_y in 0..num_mcu_rows {
             // Fill buffer for one MCU row
@@ -798,10 +799,11 @@ impl<W: JfifWrite> Encoder<W> {
             for mcu_x in 0..num_mcu_cols {
                 if self.restart_interval.is_some() && restart_markers_to_go == 0 {
                     self.writer.finalize_bit_buffer()?;
-                    let restart_index = ((mcu_y * num_mcu_cols + mcu_x) / self.restart_interval.unwrap() as usize -1) % 8;
-                    self.writer.write_marker(Marker::RST(restart_index as u8))?;
+                    // Use simple counter for restart index
+                    self.writer.write_marker(Marker::RST((restarts % 8) as u8))?;
                     prev_dc = [0i16; 4];
-                    restart_markers_to_go = self.restart_interval.unwrap_or(0);
+                    restart_markers_to_go = self.restart_interval.unwrap(); // Reset countdown
+                    restarts += 1; // Increment counter
                 }
 
                 for (comp_idx, component) in self.components.iter().enumerate() {
@@ -866,6 +868,10 @@ impl<W: JfifWrite> Encoder<W> {
                             prev_dc[comp_idx] = q_block[0];
                         }
                     }
+                }
+                // Decrement countdown after processing the MCU
+                if self.restart_interval.is_some() { 
+                    restart_markers_to_go -= 1;
                 }
             }
         }
@@ -1130,14 +1136,17 @@ impl<W: JfifWrite> Encoder<W> {
                 if component.dc_huffman_table == table {
                     had_dc = true;
 
-                    let mut prev_dc = 0;
+                    let mut prev_dc: i32 = 0;
 
                     debug_assert!(!blocks[i].is_empty());
 
                     for block in &blocks[i] {
-                        let value = block[0];
-                        let diff = value - prev_dc;
-                        let num_bits = get_num_bits(diff);
+                        let value = block[0] as i32;
+                        let diff_i32 = value - prev_dc;
+
+                        let diff_i16 = diff_i32.clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+
+                        let num_bits = get_num_bits(diff_i16);
 
                         dc_freq[num_bits as usize] += 1;
 
@@ -1165,7 +1174,7 @@ impl<W: JfifWrite> Encoder<W> {
                             debug_assert!(!blocks[i].is_empty());
 
                             for block in &blocks[i] {
-                                let mut zero_run = 0;
+                                let mut zero_run: i32 = 0;
 
                                 for &value in &block[start..end] {
                                     if value == 0 {
@@ -1176,7 +1185,8 @@ impl<W: JfifWrite> Encoder<W> {
                                             zero_run -= 16;
                                         }
                                         let num_bits = get_num_bits(value);
-                                        let symbol = (zero_run << 4) | num_bits;
+                                        // Cast zero_run (i32) to u8 before bitwise OR
+                                        let symbol = ((zero_run as u8) << 4) | num_bits;
 
                                         ac_freq[symbol as usize] += 1;
 
@@ -1191,7 +1201,7 @@ impl<W: JfifWrite> Encoder<W> {
                         }
                     } else {
                         for block in &blocks[i] {
-                            let mut zero_run = 0;
+                            let mut zero_run: i32 = 0;
 
                             for &value in &block[1..] {
                                 if value == 0 {
@@ -1202,7 +1212,8 @@ impl<W: JfifWrite> Encoder<W> {
                                         zero_run -= 16;
                                     }
                                     let num_bits = get_num_bits(value);
-                                    let symbol = (zero_run << 4) | num_bits;
+                                    // Cast zero_run (i32) to u8 before bitwise OR
+                                    let symbol = ((zero_run as u8) << 4) | num_bits;
 
                                     ac_freq[symbol as usize] += 1;
 
@@ -1347,11 +1358,17 @@ fn get_block_from_mcu_buffer(
             let src_y = global_block_y + y;
 
             let val = if src_x >= img_width || src_y >= img_height {
-                // Handle padding: Repeat edge pixels
-                let clamped_x = (global_block_x + x.min(img_width - 1 - global_block_x)) - global_block_x + block_x_in_comp_mcu;
-                let clamped_y = (global_block_y + y.min(img_height - 1 - global_block_y)) - global_block_y + block_y_in_comp_mcu;
-                // Calculate index in the component_mcu_buffer based on clamped local coords
-                 component_mcu_buffer[clamped_y * comp_mcu_buffer_width + clamped_x]
+                // Handle padding: Repeat edge pixels by clamping coordinates
+                let clamped_global_x = src_x.clamp(0, img_width - 1);
+                let clamped_global_y = src_y.clamp(0, img_height - 1);
+
+                // Calculate the local offset (0-7) within the block for the clamped edge pixel.
+                // Use saturating_sub to prevent panic if global_block_x > clamped_global_x (shouldn't happen?)
+                let local_edge_x = clamped_global_x.saturating_sub(global_block_x);
+                let local_edge_y = clamped_global_y.saturating_sub(global_block_y);
+
+                // Calculate index using the block's base offset + the local edge offset.
+                 component_mcu_buffer[(block_y_in_comp_mcu + local_edge_y) * comp_mcu_buffer_width + (block_x_in_comp_mcu + local_edge_x)]
             } else {
                 // Calculate index in the component_mcu_buffer based on local coords
                  component_mcu_buffer[(block_y_in_comp_mcu + y) * comp_mcu_buffer_width + (block_x_in_comp_mcu + x)]
@@ -1367,16 +1384,17 @@ fn ceil_div(value: usize, div: usize) -> usize {
     value / div + usize::from(value % div != 0)
 }
 
-fn get_num_bits(mut value: i16) -> u8 {
-    if value < 0 {
-        value = -value;
-    }
+fn get_num_bits(value: i16) -> u8 {
+    // Use unsigned_abs() to safely handle i16::MIN
+    let abs_value = value.unsigned_abs();
 
     let mut num_bits = 0;
+    let mut temp_val = abs_value; // Work with a temporary variable
 
-    while value > 0 {
+    // Calculate bits needed for the absolute value (u16)
+    while temp_val > 0 {
         num_bits += 1;
-        value >>= 1;
+        temp_val >>= 1;
     }
 
     num_bits

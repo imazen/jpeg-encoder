@@ -10,6 +10,8 @@ Use cargo test
 
 Be ABSOLUTELY MINIMAL in making changes outside of the src/jpegli/ directory, we want to preserve the jpeg-encoder API and make as few changes as needed to support the jpegli algorithm. Do NOT make tests pass by skipping or commenting them out. Be CORRECT. NEVER INFER A FILE's CONTENTS, READ IT.
 
+We are making our own separate jpegli/jpegli_encoder.rs interface, so that we do not touch encoder.rs in the root.
+
 And if changes fail to apply, reload files from disk since they must have been applied early.
 
 1. The jpegli encoder source is in @jpegli/lib/jpegli jpegli/lib/jpegli

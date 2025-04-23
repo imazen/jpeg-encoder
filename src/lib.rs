@@ -36,6 +36,7 @@ extern crate lcms2;
 extern crate arrayref;
 
 
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 mod avx2;
 
 mod encoder;

@@ -31,6 +31,10 @@ pub enum EncodingError {
     // A color management error occurred
     CmsError(alloc::string::String),
 
+    /// An unsupported color type was provided for Jpegli encoding
+    #[cfg(feature = "jpegli")]
+    UnsupportedJpegliColorType(crate::JpegColorType),
+
     /// A Jpegli error occurred
     #[cfg(feature = "jpegli")]
     JpegliError(String),
@@ -70,6 +74,8 @@ impl Display for EncodingError {
             IoError(err) => err.fmt(f),
             Write(err) => write!(f, "{}", err),
             CmsError(err) => write!(f, "{}", err),
+            #[cfg(feature = "jpegli")]
+            UnsupportedJpegliColorType(ct) => write!(f, "Unsupported Jpegli color type: {:?}", ct),
             #[cfg(feature = "jpegli")]
             JpegliError(msg) => write!(f, "Jpegli internal error: {}", msg),
         }

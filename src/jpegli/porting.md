@@ -8,6 +8,7 @@ Always make sure you have loaded @inventory.md and @porting.md into your context
 * cargo test SEARCH_STRING, where SEARCH_STRING is the unqualified name of the module, NOT a file path.
 * If an edit doesn't apply, reload files from disk. 
 * Keep changes inside src/jpegli/
+* Don't use ancestor module or path names with cargo test, just call 'cargo test' or 'cargo test
 
 # Rules
 

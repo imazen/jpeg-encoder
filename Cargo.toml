@@ -13,21 +13,21 @@ rust-version = "1.61"
 
 [features]
 default = ["std", "simd", "jpegli", "lcms", "moxcms"]
-simd = ["std"]
-std = []
-lcms = ["dep:lcms2"]
-moxcms = ["dep:moxcms"]
-jpegli = ["std", "simd", "lcms", "moxcms", "dep:multiversion"]
+simd = []
+jpegli = []
+lcms = []
+moxcms = []
+std = []    
 
 # DO NOT USE THIS IN PRODUCTION. Expose several internal functions for benchmark purposes.
 benchmark = []
 
 [dependencies]
 rgb = "0.8.25" #nostd safe
-lcms2 = { version = "6.1", optional = true }
-moxcms = { version = "0.6.0", optional = true }
+lcms2 = { version = "6.1", optional = false }
+moxcms = { version = "0.6.0", optional = false }
 arrayref = "0.3" #nostd safe
-multiversion = { version = "0.8", optional = true }
+multiversion = { version = "0.8", optional = false }
 [dev-dependencies]
 jpeg-decoder = { version = "0.3", default-features = false }
 approx = "0.5"

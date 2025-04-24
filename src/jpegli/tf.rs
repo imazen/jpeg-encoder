@@ -130,82 +130,165 @@ pub mod hlg {
 pub mod pq {
     use super::pq_consts::*;
 
+    /* 
+     * Original C++ implementation from jpegli/lib/cms/transfer_functions-inl.h:
+     *
+     * For PQ transfer functions, reference: SMPTE ST 2084:2014
+     *
+     * class TF_PQ_Base {
+     *  public:
+     *   HIR HIR_INLINE DisplayFromEncoded(const HIR encoded,
+     *                                     const HIR intensity_target) const {
+     *     if (encoded == 0.0) {
+     *       return 0.0;
+     *     }
+     *     const HIR abs_encoded = abs(encoded);
+     *     const HIR pow_inv_m2 = pow(abs_encoded, HIR(kINV_M2));
+     *     const HIR num = max(pow_inv_m2 - kC1, 0.0);
+     *     const HIR den = kC2 - kC3 * pow_inv_m2;
+     *     const HIR magnitude = pow(num / den, HIR(kINV_M1));
+     *     return CopySign(magnitude * (HIR(10000.0) / intensity_target), encoded);
+     *   }
+     *
+     *   HIR HIR_INLINE EncodedFromDisplay(const HIR display,
+     *                                     const HIR intensity_target) const {
+     *     if (display == 0.0) {
+     *       return 0.0;
+     *     }
+     *     const HIR abs_display = abs(display);
+     *     // Y = reference display light level, scaled to the PQ range of 0-10000 nits
+     *     const HIR Y = abs_display * (intensity_target / HIR(10000.0));
+     *     const HIR Y_pow_m1 = pow(Y, HIR(kM1));
+     *     const HIR num = kC1 + kC2 * Y_pow_m1;
+     *     const HIR den = 1.0 + kC3 * Y_pow_m1;
+     *     if (abs(den) < 1e-15) {
+     *       return CopySign(pow(kC2 / kC3, HIR(kM2)), display);
+     *     }
+     *     const HIR result = CopySign(pow(num / den, HIR(kM2)), display);
+     *     return result;
+     *   }
+     * };
+     */
+
     pub fn display_from_encoded(encoded: f32, intensity_target: f32) -> f32 {
+        #[cfg(feature = "std")]
+        println!("\n[PQ_DEBUG] display_from_encoded input: encoded={}, intensity_target={}", encoded, intensity_target);
+        
         let encoded_f64 = encoded as f64;
-        if encoded_f64 == 0.0 { // Early exit for 0.0
+        if encoded_f64 == 0.0 { 
+            #[cfg(feature = "std")]
+            println!("[PQ_DEBUG] Early return for encoded=0.0: result=0.0");
             return 0.0;
         }
+        
         let abs_encoded = encoded_f64.abs();
+        
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] Constants: M1={}, M2={}, C1={}, C2={}, C3={}", M1, M2, C1, C2, C3);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] Derived: INV_M1={}, INV_M2={}", INV_M1, INV_M2);
         
         // EOTF based on C++ TF_PQ_Base::DisplayFromEncoded
         // d = pow((max(e^INV_M2 - C1, 0)) / (C2 - C3 * e^INV_M2), INV_M1)
-        let pow_inv_m2 = abs_encoded.powf(INV_M2); 
-        let num = (pow_inv_m2 - C1).max(0.0); // Corrected num
-        let den = C2 - C3 * pow_inv_m2;       // Corrected den
+        let pow_inv_m2 = abs_encoded.powf(INV_M2);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] abs_encoded={}, pow_inv_m2=abs_encoded^INV_M2={}", abs_encoded, pow_inv_m2);
         
-        let magnitude = if den <= 1e-15 { // Avoid division by zero/negative den
-             // Should ideally not happen for encoded <= 1.0, implies e^INV_M2 >= C2/C3
-             // If it happens, result should be large (approaching infinity theoretically)
-             // Let's return a large value representable by f32 or handle based on context.
-             // For now, return max intensity as a placeholder.
-             1.0 * (10000.0 / intensity_target as f64) // Representing max display output relative to target
-        } else {
-            (num / den).powf(INV_M1) 
-        };
-
-        // Scale result according to target intensity
-        let result = encoded_f64.signum() * magnitude * (10000.0 / intensity_target as f64); // Corrected scaling
+        let num = (pow_inv_m2 - C1).max(0.0);
+        let den = C2 - C3 * pow_inv_m2;
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] num=max(pow_inv_m2-C1,0)={}, den=C2-C3*pow_inv_m2={}", num, den);
+        
+        // Ensure denominator isn't too close to zero
+        if den.abs() < 1e-15 {
+            let result = encoded_f64.signum() * (10000.0 / intensity_target as f64);
+            #[cfg(feature = "std")]
+            println!("[PQ_DEBUG] Denominator near zero! Returning: {}", result);
+            return result as f32;
+        }
+        
+        let magnitude = (num / den).powf(INV_M1);
+        let result = encoded_f64.signum() * magnitude * (10000.0 / intensity_target as f64);
         
         #[cfg(feature = "std")]
-        {
-             println!("[PQ Dec] encoded: {:.8}, abs_enc: {:.8}, pow_inv_m2: {:.8}, num: {:.8}, den: {:.8}, mag: {:.8}, result: {:.8}", 
-                      encoded, abs_encoded, pow_inv_m2, num, den, magnitude, result);
-        }
+        println!("[PQ_DEBUG] magnitude=(num/den)^INV_M1={}", magnitude);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] scale_factor=10000.0/intensity_target={}", 10000.0 / intensity_target as f64);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] final_result=signum*magnitude*scale_factor={}", result);
         
         result as f32
     }
 
     pub fn encoded_from_display(display: f32, intensity_target: f32) -> f32 {
+        #[cfg(feature = "std")]
+        println!("\n[PQ_DEBUG] encoded_from_display input: display={}, intensity_target={}", display, intensity_target);
+        
         if display == 0.0 {
+            #[cfg(feature = "std")]
+            println!("[PQ_DEBUG] Early return for display=0.0: result=0.0");
             return 0.0;
         }
+        
         let display_f64 = display as f64;
+        let abs_display = display_f64.abs();
+        
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] Constants: M1={}, M2={}, C1={}, C2={}, C3={}", M1, M2, C1, C2, C3);
+        
         // Y = display light scaled to 10000 cd/m^2 peak
-        let y = display_f64.abs() * (intensity_target as f64 / 10000.0);
-
+        let y = abs_display * (intensity_target as f64 / 10000.0);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] abs_display={}, Y=abs_display*(intensity_target/10000)={}", abs_display, y);
+        
         // OETF (Inverse EOTF) based on C++ TF_PQ_Base::EncodedFromDisplay
         // e = pow((C1 + C2 * Y^M1) / (1.0 + C3 * Y^M1), M2)
-        let y_pow_m1 = y.powf(M1); // Y^M1
+        let y_pow_m1 = y.powf(M1);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] y^M1={}", y_pow_m1);
+        
         let num = C1 + C2 * y_pow_m1;
         let den = 1.0 + C3 * y_pow_m1;
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] num=C1+C2*y^M1={}, den=1.0+C3*y^M1={}", num, den);
         
-        let magnitude = if den.abs() < 1e-15 { // Avoid division by zero
-            (C2 / C3).powf(M2)
-        } else {
-            (num / den).powf(M2) // ((...) / (...)) ^ M2
-        };
-
+        // Handle denominator close to zero
+        if den.abs() < 1e-15 { 
+            let result = display_f64.signum() * (C2 / C3).powf(M2);
+            #[cfg(feature = "std")]
+            println!("[PQ_DEBUG] Denominator near zero! Returning: signum*(C2/C3)^M2={}", result);
+            return result as f32;
+        }
+        
+        let ratio = num / den;
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] num/den={}", ratio);
+        
+        let magnitude = ratio.powf(M2);
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] (num/den)^M2={}", magnitude);
+        
         let result = display_f64.signum() * magnitude;
+        #[cfg(feature = "std")]
+        println!("[PQ_DEBUG] final_result=signum*magnitude={}", result);
         
-        // More detailed debug print
+        // Add a special comparison with test values for debugging, but don't apply special casing
         #[cfg(feature = "std")]
         {
-             // Explicitly print intermediate values
-             let y_val = y;
-             let m1_val = M1;
-             let y_pow_m1_calc = y_val.powf(m1_val);
-             let num_calc = C1 + C2 * y_pow_m1_calc;
-             let den_calc = 1.0 + C3 * y_pow_m1_calc;
-             let base_calc = if den_calc.abs() < 1e-15 { 0.0 } else { num_calc / den_calc };
-             let mag_calc = if base_calc <= 0.0 { 0.0 } else { base_calc.powf(M2) };
-
-             println!("[PQ Enc Debug] display={:.8}, Y={:.8}, M1={:.8}", display, y_val, m1_val);
-             println!("  y^M1={:.8} (printed: {:.8})", y_pow_m1_calc, y_pow_m1);
-             println!("  num={:.8}, den={:.8}, base={:.8}", num_calc, den_calc, base_calc);
-             println!("  mag={:.8} (printed: {:.8})", mag_calc, magnitude);
-             println!("  final_result={:.8}", result);
+            if (display_f64 - 0.1).abs() < 0.00001 && (intensity_target - 10000.0).abs() < 0.001 {
+                println!("[PQ_DEBUG] COMPARISON: For display=0.1, intensity=10000.0:");
+                println!("[PQ_DEBUG] Our calculated result: {}", result);
+                println!("[PQ_DEBUG] Test expected value: 0.751827");
+                println!("[PQ_DEBUG] Difference: {}", result - 0.751827);
+            }
+            if (display_f64 - 100.0).abs() < 0.00001 && (intensity_target - 10000.0).abs() < 0.001 {
+                println!("[PQ_DEBUG] COMPARISON: For display=100.0, intensity=10000.0:");
+                println!("[PQ_DEBUG] Our calculated result: {}", result);
+                println!("[PQ_DEBUG] Test expected value: 1.60939");
+                println!("[PQ_DEBUG] Difference: {}", result - 1.60939);
+            }
         }
-
+        
         result as f32
     }
 }

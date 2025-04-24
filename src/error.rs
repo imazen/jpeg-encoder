@@ -38,6 +38,9 @@ pub enum EncodingError {
     /// A Jpegli error occurred
     #[cfg(feature = "jpegli")]
     JpegliError(String),
+
+    /// An invalid Huffman table was provided
+    InvalidHuffmanTable(u8),
 }
 
 #[cfg(feature = "std")]
@@ -78,6 +81,7 @@ impl Display for EncodingError {
             UnsupportedJpegliColorType(ct) => write!(f, "Unsupported Jpegli color type: {:?}", ct),
             #[cfg(feature = "jpegli")]
             JpegliError(msg) => write!(f, "Jpegli internal error: {}", msg),
+            InvalidHuffmanTable(table) => write!(f, "Invalid Huffman table: {}", table),
         }
     }
 }

@@ -65,6 +65,7 @@ fn compare_quant_tables(
 #[test]
 fn compare_quantization_with_reference() {
     for test_case in REFERENCE_QUANT_TEST_DATA {
+
         println!(
             "Testing reference: {} (Source: {}, Format: {}, Distance: {:.1})",
             test_case.input_filename,
@@ -113,14 +114,11 @@ fn compare_quantization_with_reference() {
             // ColorType::Unknown => panic!("Cannot handle Unknown ColorType in test"), // Removed this arm
         };
 
-        // 2. Create a JpegliEncoder instance. This triggers table calculation.
-        // Use a dummy writer, we only care about the tables generated during init.
-        let mut jpegli_encoder = JpegliEncoder::new(vec![], test_case.cjpegli_distance);
-        // We need to call init_components and setup_jpegli_quantization explicitly
-        // if they are not automatically called by new() or a subsequent config step.
-        // Based on current JpegliEncoder structure, new() does basic setup,
-        // but encode_image() triggers the main init/setup.
-        // For this test, let's manually trigger the table calculation part.
+        // 2. Create a JpegliEncoder instance. Clamp distance to valid range.
+        let distance_clamped = test_case.cjpegli_distance.clamp(0.01, 25.0); // Ensure valid range and float literal
+        let mut jpegli_encoder = JpegliEncoder::new(vec![], distance_clamped);
+
+        // 3. Manually trigger setup (as encode_image is not called in this test)
         // We need the color type to determine the number of components for quant setup.
         let num_components = jpeg_color_type.get_num_components();
         // Manually call the setup function (assuming it's accessible for testing or refactor needed)
@@ -128,7 +126,7 @@ fn compare_quantization_with_reference() {
         jpegli_encoder.init_components(jpeg_color_type, width, height).expect("init_components failed");
         jpegli_encoder.setup_jpegli_quantization(jpeg_color_type).expect("setup_jpegli_quantization failed");
 
-        // 3. Extract the quantization tables from the encoder.
+        // 4. Extract the quantization tables from the encoder.
         let rust_luma_dqt = jpegli_encoder.raw_quant_tables[0].expect("Luma quant table missing");
         let rust_chroma_dqt = if num_components > 1 {
             jpegli_encoder.raw_quant_tables[1].expect("Chroma quant table missing")
@@ -140,7 +138,7 @@ fn compare_quantization_with_reference() {
              test_case.expected_chroma_dqt // Use expected if it exists, otherwise this comparison fails correctly.
         };
 
-        // 4. Compare the encoder's tables with expected values. Use tolerance 0 for exact match.
+        // 5. Compare the encoder's tables with expected values. Use tolerance 0 for exact match.
         compare_quant_tables(
             "Luma",
             &rust_luma_dqt,
@@ -158,7 +156,7 @@ fn compare_quantization_with_reference() {
             );
         }
 
-        // 5. Optionally, call encode to check for other errors (but tables are tested above).
+        // 6. Optionally, call encode to check for other errors (but tables are tested above).
         // This part requires ImageBuffer implementation or using the old encode method.
         // We skip the full encode for now as we focus on table generation.
         // let encode_result = encoder.encode(&pixels, width, height, color_type);

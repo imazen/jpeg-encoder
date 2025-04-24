@@ -3,8 +3,6 @@
 // Assuming quantization tables are needed for comparison
 // use crate::quantization::QuantizationTable;
 
-use std::println;
-
 #[derive(Debug)]
 pub struct ReferenceQuantTestData {
     pub source_group: &'static str,
@@ -17,1505 +15,14865 @@ pub struct ReferenceQuantTestData {
 }
 
 pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
-    ReferenceQuantTestData {
-        source_group: "jxl-chessboard",
-        input_filename: "colorful_chessboards.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "jxl-blending",
-        input_filename: "cropped_traffic_light_frame-2.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "jxl-blending",
-        input_filename: "cropped_traffic_light_frame-3.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "jxl-blending",
-        input_filename: "cropped_traffic_light_frame-0.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "jxl-blending",
-        input_filename: "cropped_traffic_light_frame-1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "raw.pixls",
-        input_filename: "Nikon-D300-12bit_srgb8_dt.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "Nikon-D3-14bit_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "phu1or_alfann24_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "tmshre_riaphotographs_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "t0gho7_orlaustral_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "q3a0b3_d17ws_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "q3a0b3_d17ws_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "ra0ed45_alfann24_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "cvo9xd_keong_macan_2020_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "ra0ed45_alfann24_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "tmshre_riaphotographs_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "cvo9xd_keong_macan_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "u76c0g_bliznaca_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "a2d1un_nkitzmiller_2020_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "t0gho7_orlaustral_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "vgqcws_vin_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "Nikon-D3-14bit_2020_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "l1qnb5_nkitzmiller_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "a2d1un_nkitzmiller_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "u76c0g_bliznaca_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "phu1or_alfann24_2020_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-64px",
-        input_filename: "vgqcws_vin_709_g1.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-500px",
-        input_filename: "cvo9xd_keong_macan_grayscale.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-500px",
-        input_filename: "tmshre_riaphotographs_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-500px",
-        input_filename: "cvo9xd_keong_macan_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-500px",
-        input_filename: "u76c0g_bliznaca_srgb8.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wesaturate-500px",
-        input_filename: "tmshre_riaphotographs_alpha.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "P3-sRGB-red.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "R2020-sRGB-blue.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "P3-sRGB-blue.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "R2020-sRGB-green.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "rgb-to-gbr-test.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "R2020-sRGB-color-bars.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "P3-sRGB-green.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "P3-sRGB-color-bars.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "R2020-sRGB-color-ring.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "R2020-sRGB-red.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-    ReferenceQuantTestData {
-        source_group: "wide-gamut-tests",
-        input_filename: "P3-sRGB-color-ring.png",
-        input_format: "PNG",
-        input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
-        cjpegli_distance: 1.0, 
-        expected_luma_dqt:     [
-    16, 24, 24, 40, 32, 40, 40, 40,
-    40, 40, 48, 40, 40, 40, 48, 48,
-    48, 48, 48, 48, 48, 56, 48, 48,
-    48, 48, 48, 56, 56, 56, 56, 56,
-    56, 56, 56, 56, 56, 56, 64, 64,
-    64, 56, 56, 56, 64, 72, 72, 64,
-    56, 64, 80, 72, 80, 64, 80, 72,
-    72, 80, 88, 72, 88, 72, 72, 64
-],
-        expected_chroma_dqt:     [
-    40, 88, 88, 128, 120, 128, 152, 128,
-    128, 152, 152, 192, 152, 192, 152, 240,
-    232, 256, 256, 232, 240, 256, 232, 272,
-    256, 272, 232, 256, 408, 376, 336, 224,
-    224, 336, 376, 408, 296, 1432, 352, 272,
-    352, 1432, 296, 344, 352, 208, 208, 352,
-    344, 496, 280, 432, 280, 496, 712, 648,
-    648, 712, 936, 856, 936, 1232, 1232, 1560
-]
-    }
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 0e+00,
+            expected_luma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ],
+            expected_chroma_dqt:     [
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1
+    ]
+        }
 ,
-];
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 0.5,
+            expected_luma_dqt:     [
+        1, 1, 1, 3, 2, 3, 2, 2,
+        2, 2, 3, 2, 3, 2, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 4, 3, 4,
+        4, 3, 4, 3, 4, 3, 4, 4,
+        4, 3, 4, 4, 4, 4, 4, 4,
+        4, 4, 5, 5, 5, 4, 5, 4,
+        4, 5, 5, 5, 5, 5, 5, 4
+    ],
+            expected_chroma_dqt:     [
+        2, 6, 6, 8, 8, 8, 9, 8,
+        8, 9, 10, 12, 10, 12, 10, 15,
+        14, 16, 16, 14, 15, 16, 14, 17,
+        16, 17, 14, 16, 25, 23, 21, 14,
+        14, 21, 23, 25, 19, 89, 22, 17,
+        22, 89, 19, 21, 22, 13, 13, 22,
+        21, 31, 17, 27, 17, 31, 44, 40,
+        40, 44, 59, 53, 59, 77, 77, 98
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        2, 3, 3, 5, 4, 5, 5, 5,
+        5, 5, 6, 5, 5, 5, 6, 6,
+        6, 6, 6, 6, 6, 7, 6, 6,
+        6, 6, 6, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 8, 8,
+        8, 7, 7, 7, 8, 9, 9, 8,
+        7, 8, 10, 9, 10, 8, 10, 9,
+        9, 10, 11, 9, 11, 9, 9, 8
+    ],
+            expected_chroma_dqt:     [
+        5, 11, 11, 16, 15, 16, 19, 16,
+        16, 19, 19, 24, 19, 24, 19, 30,
+        29, 32, 32, 29, 30, 32, 29, 34,
+        32, 34, 29, 32, 51, 47, 42, 28,
+        28, 42, 47, 51, 37, 179, 44, 34,
+        44, 179, 37, 43, 44, 26, 26, 44,
+        43, 62, 35, 54, 35, 62, 89, 81,
+        81, 89, 117, 107, 117, 154, 154, 195
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 1e+00,
+            expected_luma_dqt:     [
+        3, 4, 4, 7, 5, 7, 7, 7,
+        7, 7, 8, 7, 7, 7, 8, 8,
+        8, 8, 8, 8, 8, 9, 8, 9,
+        8, 9, 8, 9, 9, 10, 10, 10,
+        10, 10, 10, 9, 10, 9, 12, 11,
+        12, 9, 10, 10, 12, 12, 12, 12,
+        10, 11, 14, 13, 14, 11, 13, 12,
+        12, 13, 15, 13, 15, 13, 13, 11
+    ],
+            expected_chroma_dqt:     [
+        7, 16, 16, 23, 22, 23, 26, 22,
+        22, 26, 27, 33, 27, 33, 27, 42,
+        40, 44, 44, 40, 42, 45, 41, 48,
+        45, 48, 41, 45, 71, 65, 58, 39,
+        39, 58, 65, 71, 52, 250, 61, 47,
+        61, 250, 52, 60, 61, 36, 36, 61,
+        60, 87, 49, 76, 49, 87, 124, 113,
+        113, 124, 164, 149, 164, 215, 215, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 2e+00,
+            expected_luma_dqt:     [
+        5, 6, 6, 10, 7, 10, 10, 10,
+        10, 10, 13, 10, 11, 10, 13, 14,
+        14, 13, 13, 14, 14, 15, 13, 14,
+        14, 14, 13, 15, 15, 16, 16, 17,
+        17, 16, 16, 15, 16, 15, 19, 18,
+        19, 15, 16, 17, 18, 20, 20, 18,
+        17, 18, 22, 22, 22, 18, 22, 20,
+        20, 22, 24, 22, 24, 22, 22, 18
+    ],
+            expected_chroma_dqt:     [
+        11, 21, 21, 32, 31, 32, 38, 31,
+        31, 38, 44, 52, 41, 52, 44, 69,
+        66, 68, 68, 66, 69, 74, 67, 78,
+        75, 78, 67, 74, 116, 107, 96, 64,
+        64, 96, 107, 116, 85, 255, 96, 78,
+        96, 255, 85, 98, 96, 59, 59, 96,
+        98, 143, 80, 125, 80, 143, 204, 185,
+        185, 204, 255, 245, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 3e+00,
+            expected_luma_dqt:     [
+        7, 7, 7, 13, 9, 13, 13, 13,
+        13, 13, 19, 14, 15, 14, 19, 19,
+        19, 17, 17, 19, 19, 21, 18, 20,
+        19, 20, 18, 21, 22, 22, 22, 23,
+        23, 22, 22, 22, 22, 21, 25, 25,
+        25, 21, 22, 24, 25, 27, 27, 25,
+        24, 26, 31, 30, 31, 26, 31, 28,
+        28, 31, 34, 30, 34, 30, 30, 24
+    ],
+            expected_chroma_dqt:     [
+        16, 25, 25, 40, 38, 40, 49, 40,
+        40, 49, 62, 69, 55, 69, 62, 95,
+        92, 89, 89, 92, 95, 103, 93, 107,
+        104, 107, 93, 103, 162, 149, 134, 89,
+        89, 134, 149, 162, 119, 255, 130, 108,
+        130, 255, 119, 136, 130, 82, 82, 130,
+        136, 199, 111, 174, 111, 199, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 4e+00,
+            expected_luma_dqt:     [
+        9, 8, 8, 15, 11, 15, 16, 15,
+        15, 16, 25, 18, 19, 18, 25, 26,
+        26, 21, 21, 26, 26, 29, 24, 26,
+        25, 26, 24, 29, 29, 30, 29, 31,
+        31, 29, 30, 29, 30, 28, 33, 34,
+        33, 28, 30, 32, 33, 37, 37, 33,
+        32, 34, 42, 41, 42, 34, 41, 38,
+        38, 41, 46, 41, 46, 40, 40, 33
+    ],
+            expected_chroma_dqt:     [
+        21, 29, 29, 49, 46, 49, 61, 48,
+        48, 61, 83, 89, 70, 89, 83, 128,
+        124, 114, 114, 124, 128, 138, 124, 142,
+        139, 142, 124, 138, 218, 200, 179, 120,
+        120, 179, 200, 218, 160, 255, 170, 145,
+        170, 255, 160, 183, 170, 110, 110, 170,
+        183, 255, 149, 234, 149, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 7e+00,
+            expected_luma_dqt:     [
+        16, 11, 11, 22, 16, 22, 24, 22,
+        22, 24, 43, 28, 30, 28, 43, 45,
+        44, 33, 33, 44, 45, 49, 41, 44,
+        44, 44, 41, 49, 50, 52, 50, 54,
+        54, 50, 52, 50, 52, 48, 54, 59,
+        54, 48, 52, 55, 53, 63, 63, 53,
+        55, 59, 72, 70, 72, 59, 71, 66,
+        66, 71, 78, 70, 78, 70, 70, 56
+    ],
+            expected_chroma_dqt:     [
+        36, 42, 42, 71, 67, 71, 91, 70,
+        70, 91, 143, 143, 111, 143, 143, 221,
+        213, 179, 179, 213, 221, 238, 214, 239,
+        240, 239, 214, 238, 255, 255, 255, 207,
+        207, 255, 255, 255, 255, 255, 255, 249,
+        255, 255, 255, 255, 255, 189, 189, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 1e+01,
+            expected_luma_dqt:     [
+        28, 19, 19, 33, 24, 33, 36, 33,
+        33, 36, 76, 46, 47, 46, 76, 78,
+        78, 53, 53, 78, 78, 87, 72, 75,
+        76, 75, 72, 87, 88, 91, 88, 94,
+        94, 88, 91, 88, 91, 85, 89, 104,
+        89, 85, 91, 96, 89, 111, 111, 89,
+        96, 104, 126, 123, 126, 104, 124, 115,
+        115, 124, 138, 123, 138, 122, 122, 99
+    ],
+            expected_chroma_dqt:     [
+        64, 73, 73, 105, 101, 105, 137, 104,
+        104, 137, 250, 233, 177, 233, 250, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-chessboard",
+            input_filename: "colorful_chessboards.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-0.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-2.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "jxl-blending",
+            input_filename: "cropped_traffic_light_frame-3.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "DJI-FC6310-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_acescg_g1_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Google-Pixel2XL-16bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_709_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "HUAWEI-EVA-L09-16bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_2020_g1_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Nikon-D300-12bit_srgb8_dt.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_709_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "raw.pixls",
+            input_filename: "Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "a2d1un_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "l1qnb5_nkitzmiller_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "Nikon-D3-14bit_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_2020_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "phu1or_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "q3a0b3_d17ws_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "ra0ed45_alfann24_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "t0gho7_orlaustral_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_709_g1.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-64px",
+            input_filename: "vgqcws_vin_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_grayscale.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "cvo9xd_keong_macan_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_alpha.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "tmshre_riaphotographs_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wesaturate-500px",
+            input_filename: "u76c0g_bliznaca_srgb8.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "P3-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-blue.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-bars.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-color-ring.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-green.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "R2020-sRGB-red.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+,
+        ReferenceQuantTestData {
+            source_group: "wide-gamut-tests",
+            input_filename: "rgb-to-gbr-test.png",
+            input_format: "PNG",
+            input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
+            cjpegli_distance: 2e+01,
+            expected_luma_dqt:     [
+        54, 37, 37, 64, 46, 64, 61, 62,
+        62, 61, 145, 82, 82, 82, 145, 151,
+        150, 91, 91, 150, 151, 167, 138, 141,
+        147, 141, 138, 167, 168, 175, 170, 181,
+        181, 170, 175, 168, 176, 163, 162, 199,
+        162, 163, 176, 184, 162, 214, 214, 162,
+        184, 200, 242, 237, 242, 200, 239, 222,
+        222, 239, 255, 237, 255, 235, 235, 190
+    ],
+            expected_chroma_dqt:     [
+        123, 141, 141, 202, 193, 202, 232, 195,
+        195, 232, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255
+    ]
+        }
+]; // Close the main data array
 
-// Example test - implement actual comparison logic here
-#[test]
-fn test_reference_quantization_tables_exist() {
-    assert!(!REFERENCE_QUANT_TEST_DATA.is_empty(), "No reference test data found.");
-    for test_case in REFERENCE_QUANT_TEST_DATA {
-        println!("Checking reference data for {} (source: {}, distance: {:.1})...",
-                    test_case.input_filename, test_case.source_group, test_case.cjpegli_distance);
-        assert_eq!(test_case.expected_luma_dqt.len(), 64);
-        assert_eq!(test_case.expected_chroma_dqt.len(), 64);
-        // Check a few values to ensure they're not all zero
-        // Allow tables to be all zero if extraction failed, maybe add a check for filename?
-        // assert!(test_case.expected_luma_dqt.iter().any(|&x| x > 0), "Luma table seems empty");
-        // assert!(test_case.expected_chroma_dqt.iter().any(|&x| x > 0), "Chroma table seems empty");
+// Ensure the tests module wraps the test function
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Example test - implement actual comparison logic here
+    #[test]
+    fn test_reference_quantization_tables_exist() {
+        assert!(!REFERENCE_QUANT_TEST_DATA.is_empty(), "No reference test data found.");
+        for test_case in REFERENCE_QUANT_TEST_DATA {
+            println!("Checking reference data for {} (source: {}, distance: {:.1})...",
+                     test_case.input_filename, test_case.source_group, test_case.cjpegli_distance);
+            assert_eq!(test_case.expected_luma_dqt.len(), 64);
+            assert_eq!(test_case.expected_chroma_dqt.len(), 64);
+            // Check a few values to ensure they're not all zero
+            // Allow tables to be all zero if extraction failed, maybe add a check for filename?
+            // assert!(test_case.expected_luma_dqt.iter().any(|&x| x > 0), "Luma table seems empty");
+            // assert!(test_case.expected_chroma_dqt.iter().any(|&x| x > 0), "Chroma table seems empty");
+        }
     }
 }
-

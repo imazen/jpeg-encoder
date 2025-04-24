@@ -1,6 +1,6 @@
 # Rules for porting the C++ jpegli encoder algorithms to the Rust jpeg-encoder crate (workspace root)
 
-Always make sure you have loaded @inventory.md and @porting.md into your context.
+Always make sure you have loaded @inventory.md and @porting.md into your context. Don't load or manually edit src/jpegli/reference_test_data.rs, instead, edit and rerun @extract_dqt.py and @dct.sh to update it.
 
 # Tool use tips
 

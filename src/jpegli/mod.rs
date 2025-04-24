@@ -40,6 +40,7 @@ impl JpegliConfig {
         let force_baseline = false; // Assuming standard jpegli behavior
         let is_yuv420 = sampling_factor == crate::SamplingFactor::F_2_2 || sampling_factor == crate::SamplingFactor::R_4_2_0;
 
+        // Always use Jpegli computation path
         let luma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, true, is_yuv420, force_baseline, None);
         let chroma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, false, is_yuv420, force_baseline, None);
 

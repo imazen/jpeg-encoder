@@ -81,8 +81,8 @@ def extract_dqt(jpeg_path):
                         current_pos_in_payload += 1
 
                 if len(table) == num_quant_values:
-                    # Multiply by 8 as per original script's intent for Rust constants
-                    tables[table_id] = [x * 8 for x in table]
+                    
+                    tables[table_id] = [x  for x in table]
                 else:
                     print(f"Warning: Incomplete table data read for table {table_id} ({len(table)}/{num_quant_values} vals) in DQT segment", file=sys.stderr)
                     break # Stop parsing this DQT segment
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     print(f"            input_filename: \"{orig_filename_arg}\",")
     print(f"            input_format: \"{orig_extension_arg}\",")
     print(f"            input_data: include_bytes!(\"{relative_include_path_arg}\"),")
-    print(f"            cjpegli_distance: {distance_arg:.1}, ")
+    print(f"            cjpegli_distance: {distance_arg:.1},")
     print(f"            expected_luma_dqt: {luma_rust_str},")
     print(f"            expected_chroma_dqt: {chroma_rust_str}")
     print(f"        }}") # No comma here, handled by bash script

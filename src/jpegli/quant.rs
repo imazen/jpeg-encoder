@@ -2,6 +2,8 @@ use alloc::vec;
 use alloc::vec::Vec;
 use core::num::NonZeroU16;
 use std::f32;
+use std::fmt::Write;
+use lazy_static::lazy_static;
 
 // --- Start Jpegli Constants ---
 
@@ -60,6 +62,47 @@ pub(crate) const K_TRANSFER_FUNCTION_HLG: u8 = 18;
 
 // --- End Jpegli Constants ---
 
+// --- Start Standard Annex K Constants ---
+// From libjpeg-turbo's jquant.c (scaled by default quality 50 factor)
+// Or directly from Annex K.1
+const STANDARD_LUMA_QTABLE_U8: [u8; 64] = [
+    16,  11,  10,  16,  24,  40,  51,  61,
+    12,  12,  14,  19,  26,  58,  60,  55,
+    14,  13,  16,  24,  40,  57,  69,  56,
+    14,  17,  22,  29,  51,  87,  80,  62,
+    18,  22,  37,  56,  68, 109, 103,  77,
+    24,  35,  55,  64,  81, 104, 113,  92,
+    49,  64,  78,  87, 103, 121, 120, 101,
+    72,  92,  95,  98, 112, 100, 103,  99
+];
+
+const STANDARD_CHROMA_QTABLE_U8: [u8; 64] = [
+    17,  18,  24,  47,  99,  99,  99,  99,
+    18,  21,  26,  66,  99,  99,  99,  99,
+    24,  26,  56,  99,  99,  99,  99,  99,
+    47,  66,  99,  99,  99,  99,  99,  99,
+    99,  99,  99,  99,  99,  99,  99,  99,
+    99,  99,  99,  99,  99,  99,  99,  99,
+    99,  99,  99,  99,  99,  99,  99,  99,
+    99,  99,  99,  99,  99,  99,  99,  99
+];
+
+// Convert standard tables to f32 for consistency in calculation
+fn standard_table_to_f32(table_u8: &[u8; 64]) -> [f32; 64] {
+    let mut table_f32 = [0.0f32; 64];
+    for i in 0..64 {
+        table_f32[i] = table_u8[i] as f32;
+    }
+    table_f32
+}
+
+lazy_static! {
+    static ref STANDARD_LUMA_QTABLE_F32: [f32; 64] = standard_table_to_f32(&STANDARD_LUMA_QTABLE_U8);
+    static ref STANDARD_CHROMA_QTABLE_F32: [f32; 64] = standard_table_to_f32(&STANDARD_CHROMA_QTABLE_U8);
+}
+
+// --- End Standard Annex K Constants ---
+
 // Helper function ported from jpegli DistanceToScale
 pub(crate) fn distance_to_scale(distance: f32, k: usize) -> f32 {
     if distance < K_DIST0 {
@@ -95,18 +138,21 @@ pub(crate) fn compute_jpegli_quant_table(
     force_baseline: bool,
     cicp_transfer_function: Option<u8>,
 ) -> [u16; 64] {
-    let base_table_f32 = if is_luma {
-        &JPEGLI_DEFAULT_LUMA_QTABLE_F32
-    } else {
-        &JPEGLI_DEFAULT_CHROMA_QTABLE_F32
-    };
+    // Always use Jpegli base tables
+    let base_table_f32: &[f32; 64] = if is_luma {
+            &JPEGLI_DEFAULT_LUMA_QTABLE_F32
+        } else {
+            &JPEGLI_DEFAULT_CHROMA_QTABLE_F32
+        };
 
-    let mut global_scale = K_GLOBAL_SCALE_YCBCR;
-    if is_yuv420 {
-        global_scale *= K_420_GLOBAL_SCALE;
+    // Always use Jpegli global scale
+    let mut global_scale = K_GLOBAL_SCALE_YCBCR; // 1.73966010
+
+    if is_yuv420 { // Jpegli 420 scaling
+        global_scale *= K_420_GLOBAL_SCALE; // 1.22
     }
-    
-    // Apply scaling based on transfer function (like in C++ quant.cc)
+
+    // Apply scaling based on transfer function
     if let Some(tf_code) = cicp_transfer_function {
         if tf_code == K_TRANSFER_FUNCTION_PQ {
             global_scale *= 0.4;
@@ -119,17 +165,16 @@ pub(crate) fn compute_jpegli_quant_table(
     let mut table_data = [1u16; 64];
 
     for k in 0..64 {
-        let mut scale = global_scale;
-        scale *= distance_to_scale(distance.max(0.0), k);
+        // Jpegli scaling path
+        let mut scale = global_scale; // Start with the Jpegli overall global scale
+        scale *= distance_to_scale(distance.max(0.0), k); // Apply distance scaling per coefficient
         if is_yuv420 && !is_luma { // Apply k420Rescale only for chroma in 420 mode
             scale *= K_420_RESCALE[k];
         }
 
-        let qval_f = scale * base_table_f32[k];
-        let qval = qval_f.round() as i32;
-        let qval_clamped = qval.clamp(1, quant_max) as u16;
-
-        // Store raw value
+        let qval_f = scale * base_table_f32[k]; // Multiply final scale by Jpegli base table value
+        let qval = qval_f.round() as i32; // Jpegli path uses round
+        let qval_clamped = qval.clamp(1, quant_max) as u16; // Clamp to [1, max]
         table_data[k] = qval_clamped;
     }
     table_data
@@ -240,6 +285,7 @@ pub(crate) fn compute_zero_bias_tables(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::jpegli::reference_test_data::REFERENCE_QUANT_TEST_DATA; // Import reference data
 
     // Helper to recalculate expected table values for comparison
     fn calculate_expected_jpegli_table(
@@ -319,6 +365,42 @@ mod tests {
     }
 
     #[test]
+    fn test_compute_jpegli_quant_table_matches_reference_d1_0() {
+        let distance = 1.0;
+        let is_yuv420 = false;
+        let force_baseline = true;
+
+        // Find the reference data for a distance 1.0 test case
+        let ref_data = REFERENCE_QUANT_TEST_DATA
+            .iter()
+            .find(|d| d.input_filename == "colorful_chessboards.png" && (d.cjpegli_distance - distance).abs() < 1e-6)
+            .expect("Reference data for colorful_chessboards.png at distance 1.0 not found");
+
+        let expected_luma_table = ref_data.expected_luma_dqt;
+        let expected_chroma_table = ref_data.expected_chroma_dqt;
+
+        // Call the function under test
+        let computed_luma_table = compute_jpegli_quant_table(
+            distance,
+            true, // is_luma
+            is_yuv420,
+            force_baseline,
+            None, // No TF specified for this test
+        );
+        let computed_chroma_table = compute_jpegli_quant_table(
+            distance,
+            false, // is_luma
+            is_yuv420,
+            force_baseline,
+            None, // No TF specified for this test
+        );
+
+        // Compare with a helper that prints diffs
+        compare_quant_tables_quant_test("Luma (d=1.0)", &computed_luma_table, &expected_luma_table, 0);
+        compare_quant_tables_quant_test("Chroma (d=1.0)", &computed_chroma_table, &expected_chroma_table, 0);
+    }
+
+    #[test]
     fn test_quality_to_distance() {
         // Test values derived from running the C++ code or known reference points.
         assert!((quality_to_distance(100) - 0.01).abs() < 1e-6);
@@ -336,4 +418,48 @@ mod tests {
         assert!((quality_to_distance(1) - q1).abs() < 1e-6); // approx 23.8676
     }
     // TODO: Add similar tests for other distances (e.g., 0.5, 10.0) and maybe is_yuv420=true
+
+    // Helper function local to quant tests for detailed comparison
+    fn compare_quant_tables_quant_test(
+        label: &str,
+        generated: &[u16; 64],
+        expected: &[u16; 64],
+        tolerance: u16,
+    ) {
+        let mut diff_count = 0;
+        let mut diff_output = String::new();
+        writeln!(
+            diff_output,
+            "Comparing {} Quantization Table:",
+            label
+        ).unwrap();
+        writeln!(diff_output, "------------------------------------------------------------------------").unwrap();
+
+        for y in 0..8 {
+            write!(diff_output, "Row {}: ", y).unwrap();
+            for x in 0..8 {
+                let index = y * 8 + x;
+                let gen_val = generated[index];
+                let exp_val = expected[index];
+                let diff = gen_val.abs_diff(exp_val);
+
+                if diff > tolerance {
+                    diff_count += 1;
+                    // Show generated(expected)
+                    write!(diff_output, "{:>4}({:>4}) ", gen_val, exp_val).unwrap();
+                } else {
+                    // Show just the value if within tolerance
+                    write!(diff_output, "{:>4}       ", gen_val).unwrap();
+                }
+            }
+            writeln!(diff_output).unwrap(); // Newline after each row
+        }
+        writeln!(diff_output, "------------------------------------------------------------------------").unwrap();
+
+        if diff_count > 0 {
+            // Use std::println! for test output
+            std::println!("{}", diff_output);
+            panic!("{} quantization table mismatch. Found {} differences with tolerance {}.", label, diff_count, tolerance);
+        }
+    }
 } 

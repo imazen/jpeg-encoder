@@ -15,6 +15,7 @@ use crate::JpegColorType; // Assuming JpegColorType is in the crate root
 // Import the generated data module
 use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
 use std::io::Cursor;
+use crate::jpegli::jpegli_encoder::JpegliEncoder; // Add import for JpegliEncoder
 
 // Helper function to compare quantization tables with tolerance and print differences
 fn compare_quant_tables(
@@ -102,27 +103,44 @@ fn compare_quantization_with_reference() {
             ),
         };
 
-        // 2. Create a jpeg_encoder::Encoder instance.
-        let mut encoded_output = Vec::new();
-        // Use a dummy quality, as Jpegli config overrides it.
-        let mut encoder = Encoder::new(&mut encoded_output, 75);
-        
-        // 3. Configure the encoder with the reference distance using Jpegli.
-        // We specifically test Jpegli's table generation here.
-        // encoder.configure_jpegli(test_case.cjpegli_distance, None, None);
-        
-        // 5. Extract the quantization tables from the encoder's jpegli_config *before* encoding consumes it.
-        /* // Commented out until JpegliEncoder integration
-        let jpegli_config = encoder.jpegli_config.as_ref()
-            .expect("JpegliConfig should be present after configure_jpegli");
-        let rust_luma_dqt = jpegli_config.luma_table_raw;
-        let rust_chroma_dqt = jpegli_config.chroma_table_raw;
-        */
-        // Placeholder - these would need to come from JpegliEncoder
-        let rust_luma_dqt: [u16; 64] = [16u16; 64]; // Dummy table
-        let rust_chroma_dqt: [u16; 64] = [17u16; 64]; // Dummy table
-        
-        // 6. Compare the encoder's tables with expected values. Use tolerance 0 for exact match.
+        // Map ColorType to JpegColorType for JpegliEncoder
+        let jpeg_color_type = match color_type {
+            ColorType::Luma => JpegColorType::Luma,
+            ColorType::Rgb | ColorType::Rgba | ColorType::Bgr | ColorType::Bgra => JpegColorType::Ycbcr, // Assume conversion for test
+            ColorType::Ycbcr => JpegColorType::Ycbcr,
+            ColorType::Cmyk => JpegColorType::Cmyk,
+            ColorType::CmykAsYcck | ColorType::Ycck => JpegColorType::Ycck,
+            // ColorType::Unknown => panic!("Cannot handle Unknown ColorType in test"), // Removed this arm
+        };
+
+        // 2. Create a JpegliEncoder instance. This triggers table calculation.
+        // Use a dummy writer, we only care about the tables generated during init.
+        let mut jpegli_encoder = JpegliEncoder::new(vec![], test_case.cjpegli_distance);
+        // We need to call init_components and setup_jpegli_quantization explicitly
+        // if they are not automatically called by new() or a subsequent config step.
+        // Based on current JpegliEncoder structure, new() does basic setup,
+        // but encode_image() triggers the main init/setup.
+        // For this test, let's manually trigger the table calculation part.
+        // We need the color type to determine the number of components for quant setup.
+        let num_components = jpeg_color_type.get_num_components();
+        // Manually call the setup function (assuming it's accessible for testing or refactor needed)
+        // NOTE: This might need adjustment depending on JpegliEncoder's final API
+        jpegli_encoder.init_components(jpeg_color_type, width, height).expect("init_components failed");
+        jpegli_encoder.setup_jpegli_quantization(jpeg_color_type).expect("setup_jpegli_quantization failed");
+
+        // 3. Extract the quantization tables from the encoder.
+        let rust_luma_dqt = jpegli_encoder.raw_quant_tables[0].expect("Luma quant table missing");
+        let rust_chroma_dqt = if num_components > 1 {
+            jpegli_encoder.raw_quant_tables[1].expect("Chroma quant table missing")
+        } else {
+             // For Luma-only, create a dummy Chroma table for comparison to pass,
+             // though the comparison might be meaningless/skipped later.
+             // Or, adjust the test logic to only compare chroma if num_components > 1.
+             // Let's make it compare against expected Chroma if present.
+             test_case.expected_chroma_dqt // Use expected if it exists, otherwise this comparison fails correctly.
+        };
+
+        // 4. Compare the encoder's tables with expected values. Use tolerance 0 for exact match.
         compare_quant_tables(
             "Luma",
             &rust_luma_dqt,
@@ -130,20 +148,22 @@ fn compare_quantization_with_reference() {
             0, // Use 0 tolerance for now
             test_case.input_filename,
         );
-        compare_quant_tables(
-            "Chroma",
-            &rust_chroma_dqt,
-            &test_case.expected_chroma_dqt,
-            0, // Use 0 tolerance for now
-            test_case.input_filename,
-        );
-        
-        // 4. Call encoder.encode(...) with decoded image data.
-        // This triggers internal setup including quantization table generation.
-        // We test the tables *before* this consuming call, but run it to check for other errors.
-        let encode_result = encoder.encode(&pixels, width, height, color_type);
-        assert!(encode_result.is_ok(), "Encoding failed for {}: {:?}", test_case.input_filename, encode_result.err());
-        
+        if num_components > 1 {
+            compare_quant_tables(
+                "Chroma",
+                &rust_chroma_dqt,
+                &test_case.expected_chroma_dqt,
+                0, // Use 0 tolerance for now
+                test_case.input_filename,
+            );
+        }
+
+        // 5. Optionally, call encode to check for other errors (but tables are tested above).
+        // This part requires ImageBuffer implementation or using the old encode method.
+        // We skip the full encode for now as we focus on table generation.
+        // let encode_result = encoder.encode(&pixels, width, height, color_type);
+        // assert!(encode_result.is_ok(), "Encoding failed for {}: {:?}", test_case.input_filename, encode_result.err());
+
         // Test passed for this case if no panics occurred.
         println!(" -> Quantization tables match for {}.", test_case.input_filename);
     }

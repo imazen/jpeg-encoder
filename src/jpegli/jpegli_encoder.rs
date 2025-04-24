@@ -2,7 +2,7 @@ use crate::error::EncodingError;
 use crate::writer::{JfifWrite, JfifWriter};
 use crate::marker::{Marker, SOFType};
 use crate::Density;
-use crate::jpegli::quant::{self, compute_jpegli_quant_table, compute_zero_bias_tables};
+use crate::jpegli::quant::{self, compute_jpegli_quant_table, compute_zero_bias_tables, quality_to_distance};
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::{self, ImageBuffer};
 use crate::{ColorType, JpegColorType, SamplingFactor};
@@ -86,7 +86,7 @@ pub struct JpegliEncoder<W: JfifWrite> {
 
     components: Vec<JpegliComponentInfo>,
     // Store raw quant tables and zero-bias info directly
-    raw_quant_tables: [Option<[u16; 64]>; 4],
+    pub(crate) raw_quant_tables: [Option<[u16; 64]>; 4],
     zero_bias_offsets: Vec<[f32; 64]>,
     zero_bias_multipliers: Vec<[f32; 64]>,
     huffman_tables: [(Option<HuffmanTable>, Option<HuffmanTable>); 4], // DC/AC pairs
@@ -492,7 +492,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
 
     // --- Private Helper Methods ---
 
-    fn init_components(&mut self, color: JpegColorType, width: u16, height: u16) -> Result<(), EncodingError> {
+    pub(crate) fn init_components(&mut self, color: JpegColorType, width: u16, height: u16) -> Result<(), EncodingError> {
         // TODO: Based on color type, sampling factor, determine component details
         // - Assign IDs (0..N-1 or standard IDs?)
         // - Assign quant/huffman table indices (typically 0 for Luma/Y, 1 for Chroma)
@@ -569,7 +569,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
     }
 
     /// Computes and stores Jpegli quantization tables and zero-bias info.
-    fn setup_jpegli_quantization(&mut self, color_type: JpegColorType) -> Result<(), EncodingError> {
+    pub(crate) fn setup_jpegli_quantization(&mut self, color_type: JpegColorType) -> Result<(), EncodingError> {
         let num_components = color_type.get_num_components();
         if num_components == 0 {
             return Err(EncodingError::JpegliError("Cannot setup quantization for 0 components".into()));
@@ -578,25 +578,26 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         let is_yuv420 = self.sampling_factor == SamplingFactor::F_2_2 || self.sampling_factor == SamplingFactor::R_4_2_0;
         let force_baseline = true; // Assume baseline for now
 
-        if !self.use_standard_tables {
-            // Compute raw tables using Jpegli logic
-            let luma_q_raw = compute_jpegli_quant_table(self.distance, true, is_yuv420, force_baseline, None);
-            self.raw_quant_tables[0] = Some(luma_q_raw);
-            if num_components > 1 {
-                let chroma_q_raw = compute_jpegli_quant_table(self.distance, false, is_yuv420, force_baseline, None);
-                self.raw_quant_tables[1] = Some(chroma_q_raw);
-                // Assume indices 2, 3 are unused for now
-            }
-
-            // Compute zero-bias tables
-            let (offsets, multipliers) = compute_zero_bias_tables(self.distance, num_components);
-            self.zero_bias_offsets = offsets;
-            self.zero_bias_multipliers = multipliers;
-
-        } else {
-            // TODO: Implement standard table generation if needed
-            unimplemented!("Standard quant tables not yet implemented for JpegliEncoder");
+        // Always use Jpegli computation path now
+        let luma_q_raw = compute_jpegli_quant_table(
+            self.distance,
+            true, is_yuv420, force_baseline,
+            None
+        );
+        self.raw_quant_tables[0] = Some(luma_q_raw);
+        if num_components > 1 {
+            let chroma_q_raw = compute_jpegli_quant_table(
+                self.distance,
+                false, is_yuv420, force_baseline,
+                None
+            );
+            self.raw_quant_tables[1] = Some(chroma_q_raw);
         }
+        // Compute zero-bias tables (only relevant for Jpegli path)
+        let (offsets, multipliers) = compute_zero_bias_tables(self.distance, num_components);
+        self.zero_bias_offsets = offsets;
+        self.zero_bias_multipliers = multipliers;
+
         Ok(())
     }
 
@@ -846,10 +847,14 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             .collect();
 
         // Compute the reference Y quant value for AC coeff (0, 1) at distance 1.0
-        // This is needed by the AQ field computation.
+        // Use Jpegli tables for the reference distance=1.0 calculation.
         let is_yuv420 = self.sampling_factor == SamplingFactor::F_2_2 || self.sampling_factor == SamplingFactor::R_4_2_0;
         let force_baseline = true; // Match assumptions in setup_jpegli_quantization
-        let ref_luma_table = compute_jpegli_quant_table(1.0, true, is_yuv420, force_baseline, None);
+        let ref_luma_table = compute_jpegli_quant_table(
+            1.0, // Fixed distance 1.0 for reference
+            true, is_yuv420, force_baseline,
+            None // cicp_transfer_function
+        );
         // AC coefficient (0, 1) corresponds to zigzag index 1
         let y_quant_01 = ref_luma_table[1] as i32;
 

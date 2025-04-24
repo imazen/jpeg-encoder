@@ -28,6 +28,7 @@ lcms2 = { version = "6.1", optional = false }
 moxcms = { version = "0.6.0", optional = false }
 arrayref = "0.3" #nostd safe
 multiversion = { version = "0.8", optional = false }
+lazy_static = "1.4.0"
 [dev-dependencies]
 jpeg-decoder = { version = "0.3", default-features = false }
 approx = "0.5"

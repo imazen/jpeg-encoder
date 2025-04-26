@@ -14,8 +14,8 @@ SOURCE_PATTERNS=(
     "wesaturate-500px testdata/external/wesaturate/500px/*.png"
     "wide-gamut-tests testdata/external/wide-gamut-tests/*.png"
 )
-# No longer copying images, include_bytes! will point directly to testdata
-# REFERENCE_IMAGE_DIR="src/tests/reference_images" # Removed
+# Directory to store cjpegli output, relative to SCRIPT_DIR
+CJPEGLI_OUTPUT_DIR="cjpegli_results"
 # Rust test file path relative to SCRIPT_DIR
 RUST_TEST_FILE="../src/jpegli/reference_test_data.rs"
 
@@ -46,7 +46,7 @@ find_and_set_cjpegli_cmd() {
             # or map SCRIPT_DIR for inputs and outputs relative to script
             # Use --user to avoid creating files as root
             # Map SCRIPT_DIR to /work, and WORKDIR becomes /work
-            CJPEGLI_CMD="docker run --rm -u $(id -u):$(id -g) -v \"$SCRIPT_DIR\":/work -w /work $DOCKER_IMAGE cjpegli"
+            CJPEGLI_CMD="docker run --rm -u $(id -u):$(id -g) -v "$SCRIPT_DIR":/work -w /work $DOCKER_IMAGE cjpegli"
             # Optional: Check if image exists, pull if needed
             # if ! docker image inspect "$DOCKER_IMAGE" &> /dev/null; then
             #    echo "Pulling docker image $DOCKER_IMAGE..."
@@ -84,8 +84,10 @@ find_and_set_cjpegli_cmd # Sets the global CJPEGLI_CMD variable
 # --- 3. Setup Output File ---
 # Construct absolute path for Rust file
 ABS_RUST_TEST_FILE=$(readlink -f "$SCRIPT_DIR/$RUST_TEST_FILE")
+ABS_CJPEGLI_OUTPUT_DIR=$(readlink -f "$SCRIPT_DIR/$CJPEGLI_OUTPUT_DIR")
 echo "Setting up output file: $ABS_RUST_TEST_FILE"
-# mkdir -p "$REFERENCE_IMAGE_DIR" # Removed
+echo "Ensuring cjpegli output directory exists: $ABS_CJPEGLI_OUTPUT_DIR"
+mkdir -p "$ABS_CJPEGLI_OUTPUT_DIR"
 
 # Write Rust file header (OVERWRITE the file)
 cat << 'EOF' > "$ABS_RUST_TEST_FILE"
@@ -101,6 +103,7 @@ pub struct ReferenceQuantTestData {
     pub input_format: &'static str, // Format of the *original* input
     pub input_data: &'static [u8],  // Bytes of the *original* input file via include_bytes!
     pub cjpegli_distance: f32,
+    pub cjpegli_output_data: &'static [u8], // Bytes of the cjpegli *output* JPEG file via include_bytes!
     pub expected_luma_dqt: [u16; 64],
     pub expected_chroma_dqt: [u16; 64],
 }
@@ -146,24 +149,31 @@ for distance in "${DISTANCES[@]}"; do
             img_extension="${img_basename##*.}"
             img_name_no_ext="${img_basename%.*}"
 
-            # Path for include_bytes! relative from the target Rust file to the original image path
+            # Path for input include_bytes! relative from the target Rust file to the original image path
             abs_img_path=$(readlink -f "$img_path")
             abs_rust_file_dir=$(dirname "$ABS_RUST_TEST_FILE")
-            relative_include_path=$(python3 -c "import os.path; print(os.path.relpath('$abs_img_path', '$abs_rust_file_dir'))")
+            relative_input_include_path=$(python3 -c "import os.path; print(os.path.relpath('$abs_img_path', '$abs_rust_file_dir'))")
 
-            # Define output JPEG filename relative to SCRIPT_DIR, including distance
-            output_jpeg_path="$SCRIPT_DIR/${img_name_no_ext}_d${distance}.jpg"
+            # Define output JPEG filename relative to SCRIPT_DIR, including group and distance
+            output_jpeg_subdir="$ABS_CJPEGLI_OUTPUT_DIR/$subfolder"
+            mkdir -p "$output_jpeg_subdir"
+            output_jpeg_filename="${img_name_no_ext}_d${distance}.jpg"
+            output_jpeg_path="$output_jpeg_subdir/$output_jpeg_filename"
 
-            echo "    Processing '$img_path' -> '$output_jpeg_path' (include path: '$relative_include_path')..."
+            # Delete output JPEG if it exists from a previous run
+            rm -f "$output_jpeg_path"
+
+            echo "    Processing '$img_path' -> '$output_jpeg_path' (input include path: '$relative_input_include_path')..."
 
             # Encode using the original image path and current distance
             if [[ "$CJPEGLI_CMD" == docker* ]]; then
-                cjpegli_input_path_docker=$(python3 -c "import os.path; print(os.path.relpath('$abs_img_path', '$SCRIPT_DIR'))")
-                cjpegli_output_path_docker=$(basename "$output_jpeg_path")
-                echo "      Encoding (Docker) '$cjpegli_input_path_docker' -> '$cjpegli_output_path_docker' with cjpegli (distance $distance)..."
-                eval "$CJPEGLI_CMD \"--distance $distance\" \"$cjpegli_input_path_docker\" \"$cjpegli_output_path_docker\""
+                # Paths relative to SCRIPT_DIR for docker volume mapping
+                docker_input_path=$(python3 -c "import os.path; print(os.path.relpath('$abs_img_path', '$SCRIPT_DIR'))")
+                docker_output_path="$CJPEGLI_OUTPUT_DIR/$subfolder/$output_jpeg_filename" # Path inside container /work
+                echo "      Encoding (Docker) '$docker_input_path' -> '$docker_output_path' with cjpegli (distance $distance)..."
+                eval "$CJPEGLI_CMD "--distance $distance" "$docker_input_path" "$docker_output_path""
             else
-                cjpegli_input_path="$img_path"
+                cjpegli_input_path="$img_path" # Use original path for local execution
                 echo "      Encoding (Local) '$cjpegli_input_path' -> '$output_jpeg_path' with cjpegli (distance $distance)..."
                 eval $CJPEGLI_CMD --distance "$distance" "$cjpegli_input_path" "$output_jpeg_path"
             fi
@@ -182,24 +192,29 @@ for distance in "${DISTANCES[@]}"; do
                 exit 1 # Exit script on failure
             fi
 
-            # Extract DQT using the current distance
+            # Calculate path for cjpegli output include_bytes!
+            abs_output_jpeg_path=$(readlink -f "$output_jpeg_path")
+            relative_cjpegli_include_path=$(python3 -c "import os.path; print(os.path.relpath('$abs_output_jpeg_path', '$abs_rust_file_dir'))")
+
+            # Extract DQT using the current distance and generated JPEG
             PYTHON_SCRIPT_PATH="$SCRIPT_DIR/extract_dqt.py"
-            echo "      Extracting DQT using $PYTHON_SCRIPT_PATH and generating Rust struct entry..."
+            echo "      Extracting DQT using $PYTHON_SCRIPT_PATH and generating Rust struct entry (cjpegli include: $relative_cjpegli_include_path)..."
             # Append comma BEFORE the next entry (if not the first)
             if [ "$FIRST_ENTRY" = true ]; then
                 FIRST_ENTRY=false
             else
                 echo "," >> "$ABS_RUST_TEST_FILE"
             fi
-            python3 "$PYTHON_SCRIPT_PATH" "$output_jpeg_path" "$relative_include_path" "$distance" "$img_basename" "$img_extension" "$subfolder" >> "$ABS_RUST_TEST_FILE"
+            # Pass both relative paths to the python script (input first, then cjpegli output)
+            python3 "$PYTHON_SCRIPT_PATH" "$output_jpeg_path" "$relative_input_include_path" "$distance" "$img_basename" "$img_extension" "$subfolder" "$relative_cjpegli_include_path" >> "$ABS_RUST_TEST_FILE"
             # Check python script exit code
             if [ $? -ne 0 ]; then
                  echo "    Error: extract_dqt.py failed for '$output_jpeg_path' at distance $distance. Check script errors above. Exiting." >&2
                  exit 1 # Exit script on failure
             fi
 
-            # Optional cleanup of temporary JPEG
-            rm -f "$output_jpeg_path"
+            # DO NOT Clean up temporary JPEG anymore
+            # rm -f "$output_jpeg_path"
 
             echo "    Finished processing '$img_path' for distance $distance."
         done || echo "    Note: No files found matching pattern '$full_path_pattern' in group '$subfolder'."
@@ -230,6 +245,8 @@ mod tests {
         for test_case in REFERENCE_QUANT_TEST_DATA {
             println!("Checking reference data for {} (source: {}, distance: {:.1})...",
                      test_case.input_filename, test_case.source_group, test_case.cjpegli_distance);
+            assert!(test_case.input_data.len() > 0, "Input data is empty for {}", test_case.input_filename);
+            assert!(test_case.cjpegli_output_data.len() > 0, "cjpegli output data is empty for {}", test_case.input_filename);
             assert_eq!(test_case.expected_luma_dqt.len(), 64);
             assert_eq!(test_case.expected_chroma_dqt.len(), 64);
             // Check a few values to ensure they're not all zero
@@ -241,4 +258,4 @@ mod tests {
 }
 EOF
 
-echo "Script finished. Check $ABS_RUST_TEST_FILE"
+echo "Script finished. Check $ABS_RUST_TEST_FILE and $ABS_CJPEGLI_OUTPUT_DIR"

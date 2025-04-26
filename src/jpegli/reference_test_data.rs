@@ -10,6 +10,7 @@ pub struct ReferenceQuantTestData {
     pub input_format: &'static str, // Format of the *original* input
     pub input_data: &'static [u8],  // Bytes of the *original* input file via include_bytes!
     pub cjpegli_distance: f32,
+    pub cjpegli_output_data: &'static [u8], // Bytes of the cjpegli *output* JPEG file via include_bytes!
     pub expected_luma_dqt: [u16; 64],
     pub expected_chroma_dqt: [u16; 64],
 }
@@ -21,6 +22,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -49,6 +51,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -77,6 +80,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -105,6 +109,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -133,6 +138,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -161,6 +167,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -189,6 +196,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -217,6 +225,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -245,6 +254,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -273,6 +283,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -301,6 +312,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -329,6 +341,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -357,6 +370,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -385,6 +399,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -413,6 +428,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -441,6 +457,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -469,6 +486,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -497,6 +515,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -525,6 +544,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -553,6 +573,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -581,6 +602,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -609,6 +631,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -637,6 +660,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -665,6 +689,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -693,6 +718,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -721,6 +747,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -749,6 +776,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -777,6 +805,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -805,6 +834,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -833,6 +863,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -861,6 +892,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -889,6 +921,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -917,6 +950,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -945,6 +979,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -973,6 +1008,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1001,6 +1037,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1029,6 +1066,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1057,6 +1095,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1085,6 +1124,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1113,6 +1153,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1141,6 +1182,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1169,6 +1211,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1197,6 +1240,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1225,6 +1269,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1253,6 +1298,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1281,6 +1327,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1309,6 +1356,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1337,6 +1385,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1365,6 +1414,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1393,6 +1443,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1421,6 +1472,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1449,6 +1501,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1477,6 +1530,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 0e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d0.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1,
@@ -1505,6 +1559,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1533,6 +1588,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1561,6 +1617,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1589,6 +1646,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1617,6 +1675,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1645,6 +1704,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1673,6 +1733,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1701,6 +1762,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1729,6 +1791,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1757,6 +1820,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1785,6 +1849,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1813,6 +1878,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1841,6 +1907,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1869,6 +1936,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1897,6 +1965,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1925,6 +1994,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1953,6 +2023,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -1981,6 +2052,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2009,6 +2081,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2037,6 +2110,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2065,6 +2139,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2093,6 +2168,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2121,6 +2197,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2149,6 +2226,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2177,6 +2255,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2205,6 +2284,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2233,6 +2313,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2261,6 +2342,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2289,6 +2371,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2317,6 +2400,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2345,6 +2429,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2373,6 +2458,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2401,6 +2487,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2429,6 +2516,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2457,6 +2545,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2485,6 +2574,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2513,6 +2603,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2541,6 +2632,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2569,6 +2661,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2597,6 +2690,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2625,6 +2719,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2653,6 +2748,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2681,6 +2777,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2709,6 +2806,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2737,6 +2835,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2765,6 +2864,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2793,6 +2893,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2821,6 +2922,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2849,6 +2951,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2877,6 +2980,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2905,6 +3009,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2933,6 +3038,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2961,6 +3067,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 0.5,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d0.5.jpg"),
             expected_luma_dqt:     [
         1, 1, 1, 3, 2, 3, 2, 2,
         2, 2, 3, 2, 3, 2, 3, 3,
@@ -2989,6 +3096,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3017,6 +3125,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3045,6 +3154,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3073,6 +3183,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3101,6 +3212,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3129,6 +3241,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3157,6 +3270,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3185,6 +3299,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3213,6 +3328,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3241,6 +3357,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3269,6 +3386,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3297,6 +3415,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3325,6 +3444,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3353,6 +3473,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3381,6 +3502,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3409,6 +3531,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3437,6 +3560,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3465,6 +3589,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3493,6 +3618,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3521,6 +3647,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3549,6 +3676,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3577,6 +3705,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3605,6 +3734,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3633,6 +3763,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3661,6 +3792,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3689,6 +3821,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3717,6 +3850,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3745,6 +3879,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3773,6 +3908,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3801,6 +3937,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3829,6 +3966,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3857,6 +3995,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3885,6 +4024,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3913,6 +4053,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3941,6 +4082,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3969,6 +4111,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -3997,6 +4140,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4025,6 +4169,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4053,6 +4198,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4081,6 +4227,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4109,6 +4256,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4137,6 +4285,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4165,6 +4314,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4193,6 +4343,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4221,6 +4372,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4249,6 +4401,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4277,6 +4430,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4305,6 +4459,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4333,6 +4488,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4361,6 +4517,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4389,6 +4546,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4417,6 +4575,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4445,6 +4604,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d1.jpg"),
             expected_luma_dqt:     [
         2, 3, 3, 5, 4, 5, 5, 5,
         5, 5, 6, 5, 5, 5, 6, 6,
@@ -4473,6 +4633,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4501,6 +4662,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4529,6 +4691,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4557,6 +4720,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4585,6 +4749,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4613,6 +4778,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4641,6 +4807,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4669,6 +4836,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4697,6 +4865,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4725,6 +4894,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4753,6 +4923,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4781,6 +4952,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4809,6 +4981,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4837,6 +5010,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4865,6 +5039,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4893,6 +5068,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4921,6 +5097,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4949,6 +5126,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -4977,6 +5155,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5005,6 +5184,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5033,6 +5213,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5061,6 +5242,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5089,6 +5271,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5117,6 +5300,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5145,6 +5329,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5173,6 +5358,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5201,6 +5387,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5229,6 +5416,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5257,6 +5445,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5285,6 +5474,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5313,6 +5503,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5341,6 +5532,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5369,6 +5561,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5397,6 +5590,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5425,6 +5619,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5453,6 +5648,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5481,6 +5677,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5509,6 +5706,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5537,6 +5735,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5565,6 +5764,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5593,6 +5793,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5621,6 +5822,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5649,6 +5851,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5677,6 +5880,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5705,6 +5909,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5733,6 +5938,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5761,6 +5967,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5789,6 +5996,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5817,6 +6025,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5845,6 +6054,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5873,6 +6083,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5901,6 +6112,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5929,6 +6141,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 1e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d1.4.jpg"),
             expected_luma_dqt:     [
         3, 4, 4, 7, 5, 7, 7, 7,
         7, 7, 8, 7, 7, 7, 8, 8,
@@ -5957,6 +6170,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -5985,6 +6199,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6013,6 +6228,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6041,6 +6257,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6069,6 +6286,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6097,6 +6315,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6125,6 +6344,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6153,6 +6373,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6181,6 +6402,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6209,6 +6431,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6237,6 +6460,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6265,6 +6489,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6293,6 +6518,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6321,6 +6547,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6349,6 +6576,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6377,6 +6605,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6405,6 +6634,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6433,6 +6663,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6461,6 +6692,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6489,6 +6721,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6517,6 +6750,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6545,6 +6779,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6573,6 +6808,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6601,6 +6837,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6629,6 +6866,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6657,6 +6895,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6685,6 +6924,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6713,6 +6953,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6741,6 +6982,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6769,6 +7011,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6797,6 +7040,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6825,6 +7069,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6853,6 +7098,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6881,6 +7127,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6909,6 +7156,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6937,6 +7185,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6965,6 +7214,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -6993,6 +7243,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7021,6 +7272,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7049,6 +7301,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7077,6 +7330,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7105,6 +7359,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7133,6 +7388,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7161,6 +7417,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7189,6 +7446,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7217,6 +7475,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7245,6 +7504,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7273,6 +7533,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7301,6 +7562,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7329,6 +7591,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7357,6 +7620,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7385,6 +7649,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7413,6 +7678,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 2e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d2.3.jpg"),
             expected_luma_dqt:     [
         5, 6, 6, 10, 7, 10, 10, 10,
         10, 10, 13, 10, 11, 10, 13, 14,
@@ -7441,6 +7707,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7469,6 +7736,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7497,6 +7765,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7525,6 +7794,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7553,6 +7823,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7581,6 +7852,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7609,6 +7881,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7637,6 +7910,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7665,6 +7939,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7693,6 +7968,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7721,6 +7997,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7749,6 +8026,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7777,6 +8055,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7805,6 +8084,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7833,6 +8113,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7861,6 +8142,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7889,6 +8171,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7917,6 +8200,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7945,6 +8229,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -7973,6 +8258,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8001,6 +8287,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8029,6 +8316,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8057,6 +8345,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8085,6 +8374,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8113,6 +8403,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8141,6 +8432,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8169,6 +8461,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8197,6 +8490,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8225,6 +8519,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8253,6 +8548,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8281,6 +8577,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8309,6 +8606,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8337,6 +8635,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8365,6 +8664,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8393,6 +8693,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8421,6 +8722,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8449,6 +8751,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8477,6 +8780,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8505,6 +8809,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8533,6 +8838,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8561,6 +8867,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8589,6 +8896,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8617,6 +8925,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8645,6 +8954,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8673,6 +8983,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8701,6 +9012,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8729,6 +9041,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8757,6 +9070,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8785,6 +9099,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8813,6 +9128,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8841,6 +9157,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8869,6 +9186,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8897,6 +9215,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 3e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d3.2.jpg"),
             expected_luma_dqt:     [
         7, 7, 7, 13, 9, 13, 13, 13,
         13, 13, 19, 14, 15, 14, 19, 19,
@@ -8925,6 +9244,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -8953,6 +9273,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -8981,6 +9302,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9009,6 +9331,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9037,6 +9360,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9065,6 +9389,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9093,6 +9418,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9121,6 +9447,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9149,6 +9476,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9177,6 +9505,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9205,6 +9534,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9233,6 +9563,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9261,6 +9592,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9289,6 +9621,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9317,6 +9650,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9345,6 +9679,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9373,6 +9708,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9401,6 +9737,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9429,6 +9766,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9457,6 +9795,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9485,6 +9824,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9513,6 +9853,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9541,6 +9882,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9569,6 +9911,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9597,6 +9940,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9625,6 +9969,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9653,6 +9998,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9681,6 +10027,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9709,6 +10056,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9737,6 +10085,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9765,6 +10114,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9793,6 +10143,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9821,6 +10172,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9849,6 +10201,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9877,6 +10230,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9905,6 +10259,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9933,6 +10288,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9961,6 +10317,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -9989,6 +10346,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10017,6 +10375,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10045,6 +10404,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10073,6 +10433,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10101,6 +10462,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10129,6 +10491,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10157,6 +10520,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10185,6 +10549,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10213,6 +10578,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10241,6 +10607,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10269,6 +10636,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10297,6 +10665,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10325,6 +10694,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10353,6 +10723,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10381,6 +10752,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 4e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d4.3.jpg"),
             expected_luma_dqt:     [
         9, 8, 8, 15, 11, 15, 16, 15,
         15, 16, 25, 18, 19, 18, 25, 26,
@@ -10409,6 +10781,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10437,6 +10810,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10465,6 +10839,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10493,6 +10868,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10521,6 +10897,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10549,6 +10926,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10577,6 +10955,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10605,6 +10984,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10633,6 +11013,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10661,6 +11042,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10689,6 +11071,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10717,6 +11100,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10745,6 +11129,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10773,6 +11158,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10801,6 +11187,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10829,6 +11216,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10857,6 +11245,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10885,6 +11274,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10913,6 +11303,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10941,6 +11332,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10969,6 +11361,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -10997,6 +11390,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11025,6 +11419,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11053,6 +11448,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11081,6 +11477,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11109,6 +11506,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11137,6 +11535,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11165,6 +11564,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11193,6 +11593,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11221,6 +11622,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11249,6 +11651,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11277,6 +11680,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11305,6 +11709,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11333,6 +11738,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11361,6 +11767,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11389,6 +11796,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11417,6 +11825,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11445,6 +11854,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11473,6 +11883,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11501,6 +11912,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11529,6 +11941,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11557,6 +11970,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11585,6 +11999,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11613,6 +12028,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11641,6 +12057,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11669,6 +12086,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11697,6 +12115,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11725,6 +12144,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11753,6 +12173,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11781,6 +12202,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11809,6 +12231,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11837,6 +12260,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11865,6 +12289,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 7e+00,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d7.4.jpg"),
             expected_luma_dqt:     [
         16, 11, 11, 22, 16, 22, 24, 22,
         22, 24, 43, 28, 30, 28, 43, 45,
@@ -11893,6 +12318,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -11921,6 +12347,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -11949,6 +12376,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -11977,6 +12405,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12005,6 +12434,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12033,6 +12463,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12061,6 +12492,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12089,6 +12521,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12117,6 +12550,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12145,6 +12579,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12173,6 +12608,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12201,6 +12637,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12229,6 +12666,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12257,6 +12695,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12285,6 +12724,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12313,6 +12753,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12341,6 +12782,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12369,6 +12811,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12397,6 +12840,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12425,6 +12869,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12453,6 +12898,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12481,6 +12927,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12509,6 +12956,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12537,6 +12985,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12565,6 +13014,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12593,6 +13043,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12621,6 +13072,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12649,6 +13101,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12677,6 +13130,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12705,6 +13159,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12733,6 +13188,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12761,6 +13217,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12789,6 +13246,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12817,6 +13275,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12845,6 +13304,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12873,6 +13333,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12901,6 +13362,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12929,6 +13391,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12957,6 +13420,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -12985,6 +13449,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13013,6 +13478,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13041,6 +13507,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13069,6 +13536,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13097,6 +13565,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13125,6 +13594,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13153,6 +13623,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13181,6 +13652,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13209,6 +13681,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13237,6 +13710,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13265,6 +13739,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13293,6 +13768,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13321,6 +13797,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13349,6 +13826,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 1e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d13.jpg"),
             expected_luma_dqt:     [
         28, 19, 19, 33, 24, 33, 36, 33,
         33, 36, 76, 46, 47, 46, 76, 78,
@@ -13377,6 +13855,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/chessboard/colorful_chessboards.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-chessboard/colorful_chessboards_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13405,6 +13884,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-0.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-0_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13433,6 +13913,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13461,6 +13942,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-2.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-2_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13489,6 +13971,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/jxl/blending/cropped_traffic_light_frame-3.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/jxl-blending/cropped_traffic_light_frame-3_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13517,6 +14000,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_709_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_709_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13545,6 +14029,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/DJI-FC6310-16bit_srgb8_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13573,6 +14058,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_acescg_g1_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13601,6 +14087,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Google-Pixel2XL-16bit_srgb8_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13629,6 +14116,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_709_g1_dt_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13657,6 +14145,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/HUAWEI-EVA-L09-16bit_srgb8_dt_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13685,6 +14174,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_2020_g1_dt.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_2020_g1_dt_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13713,6 +14203,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Nikon-D300-12bit_srgb8_dt.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Nikon-D300-12bit_srgb8_dt_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13741,6 +14232,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_709_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13769,6 +14261,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/raw.pixls/Sony-DSC-RX1RM2-14bit_srgb8_v4_krita_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13797,6 +14290,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_2020_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13825,6 +14319,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/a2d1un_nkitzmiller_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/a2d1un_nkitzmiller_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13853,6 +14348,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_2020_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_2020_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13881,6 +14377,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/cvo9xd_keong_macan_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13909,6 +14406,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_2020_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_2020_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13937,6 +14435,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/l1qnb5_nkitzmiller_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/l1qnb5_nkitzmiller_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13965,6 +14464,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_2020_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_2020_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -13993,6 +14493,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/Nikon-D3-14bit_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/Nikon-D3-14bit_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14021,6 +14522,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_2020_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_2020_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14049,6 +14551,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/phu1or_alfann24_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/phu1or_alfann24_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14077,6 +14580,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14105,6 +14609,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/q3a0b3_d17ws_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/q3a0b3_d17ws_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14133,6 +14638,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14161,6 +14667,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/ra0ed45_alfann24_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/ra0ed45_alfann24_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14189,6 +14696,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14217,6 +14725,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/t0gho7_orlaustral_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/t0gho7_orlaustral_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14245,6 +14754,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14273,6 +14783,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/tmshre_riaphotographs_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14301,6 +14812,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14329,6 +14841,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/u76c0g_bliznaca_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14357,6 +14870,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_709_g1.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_709_g1_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14385,6 +14899,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/64px/vgqcws_vin_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-64px/vgqcws_vin_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14413,6 +14928,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_grayscale.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_grayscale_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14441,6 +14957,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/cvo9xd_keong_macan_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/cvo9xd_keong_macan_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14469,6 +14986,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_alpha.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_alpha_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14497,6 +15015,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/tmshre_riaphotographs_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/tmshre_riaphotographs_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14525,6 +15044,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wesaturate/500px/u76c0g_bliznaca_srgb8.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wesaturate-500px/u76c0g_bliznaca_srgb8_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14553,6 +15073,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-blue.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-blue_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14581,6 +15102,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-bars.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-bars_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14609,6 +15131,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-color-ring.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-color-ring_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14637,6 +15160,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-green.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-green_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14665,6 +15189,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/P3-sRGB-red.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/P3-sRGB-red_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14693,6 +15218,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-blue.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-blue_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14721,6 +15247,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-bars.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-bars_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14749,6 +15276,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-color-ring.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-color-ring_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14777,6 +15305,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-green.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-green_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14805,6 +15334,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/R2020-sRGB-red.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/R2020-sRGB-red_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14833,6 +15363,7 @@ pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
             input_format: "PNG",
             input_data: include_bytes!("../../reference_dct/testdata/external/wide-gamut-tests/rgb-to-gbr-test.png"),
             cjpegli_distance: 2e+01,
+            cjpegli_output_data: include_bytes!("../../reference_dct/cjpegli_results/wide-gamut-tests/rgb-to-gbr-test_d25.jpg"),
             expected_luma_dqt:     [
         54, 37, 37, 64, 46, 64, 61, 62,
         62, 61, 145, 82, 82, 82, 145, 151,
@@ -14868,6 +15399,8 @@ mod tests {
         for test_case in REFERENCE_QUANT_TEST_DATA {
             println!("Checking reference data for {} (source: {}, distance: {:.1})...",
                      test_case.input_filename, test_case.source_group, test_case.cjpegli_distance);
+            assert!(test_case.input_data.len() > 0, "Input data is empty for {}", test_case.input_filename);
+            assert!(test_case.cjpegli_output_data.len() > 0, "cjpegli output data is empty for {}", test_case.input_filename);
             assert_eq!(test_case.expected_luma_dqt.len(), 64);
             assert_eq!(test_case.expected_chroma_dqt.len(), 64);
             // Check a few values to ensure they're not all zero

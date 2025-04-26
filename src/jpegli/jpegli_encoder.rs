@@ -114,7 +114,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
     ///
     /// - `w`: The output writer.
     /// - `distance`: Target Butteraugli distance. Lower values mean higher quality.
-    ///   Must be positive. A distance of 1.0 is often a good starting point for high quality.
+    ///   Must be non-negative. A distance of 1.0 is often a good starting point for high quality.
     ///
     /// Defaults:
     /// - Adaptive quantization: enabled
@@ -122,7 +122,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
     /// - Color space: YCbCr (XYB can be enabled via `set_xyb_mode`)
     /// - Chroma subsampling: 4:2:0 (`F_2_2`) if distance >= 1.0, else 4:4:4 (`F_1_1`).
     pub fn new(w: W, distance: f32) -> Self {
-        assert!(distance > 0.0, "Jpegli distance must be positive.");
+        assert!(distance >= 0.0, "Jpegli distance must be non-negative.");
 
         // Initialize default Huffman tables (standard Annex K for now)
         let huffman_tables = [
@@ -325,6 +325,33 @@ impl<W: JfifWrite> JpegliEncoder<W> {
 
         // 3. Preprocess image (now pads)
         let planar_components = self.preprocess_image(image)?;
+
+        // --- DEBUG: Check if Y plane is flat ---
+        if !planar_components.is_empty() {
+            let y_plane = &planar_components[0];
+            let n = y_plane.len() as f32;
+            if n > 1.0 {
+                let mean = y_plane.iter().sum::<f32>() / n;
+                let variance = y_plane.iter().map(|v| (v - mean).powi(2)).sum::<f32>() / n;
+                let std_dev = variance.sqrt();
+
+                println!("DEBUG: Y plane mean = {:.2}, std_dev = {:.4}", mean, std_dev);
+
+                // Threshold for low variation (e.g., std dev < 5)
+                let low_variation_threshold = 5.0;
+                if std_dev < low_variation_threshold {
+                    println!(
+                        "WARNING: Y plane has very low variation (std_dev = {:.4}) after preprocessing.",
+                        std_dev
+                    );
+                }
+            }
+             // Check a few values
+             let num_to_print = y_plane.len().min(10);
+             println!("DEBUG: Y plane start: {:?}", &y_plane[..num_to_print]);
+        }
+        // --- END DEBUG ---
+
         let num_output_components = planar_components.len();
 
         // 4. Adaptive Quantization Field Calculation (if enabled)
@@ -421,26 +448,34 @@ impl<W: JfifWrite> JpegliEncoder<W> {
                             } else { // Chroma subsampling (e.g., 4:2:0)
                                 // Assumes h_samp_ratio = 2, v_samp_ratio = 2
                                 assert!(h_samp_ratio == 2 && v_samp_ratio == 2, "Only 2x2 chroma subsampling supported");
-                                let block_tl_y = block_y * 8;
-                                let block_tl_x = block_x * 8;
                                 for row in 0..8 {
                                     for col in 0..8 {
-                                        // Coords in the subsampled chroma plane
-                                        let y0 = block_tl_y + row;
-                                        let x0 = block_tl_x + col;
-                                        // Read the single pixel from the pre-padded chroma plane
-                                        let idx = y0 * padded_component_width + x0;
-                                        if idx < planar_comp.len() {
-                                            pixel_block_f32[row * 8 + col] = planar_comp[idx];
-                                        } else {
-                                            pixel_block_f32[row * 8 + col] = -128.0;
+                                        // Calculate top-left corresponding pixel in the *full-res* grid
+                                        // block_x, block_y are coordinates in the *chroma* grid
+                                        let src_tl_y = block_y * v_samp_ratio as usize * 8 + row * v_samp_ratio as usize;
+                                        let src_tl_x = block_x * h_samp_ratio as usize * 8 + col * h_samp_ratio as usize;
+
+                                        let mut sum = 0.0f32;
+                                        let mut count = 0usize;
+                                        // Average the corresponding 2x2 block from the *component's* full-res plane
+                                        let source_plane = &planar_components[comp_idx]; // Read from the current component's plane
+                                        let source_padded_width = padded_component_width; // Use this component's padded width
+
+                                        for y_off in 0..v_samp_ratio as usize {
+                                            let src_y = src_tl_y + y_off;
+                                            let row_start_idx = src_y * source_padded_width;
+                                            for x_off in 0..h_samp_ratio as usize {
+                                                let src_x = src_tl_x + x_off;
+                                                // Bounds check against the source plane
+                                                if row_start_idx + src_x < source_plane.len() {
+                                                    sum += source_plane[row_start_idx + src_x];
+                                                    count += 1;
+                                                }
+                                            }
                                         }
+                                        pixel_block_f32[row * 8 + col] = if count > 0 { sum / count as f32 } else { -128.0 }; // Use -128 if no source pixels
                                     }
                                 }
-                                // Note: This currently reads the *already subsampled* chroma plane directly.
-                                // A proper implementation might average from the full-res Y plane or
-                                // need a more sophisticated downsampling filter here.
-                                // Sticking with simple read for now to complete the pipeline.
                             }
 
                             // DCT
@@ -456,8 +491,20 @@ impl<W: JfifWrite> JpegliEncoder<W> {
                                 .and_then(|aqf| aqf.get(aq_map_block_idx).copied())
                                 .unwrap_or(1.0);
                             let q_block = self.quantize_jpegli_block(&dct_output_block, raw_q_table, aq_multiplier, comp_idx)?;
-                            
-                            // Store
+
+                            // --- DEBUG: Check quantized block ---
+                            if block_index_in_comp < 2 && comp_idx == 0 { // Check first 2 blocks of Luma
+                                println!("DEBUG: MCU ({},{}), Block ({},{}), Comp {}, q_block[0..8]: {:?}",
+                                    mcu_x, mcu_y, block_x, block_y, comp_idx, &q_block[0..8]);
+                                // Check if AC coefficients are mostly zero
+                                let ac_zeros = q_block[1..].iter().filter(|&&v| v == 0).count();
+                                if ac_zeros > 60 {
+                                     println!("  WARNING: High AC zero count ({}) in q_block!", ac_zeros);
+                                }
+                            }
+                            // --- END DEBUG ---
+
+                            // Store the quantized block
                             coefficients[comp_idx][block_index_in_comp] = q_block;
                         }
                     }
@@ -848,7 +895,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             luma_height as u16, // Pass height
             &y_channel_scaled,  // Pass scaled data
             self.distance,      // Pass target distance
-            y_quant_01,         // Pass reference quant value
+            y_quant_01 as f32,  // Pass reference quant value (CAST to f32)
         );
 
         Ok(aq_map)
@@ -938,14 +985,35 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         for i in 0..64 {
             let dct_coeff = dct_block[i];
             let q_step = raw_q_table[i] as f32;
-            
+
+            // --- DEBUG --- 
+            if i < 4 && component_index == 0 { // Only Luma, first few coeffs
+                println!("DEBUG Quant k={}: dct={}, q_step={}, aq_mult={}", 
+                    i, dct_coeff, q_step, aq_multiplier);
+            }
+            // --- END DEBUG ---
+
             // Ensure quantization step is positive
-            let q_step_adjusted = (q_step * aq_multiplier).max(1.0); 
+            let q_step_adjusted = (q_step * aq_multiplier).max(1.0);
             let inv_q_step_adjusted = 1.0 / q_step_adjusted;
 
             let inv_quant = dct_coeff * inv_q_step_adjusted;
-            
+
+            // --- DEBUG --- 
+            if i < 4 && component_index == 0 {
+                println!("  -> q_step_adj={}, inv_q_step_adj={}, inv_quant={}", 
+                    q_step_adjusted, inv_q_step_adjusted, inv_quant);
+                println!("  -> zb_mult={}, zb_off={}", zb_multipliers[i], zb_offsets[i]);
+            }
+            // --- END DEBUG ---
+
             let biased_val = inv_quant * zb_multipliers[i] - zb_offsets[i];
+
+            // --- DEBUG --- 
+            if i < 4 && component_index == 0 {
+                 println!("  -> biased_val={}, rounded={}", biased_val, biased_val.round());
+            }
+            // --- END DEBUG ---
 
             // Use f32::round() - rounds half to even.
             // Clamp to i16 range before casting.
@@ -1219,4 +1287,77 @@ mod tests {
     // - APP segment add/write
     // - Restart interval write
     // - Header writing correctness (DQT, DHT, SOF)
+
+    // --- End Helper Functions ---
+
+    #[test]
+    fn test_encode_lossless_distance_0() {
+        // Test near-lossless encoding (distance=0.01) and compare pixels
+        use crate::jpegli::reference_test_data::REFERENCE_QUANT_TEST_DATA;
+        use std::io::Cursor;
+
+        let test_case_name = "a2d1un_nkitzmiller_srgb8.png"; // Choose an RGB image
+        let distance = 0.01; // Use smallest valid positive distance
+
+        let test_data = REFERENCE_QUANT_TEST_DATA
+            .iter()
+            .find(|d| d.input_filename == test_case_name) // Find by name only
+            .expect(&format!("Reference data for {} not found", test_case_name));
+
+        let png_data = test_data.input_data;
+
+        // 1. Decode the PNG data from memory
+        let decoder = png::Decoder::new(Cursor::new(png_data));
+        let mut reader = decoder.read_info().expect("Failed to read PNG info from included data");
+        let mut original_pixel_buf = vec![0; reader.output_buffer_size()];
+        let info = reader.next_frame(&mut original_pixel_buf).expect("Failed to decode PNG frame from included data");
+        let original_pixels = &original_pixel_buf[..info.buffer_size()];
+        let width = info.width as u16;
+        let height = info.height as u16;
+        let color_type = match info.color_type {
+             png::ColorType::Rgb => ColorType::Rgb,
+             _ => panic!("Test image is not RGB as expected"),
+        };
+
+        // 2. Encode with JpegliEncoder at near-lossless distance
+        let mut encoded_data = Vec::new();
+        {
+            let mut encoder = JpegliEncoder::new(&mut encoded_data, distance);
+            encoder.set_sampling_factor(SamplingFactor::F_1_1); // Use 4:4:4 for lossless
+
+            match color_type {
+                 ColorType::Rgb => {
+                      let image_buffer = crate::image_buffer::RgbImage(original_pixels, width, height);
+                      encoder.encode_image(&image_buffer).expect("JpegliEncoder failed");
+                 },
+                 _ => panic!("Test only supports RGB input for now"),
+             }
+        }
+
+        // Optional: Save output for inspection
+        std::fs::write("test_output_rust_lossless.jpg", &encoded_data).unwrap();
+
+        // 3. Decode the generated JPEG
+        let (pixels_rust, info_rust) = decode_jpeg(&encoded_data)
+            .expect("Failed to decode Rust-generated JPEG");
+
+        // 4. Compare Decoded Pixels (expecting near-perfect match)
+        // Create an ImageInfo struct for the original PNG data for comparison
+        let info_orig = ImageInfo {
+             width: width as u16,
+             height: height as u16,
+             pixel_format: jpeg_decoder::PixelFormat::RGB24, // Assuming RGB input
+             coding_process: jpeg_decoder::CodingProcess::DctSequential, // Dummy value
+         };
+
+        let tolerance = 1; // Allow tolerance of 1 due to YCbCr conversion and float math
+        compare_pixel_data(
+            &format!("LosslessComparison (d={})", distance),
+            &pixels_rust,
+            &info_rust,
+            original_pixels, // Compare against original PNG pixels
+            &info_orig,
+            tolerance
+        );
+    }
 } 

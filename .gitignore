@@ -5,3 +5,7 @@ Cargo.lock
 # external/image/
 # external/image-png/
 # jpegli/
+reference_dct/*.jpg
+reference_dct/*.png
+testdata/*.png
+testdata/*.jpg

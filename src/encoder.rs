@@ -868,9 +868,9 @@ impl<W: JfifWrite> Encoder<W> {
                     prev_dc = 0;
                 }
 
+                let dc_diff = block[0].wrapping_sub(prev_dc);
                 self.writer.write_dc(
-                    block[0],
-                    prev_dc,
+                    dc_diff,
                     &self.huffman_tables[component.dc_huffman_table as usize].0,
                 )?;
 

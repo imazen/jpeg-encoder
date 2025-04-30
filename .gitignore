@@ -9,3 +9,4 @@ reference_dct/*.jpg
 reference_dct/*.png
 testdata/*.png
 testdata/*.jpg
+*.testdata

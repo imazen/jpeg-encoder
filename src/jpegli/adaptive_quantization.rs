@@ -314,6 +314,7 @@ fn update_min4(val: f32, mins: &mut [f32; 4]) {
 }
 
 /// Ported from FuzzyErosion (scalar version).
+/// NOTE: The final mapping to the output block might be an approximation of C++ SIMD logic.
 fn fuzzy_erosion_scalar(
     pre_erosion: &[f32],
     pre_erosion_w: usize,
@@ -394,6 +395,7 @@ fn compute_mask_scalar(out_val: f32) -> f32 {
 }
 
 /// Ported from HFModulation (scalar version)
+/// NOTE: This scalar version uses immediate neighbors only. C++ SIMD might operate on the full 8x8 block.
 fn hf_modulation_scalar(
     x: usize, y: usize,
     input_scaled: &[f32], width: usize, height: usize,
@@ -423,6 +425,7 @@ fn hf_modulation_scalar(
 }
 
 /// Ported from GammaModulation (scalar version)
+/// NOTE: This scalar version operates per-pixel. C++ SIMD might average over the 8x8 block.
 fn gamma_modulation_scalar(
     x: usize, y: usize,
     input_scaled: &[f32], width: usize, height: usize,

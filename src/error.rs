@@ -41,6 +41,10 @@ pub enum EncodingError {
 
     /// An invalid Huffman table was provided
     InvalidHuffmanTable(u8),
+
+    /// A required Huffman table was missing
+    #[cfg(feature = "jpegli")]
+    MissingHuffmanTable(crate::huffman::CodingClass, usize),
 }
 
 #[cfg(feature = "std")]
@@ -82,6 +86,8 @@ impl Display for EncodingError {
             #[cfg(feature = "jpegli")]
             JpegliError(msg) => write!(f, "Jpegli internal error: {}", msg),
             InvalidHuffmanTable(table) => write!(f, "Invalid Huffman table: {}", table),
+            #[cfg(feature = "jpegli")]
+            MissingHuffmanTable(class, index) => write!(f, "Missing required Huffman table: {:?} index {}", class, index),
         }
     }
 }

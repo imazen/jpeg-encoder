@@ -2,7 +2,7 @@ use crate::error::EncodingError;
 use crate::writer::{JfifWrite, JfifWriter};
 use crate::marker::{Marker, SOFType};
 use crate::Density;
-use crate::jpegli::quant::{self, compute_jpegli_quant_table, compute_zero_bias_tables, quality_to_distance};
+use crate::jpegli::quant::{self, quality_to_distance, JpegliQuantizerState, JpegliColorSpace, JpegliComponentParams, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams};
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::{self, ImageBuffer};
 use crate::{ColorType, JpegColorType, SamplingFactor};
@@ -12,6 +12,9 @@ use alloc::format;
 use crate::jpegli::fdct_jpegli::forward_dct_float;
 use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
 use crate::image_buffer::RgbImage; // Need RgbImage for buffer creation
+use super::quant_constants::*;
+use super::tf;
+use super::xyb;
 
 #[cfg(feature = "std")]
 use std::io::BufWriter;
@@ -19,13 +22,6 @@ use std::io::BufWriter;
 use std::fs::File;
 #[cfg(feature = "std")]
 use std::path::Path;
-
-// Jpegli specific imports (placeholders)
-// use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
-// use crate::jpegli::fdct_jpegli::forward_dct_float;
-// use crate::jpegli::color_transform;
-// use crate::jpegli::downsample; // Assuming a downsample module exists/will exist
-// use crate::jpegli::quant; // For Jpegli specific quantization logic
 
 /// Represents component information needed for Jpegli encoding.
 #[derive(Clone, Debug)]
@@ -86,10 +82,7 @@ pub struct JpegliEncoder<W: JfifWrite> {
     distance: f32, // Jpegli uses Butteraugli distance instead of quality
 
     components: Vec<JpegliComponentInfo>,
-    // Store raw quant tables and zero-bias info directly
-    pub(crate) raw_quant_tables: [Option<[u16; 64]>; 4],
-    zero_bias_offsets: Vec<[f32; 64]>,
-    zero_bias_multipliers: Vec<[f32; 64]>,
+    quant_state: Option<JpegliQuantizerState>, // Option<> because it's initialized later
     huffman_tables: [(Option<HuffmanTable>, Option<HuffmanTable>); 4], // DC/AC pairs
 
     sampling_factor: SamplingFactor, // Reusable? Check Jpegli compatibility
@@ -99,7 +92,7 @@ pub struct JpegliEncoder<W: JfifWrite> {
 
     // Jpegli specific options
     use_xyb: bool,
-    use_adaptive_quant: bool,
+    use_adaptive_quant: bool, // Jpegli default
     use_float_dct: bool, // Jpegli defaults to float DCT
     use_standard_tables: bool, // Option to use standard tables instead of distance-based
 
@@ -132,10 +125,8 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             (None, None), // Slot 3 (Unused by default)
         ];
 
-        // Quantization tables and zero-bias computed later in setup_jpegli_quantization
-        let raw_quant_tables = [None; 4];
-        let zero_bias_offsets = Vec::new(); // Placeholder, computed later
-        let zero_bias_multipliers = Vec::new(); // Placeholder, computed later
+        // Initialize quant_state as None
+        let quant_state = None;
 
         // Default sampling factor based on distance (common heuristic)
         let sampling_factor = if distance >= 1.0 {
@@ -149,9 +140,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             density: Density::None,
             distance,
             components: Vec::new(), // Initialized in encode_image
-            raw_quant_tables,
-            zero_bias_offsets,
-            zero_bias_multipliers,
+            quant_state, // Add the new field
             huffman_tables,
             sampling_factor,
             progressive_scans: None,
@@ -323,41 +312,23 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         // 2. Setup Jpegli quantization tables and zero-bias info
         self.setup_jpegli_quantization(jpeg_color_type)?;
 
-        // 3. Preprocess image (now pads)
-        let planar_components = self.preprocess_image(image)?;
+        // 3. Read and pad all image rows (full resolution, float [0, 255])
+        let full_res_padded_planes = self.read_and_pad_rows(image, width as usize, height as usize)?;
 
         // --- DEBUG: Check if Y plane is flat ---
-        if !planar_components.is_empty() {
-            let y_plane = &planar_components[0];
-            let n = y_plane.len() as f32;
-            if n > 1.0 {
-                let mean = y_plane.iter().sum::<f32>() / n;
-                let variance = y_plane.iter().map(|v| (v - mean).powi(2)).sum::<f32>() / n;
-                let std_dev = variance.sqrt();
-
-                println!("DEBUG: Y plane mean = {:.2}, std_dev = {:.4}", mean, std_dev);
-
-                // Threshold for low variation (e.g., std dev < 5)
-                let low_variation_threshold = 5.0;
-                if std_dev < low_variation_threshold {
-                    println!(
-                        "WARNING: Y plane has very low variation (std_dev = {:.4}) after preprocessing.",
-                        std_dev
-                    );
-                }
-            }
-             // Check a few values
-             let num_to_print = y_plane.len().min(10);
-             println!("DEBUG: Y plane start: {:?}", &y_plane[..num_to_print]);
-        }
+        // REMOVED - Operates on full res, not relevant here anymore
         // --- END DEBUG ---
 
-        let num_output_components = planar_components.len();
+        // 4. Downsample components and level shift [-128, 127]
+        let planar_data = self.downsample_components(&full_res_padded_planes, width as usize, height as usize)?;
 
-        // 4. Adaptive Quantization Field Calculation (if enabled)
+        let num_output_components = planar_data.len();
+
+        // 5. Adaptive Quantization Field Calculation (if enabled)
         if self.use_adaptive_quant {
-            if !planar_components.is_empty() {
-                let aq_map = self.compute_aq_map(&planar_components[0])?;
+            if !planar_data.is_empty() {
+                // Pass the downsampled, level-shifted Luma plane
+                let aq_map = self.compute_aq_map(&planar_data[0])?; 
                 self.adaptive_quant_field = Some(aq_map);
             } else {
                 return Err(EncodingError::JpegliError("Cannot compute AQ map with no components".into()));
@@ -382,7 +353,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         let num_mcu_cols = ceil_div(width as usize, mcu_width);
         let num_mcu_rows = ceil_div(height as usize, mcu_height);
 
-        // 5. Allocate coefficient storage
+        // 6. Allocate coefficient storage
         let mut coefficients: Vec<Vec<[i16; 64]>> = vec![Vec::with_capacity(num_mcu_cols * num_mcu_rows); num_output_components];
         for comp_idx in 0..num_output_components {
             let blocks_in_comp = self.components[comp_idx].width_in_blocks * self.components[comp_idx].height_in_blocks;
@@ -394,7 +365,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         // Allocate scratch space for DCT
         let mut dct_scratch_space = [0.0f32; 64];
 
-        // 6. Loop through MCUs
+        // 7. Loop through MCUs
         for mcu_y in 0..num_mcu_rows {
             for mcu_x in 0..num_mcu_cols {
                 let mcu_index = mcu_y * num_mcu_cols + mcu_x;
@@ -406,8 +377,11 @@ impl<W: JfifWrite> JpegliEncoder<W> {
                     let v_sampling = comp_info.vertical_sampling_factor as usize;
                     let comp_width_in_blocks = comp_info.width_in_blocks;
                     let comp_height_in_blocks = comp_info.height_in_blocks;
-                    let planar_comp = &planar_components[comp_idx];
-                    let padded_component_width = ceil_div(comp_info.width, 8) * 8;
+                    
+                    // *** Get data from the final processed plane (downsampled, level-shifted, padded) ***
+                    let planar_comp = &planar_data[comp_idx]; 
+                    // Padded width of this component's final plane
+                    let padded_width = ceil_div(comp_info.width, 8) * 8; 
 
                     for v_block in 0..v_sampling {
                         for h_block in 0..h_sampling {
@@ -422,75 +396,33 @@ impl<W: JfifWrite> JpegliEncoder<W> {
                             let mut dct_output_block = [0.0f32; 64];
                             let mut pixel_block_f32 = [0.0f32; 64];
 
-                            // Read pixel data for this 8x8 block
-                            let h_samp_ratio = max_h_sampling / comp_info.horizontal_sampling_factor;
-                            let v_samp_ratio = max_v_sampling / comp_info.vertical_sampling_factor;
-                            let needs_downsampling = h_samp_ratio > 1 || v_samp_ratio > 1;
-
-                            if !needs_downsampling { // Luma (usually) or 4:4:4 Chroma
-                                let block_tl_y = block_y * 8;
-                                let block_tl_x = block_x * 8;
-                                for row in 0..8 {
-                                    let src_y = block_tl_y + row;
-                                    // No need to check src_y against comp_info.height, preprocess handles padding
-                                    let row_start_idx = src_y * padded_component_width;
-                                    for col in 0..8 {
-                                        let src_x = block_tl_x + col;
-                                        // Bounds check against planar_comp length is sufficient due to padding
-                                        if row_start_idx + src_x < planar_comp.len() {
-                                             pixel_block_f32[row * 8 + col] = planar_comp[row_start_idx + src_x];
-                                        } else {
-                                            // This case should ideally not happen if padding worked
-                                            pixel_block_f32[row * 8 + col] = -128.0;
-                                        }
-                                    }
-                                }
-                            } else { // Chroma subsampling (e.g., 4:2:0)
-                                // Assumes h_samp_ratio = 2, v_samp_ratio = 2
-                                assert!(h_samp_ratio == 2 && v_samp_ratio == 2, "Only 2x2 chroma subsampling supported");
-                                for row in 0..8 {
-                                    for col in 0..8 {
-                                        // Calculate top-left corresponding pixel in the *full-res* grid
-                                        // block_x, block_y are coordinates in the *chroma* grid
-                                        let src_tl_y = block_y * v_samp_ratio as usize * 8 + row * v_samp_ratio as usize;
-                                        let src_tl_x = block_x * h_samp_ratio as usize * 8 + col * h_samp_ratio as usize;
-
-                                        let mut sum = 0.0f32;
-                                        let mut count = 0usize;
-                                        // Average the corresponding 2x2 block from the *component's* full-res plane
-                                        let source_plane = &planar_components[comp_idx]; // Read from the current component's plane
-                                        let source_padded_width = padded_component_width; // Use this component's padded width
-
-                                        for y_off in 0..v_samp_ratio as usize {
-                                            let src_y = src_tl_y + y_off;
-                                            let row_start_idx = src_y * source_padded_width;
-                                            for x_off in 0..h_samp_ratio as usize {
-                                                let src_x = src_tl_x + x_off;
-                                                // Bounds check against the source plane
-                                                if row_start_idx + src_x < source_plane.len() {
-                                                    sum += source_plane[row_start_idx + src_x];
-                                                    count += 1;
-                                                }
-                                            }
-                                        }
-                                        pixel_block_f32[row * 8 + col] = if count > 0 { sum / count as f32 } else { -128.0 }; // Use -128 if no source pixels
+                            // *** Read 8x8 block from the final planar_comp ***
+                            let block_tl_y = block_y * 8;
+                            let block_tl_x = block_x * 8;
+                            for row in 0..8 {
+                                let src_y = block_tl_y + row;
+                                let row_start_idx = src_y * padded_width;
+                                for col in 0..8 {
+                                    let src_x = block_tl_x + col;
+                                    // Bounds check implicitly handled by reading from correctly sized planar_comp
+                                    if row_start_idx + src_x < planar_comp.len() {
+                                         // Data is already level-shifted
+                                         pixel_block_f32[row * 8 + col] = planar_comp[row_start_idx + src_x];
+                                    } else {
+                                        pixel_block_f32[row * 8 + col] = 0.0; // Pad with 0 (level-shifted)
                                     }
                                 }
                             }
-
+                            
                             // DCT
                             forward_dct_float(&pixel_block_f32, &mut dct_output_block, &mut dct_scratch_space);
 
                             // Quantize
                             let q_table_idx = comp_info.quantization_table_index as usize;
-                            let raw_q_table = self.raw_quant_tables[q_table_idx]
-                                .as_ref()
-                                .ok_or_else(|| EncodingError::JpegliError(format!("Missing raw quantization table index {}", q_table_idx).into()))?;
-                            let aq_map_block_idx = block_index_in_comp; 
                             let aq_multiplier = self.adaptive_quant_field.as_ref()
-                                .and_then(|aqf| aqf.get(aq_map_block_idx).copied())
+                                .and_then(|aqf| aqf.get(block_index_in_comp).copied())
                                 .unwrap_or(1.0);
-                            let q_block = self.quantize_jpegli_block(&dct_output_block, raw_q_table, aq_multiplier, comp_idx)?;
+                            let q_block = self.quantize_jpegli_block(&dct_output_block, aq_multiplier, comp_idx)?;
 
                             // --- DEBUG: Check quantized block ---
                             if block_index_in_comp < 2 && comp_idx == 0 { // Check first 2 blocks of Luma
@@ -514,7 +446,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         }
 
         // --- Entropy Coding ---
-        // 7. Write SOS (Start of Scan) header(s) & Encode coefficients
+        // 8. Write SOS (Start of Scan) header(s) & Encode coefficients
         // Needs mutable self for writer
         self.entropy_encode(&coefficients, &mut dc_predictors)?;
 
@@ -609,29 +541,58 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         if num_components == 0 {
             return Err(EncodingError::JpegliError("Cannot setup quantization for 0 components".into()));
         }
-        // Assuming YUV420 status depends on sampling factor
-        let is_yuv420 = self.sampling_factor == SamplingFactor::F_2_2 || self.sampling_factor == SamplingFactor::R_4_2_0;
-        let force_baseline = true; // Assume baseline for now
 
-        // Always use Jpegli computation path now
-        let luma_q_raw = compute_jpegli_quant_table(
-            self.distance,
-            true, is_yuv420, force_baseline,
-            None
-        );
-        self.raw_quant_tables[0] = Some(luma_q_raw);
-        if num_components > 1 {
-            let chroma_q_raw = compute_jpegli_quant_table(
-                self.distance,
-                false, is_yuv420, force_baseline,
-                None
-            );
-            self.raw_quant_tables[1] = Some(chroma_q_raw);
+        // Create initial component params from JpegliComponentInfo
+        let initial_comp_params: Vec<JpegliComponentParams> = self.components.iter().map(|ci| {
+            JpegliComponentParams {
+                h_samp_factor: ci.horizontal_sampling_factor,
+                v_samp_factor: ci.vertical_sampling_factor,
+                quant_tbl_no: ci.quantization_table_index, 
+            }
+        }).collect();
+
+        // Map color type
+        let jpegli_color_space = if self.use_xyb {
+             JpegliColorSpace::RGB 
+        } else {
+            quant::jpeg_color_type_to_jpegli_space(color_type)
+        };
+
+        // TODO: Determine add_two_chroma_tables based on encoder settings/needs.
+        let add_two_chroma_tables = false; 
+        let force_baseline = false; // Jpegli typically doesn't force baseline
+        let cicp_transfer_function = 0; // TODO: Get real value if available
+
+        // Create and validate parameters first
+        let mut quant_params = JpegliQuantParams::try_new(
+             self.distance,
+             self.use_xyb,
+             self.use_standard_tables, 
+             num_components,
+             &initial_comp_params, // Pass initial params for validation
+             jpegli_color_space,
+             cicp_transfer_function, 
+             force_baseline, 
+             add_two_chroma_tables, 
+             self.use_adaptive_quant, 
+             self.sampling_factor, // Pass sampling factor
+        ).map_err(|e| EncodingError::JpegliError(e.into()))?;
+
+        // Create the new QuantizerState using the validated params
+        let quant_state = JpegliQuantizerState::new(
+            &mut quant_params, // Pass validated & potentially modified params
+            QuantPass::NoSearch // Assuming default pass for now
+        ).map_err(|e| EncodingError::JpegliError(e.into()))?;
+
+        // Store the created state
+        self.quant_state = Some(quant_state);
+
+        // Update self.components with potentially modified quant_tbl_no from params
+        for (idx, ci) in self.components.iter_mut().enumerate() {
+             if idx < quant_params.comp_params.len() {
+                 ci.quantization_table_index = quant_params.comp_params[idx].quant_tbl_no;
+             }
         }
-        // Compute zero-bias tables (only relevant for Jpegli path)
-        let (offsets, multipliers) = compute_zero_bias_tables(self.distance, num_components);
-        self.zero_bias_offsets = offsets;
-        self.zero_bias_multipliers = multipliers;
 
         Ok(())
     }
@@ -659,15 +620,24 @@ impl<W: JfifWrite> JpegliEncoder<W> {
     }
 
     fn write_dqt(&mut self) -> Result<(), EncodingError> {
-        // Write quantization tables from raw_quant_tables
-        for (i, q_table_opt) in self.raw_quant_tables.iter().enumerate() {
+        // Get tables from the quant_state
+        let quant_state = self.quant_state.as_ref()
+            .ok_or(EncodingError::JpegliError("Quantizer state not initialized".into()))?;
+
+        for (i, q_table_opt) in quant_state.raw_quant_tables.iter().enumerate() {
             if let Some(table_data) = q_table_opt {
                 if i > 3 { continue; } // Max 4 tables
-                let precision = 1; // Precision 1 for u16 values
-                let mut payload = Vec::with_capacity(1 + 64 * 2);
-                payload.push((precision << 4) | (i as u8)); // Pq | Tq
+                // Precision is 0 for 8-bit, 1 for 16-bit
+                let precision: u8 = if table_data.iter().all(|&v| v <= 255) { 0 } else { 1 }; 
+                let payload_capacity = 1 + DCTSIZE2 * (precision as usize + 1);
+                let mut payload = Vec::with_capacity(payload_capacity);
+                payload.push((precision << 4) | (i as u8)); // Pq (u8) | Tq (u8)
                 for &val in table_data.iter() {
-                    payload.extend_from_slice(&val.to_be_bytes()); // Add u16 as big-endian bytes
+                     if precision == 0 {
+                         payload.push(val as u8);
+                     } else {
+                         payload.extend_from_slice(&val.to_be_bytes()); // u16 big-endian
+                     }
                 }
                 self.writer.write_segment(Marker::DQT, &payload)?;
             }
@@ -752,105 +722,111 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         Ok(())
     }
 
-    /// padding them to be multiples of 8x8.
-    /// Handles level shifting to center data around 0 for DCT.
-    fn preprocess_image<I: ImageBuffer>(&self, image: &I) -> Result<Vec<Vec<f32>>, EncodingError> {
-        let width = image.width() as usize;
-        let height = image.height() as usize;
+    /// Reads image rows, converts to planar float [0, 255], and pads to 8x8 boundaries.\
+    /// Returns Vec<Vec<f32>>: One Vec per component, containing full-resolution, padded float data.\
+    fn read_and_pad_rows<I: ImageBuffer>(
+        &self,
+        image: &I,
+        full_width: usize,
+        full_height: usize,
+    ) -> Result<Vec<Vec<f32>>, EncodingError> {
         let jpeg_color_type = image.get_jpeg_color_type();
-        let num_output_components = jpeg_color_type.get_num_components();
+        let num_components = jpeg_color_type.get_num_components();
 
-        // Allocate final planar f32 buffers for output components with padding
-        let mut planar_data: Vec<Vec<f32>> = Vec::with_capacity(num_output_components);
-        let mut component_padded_widths = Vec::with_capacity(num_output_components);
-        let mut component_heights = Vec::with_capacity(num_output_components);
+        // Allocate final planar f32 buffers for FULL RESOLUTION components with padding
+        let mut planar_data: Vec<Vec<f32>> = Vec::with_capacity(num_components);
+        let mut component_padded_widths = Vec::with_capacity(num_components);
+        // let mut component_heights = Vec::with_capacity(num_components); // Store actual height
 
-        for i in 0..num_output_components {
-            if i >= self.components.len() {
-                return Err(EncodingError::JpegliError("Component info missing during preprocessing".into()));
-            }
-            let comp_info = &self.components[i];
-            let comp_width = comp_info.width;
-            let comp_height = comp_info.height;
-            let padded_width = ceil_div(comp_width, 8) * 8;
-            let padded_height = ceil_div(comp_height, 8) * 8;
-            planar_data.push(vec![-128.0f32; padded_width * padded_height]); // Pre-fill with -128
+        for i in 0..num_components {
+            // For reading/padding, use full image dimensions
+            let padded_width = ceil_div(full_width, 8) * 8;
+            let padded_height = ceil_div(full_height, 8) * 8;
+            planar_data.push(vec![0.0f32; padded_width * padded_height]); // Pre-fill with 0
             component_padded_widths.push(padded_width);
-            component_heights.push(comp_height);
+            // component_heights.push(full_height);
         }
 
-        // Temporary planar u8 buffers for one row, matching output components
-        // Assumes fill_buffers provides data in the correct color space (e.g., YCbCr)
+        // Temporary planar u8 buffers for one row
         let mut temp_planar_rows_u8: [Vec<u8>; 4] = Default::default();
-        for i in 0..num_output_components {
-            let comp_width = self.components[i].width;
-            // Allocate based on component width, fill_buffers should handle this
-            temp_planar_rows_u8[i].reserve_exact(comp_width);
+        for i in 0..num_components {
+            temp_planar_rows_u8[i].resize(full_width, 0);
         }
 
         // Process row by row up to original image height
-        for y in 0..height {
-            // Clear temp buffers
-            for buffer in temp_planar_rows_u8.iter_mut().take(num_output_components) {
-                 buffer.clear();
-            }
-
-            // Let ImageBuffer fill the planar u8 row buffers (Y, Cb, Cr or L)
+        for y in 0..full_height {
+            // Let ImageBuffer fill temporary planar u8 buffers (one row)
             image.fill_buffers(y as u16, &mut temp_planar_rows_u8);
 
-            // Copy data from temp u8 buffers to final padded f32 buffers, applying level shift
-            for comp_idx in 0..num_output_components {
-                let comp_height = component_heights[comp_idx];
-                if y >= comp_height { continue; } // Skip if y exceeds this component's actual height
-
-                let comp_width = self.components[comp_idx].width;
+            // Convert u8 to f32 [0, 255] and copy to output buffers
+            for comp_idx in 0..num_components {
                 let padded_width = component_padded_widths[comp_idx];
                 let buffer_offset = y * padded_width;
-                let row_data = &temp_planar_rows_u8[comp_idx];
+                let row_data_u8 = &temp_planar_rows_u8[comp_idx];
 
-                // Copy valid pixels for the row, applying level shift
-                let valid_pixels = row_data.len().min(comp_width);
+                // Copy valid pixels for the row
+                let valid_pixels = row_data_u8.len().min(full_width);
                 for x in 0..valid_pixels {
-                     let pixel_u8 = row_data[x];
-                     planar_data[comp_idx][buffer_offset + x] = pixel_u8 as f32 - 128.0;
+                    planar_data[comp_idx][buffer_offset + x] = row_data_u8[x] as f32;
                 }
 
                 // Pad columns by replicating the last valid pixel
                 if valid_pixels > 0 && valid_pixels < padded_width {
                     let last_valid_pixel_val = planar_data[comp_idx][buffer_offset + valid_pixels - 1];
                     for x in valid_pixels..padded_width {
-                         planar_data[comp_idx][buffer_offset + x] = last_valid_pixel_val;
+                        planar_data[comp_idx][buffer_offset + x] = last_valid_pixel_val;
                     }
                 } else if valid_pixels == 0 && padded_width > 0 { // Handle empty row data
-                     for x in 0..padded_width {
-                         planar_data[comp_idx][buffer_offset + x] = -128.0;
-                     }
+                    for x in 0..padded_width {
+                        planar_data[comp_idx][buffer_offset + x] = 0.0; // Pad with 0
+                    }
                 }
             }
         }
 
-        // Pad rows by replicating the last valid row
-        for comp_idx in 0..num_output_components {
-             let comp_height = component_heights[comp_idx];
+        // --- Vertical Padding --- 
+        for comp_idx in 0..num_components {
              let padded_width = component_padded_widths[comp_idx];
-             let padded_height = ceil_div(comp_height, 8) * 8;
+             let padded_height = ceil_div(full_height, 8) * 8;
 
-             if comp_height > 0 && comp_height < padded_height {
-                let last_valid_row_start_idx = (comp_height - 1) * padded_width;
+             if full_height > 0 && full_height < padded_height {
+                let last_valid_row_start_idx = (full_height - 1) * padded_width;
                 let last_valid_row_end_idx = last_valid_row_start_idx + padded_width;
-                let last_valid_row_slice = planar_data[comp_idx][last_valid_row_start_idx..last_valid_row_end_idx].to_vec();
-
-                for y_padded in comp_height..padded_height {
-                     let current_row_start_idx = y_padded * padded_width;
-                     let current_row_end_idx = current_row_start_idx + padded_width;
-                     planar_data[comp_idx][current_row_start_idx..current_row_end_idx].copy_from_slice(&last_valid_row_slice);
-                }
-             } else if comp_height == 0 && padded_height > 0 {
-                 let fill_val = -128.0;
+                // Check bounds before slicing
+                if last_valid_row_end_idx <= planar_data[comp_idx].len() {
+                     let last_valid_row_slice = planar_data[comp_idx][last_valid_row_start_idx..last_valid_row_end_idx].to_vec();
+                     for y_padded in full_height..padded_height {
+                         let current_row_start_idx = y_padded * padded_width;
+                         let current_row_end_idx = current_row_start_idx + padded_width;
+                         // Check bounds before copying
+                         if current_row_end_idx <= planar_data[comp_idx].len() {
+                            planar_data[comp_idx][current_row_start_idx..current_row_end_idx].copy_from_slice(&last_valid_row_slice);
+                         } else {
+                             eprintln!("Internal Error: Vertical padding destination bounds exceeded.");
+                         }
+                     }
+                 } else {
+                     eprintln!("Internal Error: Vertical padding source bounds exceeded.");
+                     // Fill remaining rows with default padding value as fallback
+                     let fill_val = 0.0;
+                     for y_padded in full_height..padded_height {
+                         let current_row_start_idx = y_padded * padded_width;
+                         for x in 0..padded_width {
+                             if current_row_start_idx + x < planar_data[comp_idx].len() {
+                                planar_data[comp_idx][current_row_start_idx + x] = fill_val;
+                             }
+                         }
+                     }
+                 }
+             } else if full_height == 0 && padded_height > 0 {
+                 // Fill all rows if image height was 0
+                 let fill_val = 0.0;
                  for y_padded in 0..padded_height {
                       let current_row_start_idx = y_padded * padded_width;
                       for x in 0..padded_width {
-                           planar_data[comp_idx][current_row_start_idx + x] = fill_val;
+                          if current_row_start_idx + x < planar_data[comp_idx].len() {
+                             planar_data[comp_idx][current_row_start_idx + x] = fill_val;
+                          }
                       }
                  }
              }
@@ -859,43 +835,195 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         Ok(planar_data)
     }
 
+    /// Downsamples padded full-resolution float component planes [0, 255] based on sampling factors.
+    /// Outputs padded, downsampled, level-shifted [-128, 127] component planes.
+    fn downsample_components(
+        &self,
+        full_res_padded_planes: &[Vec<f32>],
+        full_width: usize, // Original image width
+        full_height: usize, // Original image height
+    ) -> Result<Vec<Vec<f32>>, EncodingError> {
+        let num_components = self.components.len();
+        let mut downsampled_planes: Vec<Vec<f32>> = Vec::with_capacity(num_components);
+
+        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_factors();
+
+        for comp_idx in 0..num_components {
+            let comp_info = &self.components[comp_idx];
+            let src_plane = &full_res_padded_planes[comp_idx];
+
+            let ds_width = comp_info.width;
+            let ds_height = comp_info.height;
+            let ds_padded_width = ceil_div(ds_width, 8) * 8;
+            let ds_padded_height = ceil_div(ds_height, 8) * 8;
+            
+            // Use full-res padded width for reading source
+            let src_padded_width = ceil_div(full_width, 8) * 8;
+
+            let mut dest_plane = vec![0.0f32; ds_padded_width * ds_padded_height]; // Pre-fill with 0.0 (level-shifted padding)
+
+            let h_ratio = max_h_sampling / comp_info.horizontal_sampling_factor;
+            let v_ratio = max_v_sampling / comp_info.vertical_sampling_factor;
+
+            if h_ratio == 1 && v_ratio == 1 {
+                // No downsampling, just copy and level shift
+                for y_ds in 0..ds_height {
+                    for x_ds in 0..ds_width {
+                        let src_idx = y_ds * src_padded_width + x_ds;
+                        dest_plane[y_ds * ds_padded_width + x_ds] = src_plane[src_idx] - 128.0;
+                    }
+                }
+            } else {
+                // Perform averaging
+                for y_ds in 0..ds_height {
+                    for x_ds in 0..ds_width {
+                        // Calculate source block top-left corner
+                        let src_y_start = y_ds * v_ratio as usize;
+                        let src_x_start = x_ds * h_ratio as usize;
+
+                        let mut sum = 0.0f32;
+                        let mut count = 0u32;
+
+                        // Average the source block - read from padded full-res plane
+                        for y_off in 0..v_ratio as usize {
+                            let src_y = src_y_start + y_off;
+                            // Check if src_y is within original image bounds (before padding)
+                            if src_y >= full_height { continue; }
+                            let src_row_idx = src_y * src_padded_width;
+                            for x_off in 0..h_ratio as usize {
+                                let src_x = src_x_start + x_off;
+                                // Check if src_x is within original image bounds (before padding)
+                                if src_x >= full_width { continue; }
+                                // Read from padded source plane
+                                if src_row_idx + src_x < src_plane.len() { // Basic bounds check on flat vec
+                                    sum += src_plane[src_row_idx + src_x];
+                                    count += 1;
+                                }
+                            }
+                        }
+
+                        let avg = if count > 0 { sum / count as f32 } else { 0.0 }; // Default to 0 if no source pixels?
+                        dest_plane[y_ds * ds_padded_width + x_ds] = avg - 128.0; // Level shift
+                    }
+                }
+            }
+
+            // --- Vertical and Horizontal Padding for the downsampled plane --- 
+            // Pad columns first
+            for y_ds in 0..ds_height {
+                 if ds_width > 0 && ds_width < ds_padded_width {
+                    let last_valid_pixel_val = dest_plane[y_ds * ds_padded_width + ds_width - 1];
+                    for x_ds in ds_width..ds_padded_width {
+                        dest_plane[y_ds * ds_padded_width + x_ds] = last_valid_pixel_val;
+                    }
+                 } else if ds_width == 0 && ds_padded_width > 0 {
+                    for x_ds in 0..ds_padded_width {
+                         dest_plane[y_ds * ds_padded_width + x_ds] = 0.0; // Level-shifted padding
+                    }
+                 }
+            }
+            // Pad rows
+            if ds_height > 0 && ds_height < ds_padded_height {
+                let last_valid_row_start_idx = (ds_height - 1) * ds_padded_width;
+                let last_valid_row_end_idx = last_valid_row_start_idx + ds_padded_width;
+                if last_valid_row_end_idx <= dest_plane.len() {
+                    let last_valid_row_slice = dest_plane[last_valid_row_start_idx..last_valid_row_end_idx].to_vec();
+                    for y_padded in ds_height..ds_padded_height {
+                        let current_row_start_idx = y_padded * ds_padded_width;
+                        let current_row_end_idx = current_row_start_idx + ds_padded_width;
+                        if current_row_end_idx <= dest_plane.len() {
+                            dest_plane[current_row_start_idx..current_row_end_idx].copy_from_slice(&last_valid_row_slice);
+                        } else { 
+                            eprintln!("Internal Error: Vertical padding destination bounds exceeded (downsample).");
+                        }
+                    }
+                } else { 
+                    eprintln!("Internal Error: Vertical padding source bounds exceeded (downsample).");
+                     // Fill remaining rows with default padding value as fallback
+                     let fill_val = 0.0; // Level shifted padding
+                     for y_padded in ds_height..ds_padded_height {
+                         let current_row_start_idx = y_padded * ds_padded_width;
+                         for x in 0..ds_padded_width {
+                             if current_row_start_idx + x < dest_plane.len() {
+                                dest_plane[current_row_start_idx + x] = fill_val;
+                             }
+                         }
+                     }
+                }
+            } else if ds_height == 0 && ds_padded_height > 0 {
+                 for i in 0..dest_plane.len() { dest_plane[i] = 0.0; } // Level-shifted padding
+            }
+
+            downsampled_planes.push(dest_plane);
+        }
+
+        Ok(downsampled_planes)
+    }
+
     /// Computes the adaptive quantization map.
-    fn compute_aq_map(&self, luma_plane: &[f32]) -> Result<Vec<f32>, EncodingError> {
+    fn compute_aq_map(&self, downsampled_luma_plane: &[f32]) -> Result<Vec<f32>, EncodingError> {
         if self.components.is_empty() {
             return Err(EncodingError::JpegliError("Cannot compute AQ map without component info".into()));
         }
-        // Assuming Luma is component 0
-        let luma_width = self.components[0].width;
-        let luma_height = self.components[0].height;
+        let luma_info = &self.components[0];
+        let ds_width = luma_info.width;
+        let ds_height = luma_info.height;
+        let padded_ds_width = ceil_div(ds_width, 8) * 8;
+        let padded_ds_height = ceil_div(ds_height, 8) * 8;
 
-        if luma_plane.len() != luma_width * luma_height {
-             return Err(EncodingError::JpegliError("Luma plane size mismatch for AQ map computation".into()));
+        if downsampled_luma_plane.len() != padded_ds_width * padded_ds_height {
+             #[cfg(feature = "std")]
+             eprintln!("AQ map input size mismatch: Expected {}x{}={}, Got {}", 
+                       padded_ds_width, padded_ds_height, padded_ds_width * padded_ds_height, downsampled_luma_plane.len());
+             return Err(EncodingError::JpegliError("Downsampled Luma plane size mismatch for AQ map".into()));
         }
 
-        // Scale the input luma plane from [-128, 127] to [0, 1]
-        let y_channel_scaled: Vec<f32> = luma_plane.iter()
-            .map(|&p| (p + 128.0) / 255.0)
-            .collect();
+        // Scale input luma plane
+        let mut y_channel_scaled = vec![0.0f32; ds_width * ds_height];
+        for y in 0..ds_height {
+            for x in 0..ds_width {
+                let padded_idx = y * padded_ds_width + x;
+                let original_idx = y * ds_width + x;
+                let level_shifted_val = downsampled_luma_plane[padded_idx];
+                y_channel_scaled[original_idx] = (level_shifted_val + 128.0) / 255.0;
+            }
+        }
 
         // Compute the reference Y quant value for AC coeff (0, 1) at distance 1.0
-        // Use Jpegli tables for the reference distance=1.0 calculation.
-        let is_yuv420 = self.sampling_factor == SamplingFactor::F_2_2 || self.sampling_factor == SamplingFactor::R_4_2_0;
-        let force_baseline = true; // Match assumptions in setup_jpegli_quantization
-        let ref_luma_table = compute_jpegli_quant_table(
-            1.0, // Fixed distance 1.0 for reference
-            true, is_yuv420, force_baseline,
-            None // cicp_transfer_function
-        );
+        let ref_comp_params = vec![JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 0 }];
+        let ref_color_space = JpegliColorSpace::GRAYSCALE; // Use GRAYSCALE for Luma ref table
+        
+        // Create and validate parameters for the reference calculation
+        let mut ref_quant_params = JpegliQuantParams::try_new(
+            1.0,    // distance
+            false,  // xyb_mode
+            false,  // use_std_tables
+            1,      // num_components (Luma only)
+            &ref_comp_params, 
+            ref_color_space,
+            0,      // cicp
+            false,  // force_baseline
+            false,  // add_two_chroma
+            true,   // use_adaptive_quant (doesn't affect set_quant_matrices)
+            SamplingFactor::F_1_1, // Sampling factor for Luma ref table
+        ).map_err(|e| EncodingError::JpegliError(format!("Failed to create ref quant params: {}", e).into()))?;
+        
+        // Compute only the raw tables needed using the validated params
+        let ref_tables = quant::set_quant_matrices(&mut ref_quant_params) // Pass mutable params struct
+            .map_err(|e| EncodingError::JpegliError(e.into()))?;
+
+        let ref_luma_table = ref_tables[0].ok_or_else(|| EncodingError::JpegliError("Failed to compute reference Luma table for AQ".into()))?;
+        
         // AC coefficient (0, 1) corresponds to zigzag index 1
         let y_quant_01 = ref_luma_table[1] as i32;
 
-        // Call the actual AQ function
+        // Call the actual AQ function (unchanged)
         let aq_map = compute_adaptive_quant_field(
-            luma_width as u16, // Pass width
-            luma_height as u16, // Pass height
-            &y_channel_scaled,  // Pass scaled data
-            self.distance,      // Pass target distance
-            y_quant_01 as f32,  // Pass reference quant value (CAST to f32)
+            ds_width as u16, 
+            ds_height as u16, 
+            &y_channel_scaled,  
+            self.distance,      
+            y_quant_01 as f32,  
         );
 
         Ok(aq_map)
@@ -914,113 +1042,154 @@ impl<W: JfifWrite> JpegliEncoder<W> {
 
     /// Writes SOS header(s) and encodes coefficients.
     fn entropy_encode(&mut self, coefficients: &[Vec<[i16; 64]>], dc_predictors: &mut [i16]) -> Result<(), EncodingError> {
-        // TODO: Handle baseline vs progressive (spectral selection, successive approx)
-        // For baseline (simplest case):
-        let num_components = self.components.len() as u8;
+        // Baseline encoding logic (no progressive scans)
+        let num_components_in_scan = self.components.len() as u8;
         let start_spectral_selection = 0;
         let end_spectral_selection = 63;
         let successive_approx_high = 0;
         let successive_approx_low = 0;
 
-        let header = SOSHeader {
-            num_components,
-            start_spectral_selection,
-            end_spectral_selection,
-            successive_approx_high,
-            successive_approx_low,
-        };
-
-        let mut component_specs = Vec::with_capacity(num_components as usize);
+        // 1. Write SOS header
+        let mut sos_payload = Vec::with_capacity(6 + num_components_in_scan as usize * 2);
+        sos_payload.push(num_components_in_scan);
         for comp_info in &self.components {
-            component_specs.push(SOSComponentSpec {
-                id: comp_info.id,
-                dc_huffman_table_id: comp_info.dc_huffman_table_index,
-                ac_huffman_table_id: comp_info.ac_huffman_table_index,
-            });
-        }
-
-        // Construct SOS payload
-        let mut sos_payload = Vec::with_capacity(6 + num_components as usize * 2);
-        sos_payload.push(header.num_components);
-        for spec in component_specs {
-            sos_payload.push(spec.id);
-            let table_ids = (spec.dc_huffman_table_id << 4) | spec.ac_huffman_table_id;
+            sos_payload.push(comp_info.id);
+            let table_ids = (comp_info.dc_huffman_table_index << 4) | comp_info.ac_huffman_table_index;
             sos_payload.push(table_ids);
         }
-        sos_payload.push(header.start_spectral_selection);
-        sos_payload.push(header.end_spectral_selection);
-        let successive_approx = (header.successive_approx_high << 4) | header.successive_approx_low;
+        sos_payload.push(start_spectral_selection);
+        sos_payload.push(end_spectral_selection);
+        let successive_approx = (successive_approx_high << 4) | successive_approx_low;
         sos_payload.push(successive_approx);
-
-        // 1. Write SOS header
         self.writer.write_segment(Marker::SOS, &sos_payload)?;
 
-        // 2. Loop through MCUs and write blocks
-        // ... (Rest of the MCU loop from previous implementation remains the same)
-        // ... (writing blocks using self.writer.write_block, handling restarts etc.)
+        // 2. Encode coefficient data MCU by MCU
+        let (max_h_sampling, max_v_sampling) = self.get_max_sampling_factors();
+        let width_in_mcus = ceil_div(self.components[0].width, max_h_sampling as usize * 8);
+        let height_in_mcus = ceil_div(self.components[0].height, max_v_sampling as usize * 8);
+        let mut mcus_processed_in_restart_interval = 0u16;
+        let mut restart_marker_idx = 0u8;
+
+        for mcu_y in 0..height_in_mcus {
+            for mcu_x in 0..width_in_mcus {
+                // Handle Restart Markers
+                if let Some(interval) = self.restart_interval {
+                    if mcus_processed_in_restart_interval > 0 && mcus_processed_in_restart_interval % interval == 0 {
+                        self.writer.emit_restart_marker(restart_marker_idx)?;
+                        restart_marker_idx = (restart_marker_idx + 1) % 8; // Cycle RST0 to RST7
+                        // Reset DC predictors
+                        for predictor in dc_predictors.iter_mut() {
+                            *predictor = 0;
+                        }
+                    }
+                    mcus_processed_in_restart_interval += 1;
+                }
+
+                // Loop through components in interleaved order
+                for comp_idx in 0..self.components.len() {
+                    let comp_info = &self.components[comp_idx];
+                    let h_sampling = comp_info.horizontal_sampling_factor as usize;
+                    let v_sampling = comp_info.vertical_sampling_factor as usize;
+                    let comp_width_in_blocks = comp_info.width_in_blocks;
+
+                    // Get DC/AC Huffman tables for this component
+                    let dc_table_idx = comp_info.dc_huffman_table_index as usize;
+                    let ac_table_idx = comp_info.ac_huffman_table_index as usize;
+                    let dc_table = self.huffman_tables[dc_table_idx].0.as_ref().ok_or_else(|| EncodingError::MissingHuffmanTable(CodingClass::Dc, dc_table_idx))?;
+                    let ac_table = self.huffman_tables[ac_table_idx].1.as_ref().ok_or_else(|| EncodingError::MissingHuffmanTable(CodingClass::Ac, ac_table_idx))?;
+
+                    // Loop through blocks within this component for the current MCU
+                    for v_block in 0..v_sampling {
+                        for h_block in 0..h_sampling {
+                            let block_x = mcu_x * h_sampling + h_block;
+                            let block_y = mcu_y * v_sampling + v_block;
+
+                            // Check if this block is within the component's actual dimensions
+                            if block_x < comp_info.width_in_blocks && block_y < comp_info.height_in_blocks {
+                                let block_index_in_comp = block_y * comp_width_in_blocks + block_x;
+                                let block_coeffs = &coefficients[comp_idx][block_index_in_comp];
+
+                                // DC Coefficient Encoding
+                                let dc_diff = block_coeffs[0].wrapping_sub(dc_predictors[comp_idx]); // Use wrapping_sub
+                                dc_predictors[comp_idx] = block_coeffs[0]; // Update predictor
+                                self.writer.write_dc(dc_diff, dc_table)?;
+
+                                // AC Coefficient Encoding
+                                self.writer.write_ac_block(block_coeffs, 1, 64, ac_table)?;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         self.writer.finalize_bit_buffer()?;
-        // Entropy encoding finished for baseline scan
         Ok(())
     }
 
     /// Quantizes an f32 DCT block using Jpegli logic.
     fn quantize_jpegli_block(
         &self,
-        dct_block: &[f32; 64],
-        raw_q_table: &[u16; 64],
+        dct_block: &[f32; DCTSIZE2],
         aq_multiplier: f32,
-        component_index: usize,
-    ) -> Result<[i16; 64], EncodingError> {
-        if self.zero_bias_offsets.len() <= component_index || self.zero_bias_multipliers.len() <= component_index {
-            return Err(EncodingError::JpegliError(
-                format!("Zero-bias tables not computed correctly for component index {}", component_index).into()
-            ));
+        component_index: usize, 
+    ) -> Result<[i16; DCTSIZE2], EncodingError> {
+
+        // Get quantizer state
+        let quant_state = self.quant_state.as_ref()
+            .ok_or(EncodingError::JpegliError("Quantizer state not initialized for quantize_block".into()))?;
+
+        if component_index >= MAX_COMPONENTS {
+             return Err(EncodingError::JpegliError("Invalid component index for quantization".into()));
         }
-        let zb_offsets = &self.zero_bias_offsets[component_index];
-        let zb_multipliers = &self.zero_bias_multipliers[component_index];
 
-        let mut q_block = [0i16; 64];
+        // Get tables for this component from the state
+        let q_table_idx = self.components[component_index].quantization_table_index as usize;
+        let raw_q_table = quant_state.raw_quant_tables[q_table_idx]
+            .as_ref()
+            .ok_or_else(|| EncodingError::JpegliError(format!("Missing raw quantization table index {} in state", q_table_idx).into()))?;
+        let zb_offsets = &quant_state.zero_bias_offsets[component_index];
+        let zb_multipliers = &quant_state.zero_bias_multipliers[component_index];
 
-        for i in 0..64 {
+        let mut q_block = [0i16; DCTSIZE2];
+
+        // Precompute quantization multipliers (incorporating AQ)
+        let mut quant_mul = [0.0f32; DCTSIZE2];
+        for i in 0..DCTSIZE2 {
+            let quant_val = raw_q_table[i] as f32;
+            let q_step_adjusted = (quant_val * aq_multiplier).max(1.0);
+            quant_mul[i] = 8.0 / q_step_adjusted;
+        }
+
+        for i in 0..DCTSIZE2 {
             let dct_coeff = dct_block[i];
-            let q_step = raw_q_table[i] as f32;
-
-            // --- DEBUG --- 
-            if i < 4 && component_index == 0 { // Only Luma, first few coeffs
-                println!("DEBUG Quant k={}: dct={}, q_step={}, aq_mult={}", 
-                    i, dct_coeff, q_step, aq_multiplier);
-            }
-            // --- END DEBUG ---
-
-            // Ensure quantization step is positive
-            let q_step_adjusted = (q_step * aq_multiplier).max(1.0);
-            let inv_q_step_adjusted = 1.0 / q_step_adjusted;
-
-            let inv_quant = dct_coeff * inv_q_step_adjusted;
-
-            // --- DEBUG --- 
-            if i < 4 && component_index == 0 {
-                println!("  -> q_step_adj={}, inv_q_step_adj={}, inv_quant={}", 
-                    q_step_adjusted, inv_q_step_adjusted, inv_quant);
-                println!("  -> zb_mult={}, zb_off={}", zb_multipliers[i], zb_offsets[i]);
-            }
-            // --- END DEBUG ---
-
-            let biased_val = inv_quant * zb_multipliers[i] - zb_offsets[i];
-
-            // --- DEBUG --- 
-            if i < 4 && component_index == 0 {
-                 println!("  -> biased_val={}, rounded={}", biased_val, biased_val.round());
-            }
-            // --- END DEBUG ---
-
-            // Use f32::round() - rounds half to even.
-            // Clamp to i16 range before casting.
-            let rounded_val = biased_val.round(); 
-            q_block[i] = rounded_val.clamp(i16::MIN as f32, i16::MAX as f32) as i16;
+            let qval = dct_coeff * quant_mul[i];
+            let threshold = zb_offsets[i] + zb_multipliers[i] * aq_multiplier;
+            let non_zero = qval.abs() >= threshold;
+            let ival = if non_zero { qval.round() } else { 0.0 };
+            q_block[i] = ival.clamp(i16::MIN as f32, i16::MAX as f32) as i16;
         }
         Ok(q_block)
+    }
+
+    // Getter for component info (needed for tests)
+    pub fn components(&self) -> &Vec<JpegliComponentInfo> {
+        &self.components
+    }
+
+    // Getter for use_xyb (needed for tests)
+    pub fn use_xyb(&self) -> bool {
+        self.use_xyb
+    }
+
+    // Getter for use_standard_tables (needed for tests)
+    pub fn use_standard_tables(&self) -> bool {
+        self.use_standard_tables
+    }
+
+    // Getter for use_adaptive_quant (needed for tests)
+    pub fn use_adaptive_quantization(&self) -> bool {
+        self.use_adaptive_quant
     }
 }
 

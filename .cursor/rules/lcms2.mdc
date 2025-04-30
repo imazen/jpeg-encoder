@@ -3,4 +3,4 @@ description:
 globs: *.rs
 alwaysApply: false
 ---
-If you are working with color management, reference [lcms2_apis.txt](mdc:external/lcms2_apis.txt) for lcms. 
+If you are working with color management, reference [lcms2_apis.txt](mdc:external/lcms2_apis.txt) for lcms, and [moxcms_apis.txt](mdc:external/moxcms_apis.txt) for rust alternatives (these might have more relevant functions for jpegli/jxl).

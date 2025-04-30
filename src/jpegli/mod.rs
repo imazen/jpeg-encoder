@@ -1,6 +1,8 @@
 use alloc::vec::Vec;
 
 pub(crate) mod adaptive_quantization;
+
+pub(crate) mod quant_constants;
 pub mod cms;
 pub mod color_transform;
 pub mod fdct_jpegli;
@@ -40,11 +42,38 @@ impl JpegliConfig {
         let force_baseline = false; // Assuming standard jpegli behavior
         let is_yuv420 = sampling_factor == crate::SamplingFactor::F_2_2 || sampling_factor == crate::SamplingFactor::R_4_2_0;
 
-        // Always use Jpegli computation path
-        let luma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, true, is_yuv420, force_baseline, None);
-        let chroma_table_raw = crate::jpegli::quant::compute_jpegli_quant_table(distance, false, is_yuv420, force_baseline, None);
+        // Determine quant_max based on force_baseline
+        let quant_max = if force_baseline { 255 } else { 32767 };
 
-        let (zero_bias_offsets, zero_bias_multipliers) = crate::jpegli::quant::compute_zero_bias_tables(distance, num_components);
+        // Always use Jpegli computation path
+        // Note: Using constants directly from `quant` module for locality - NOW FROM quant_constants
+        let luma_table_raw = crate::jpegli::quant::compute_quant_table_values(
+            distance,
+            crate::jpegli::quant_constants::GLOBAL_SCALE_YCBCR, // Use quant_constants
+            // Slice the first 64 elements (Luma) from the YCbCr base matrix
+            crate::jpegli::quant_constants::BASE_QUANT_MATRIX_YCBCR[0..64]
+                .try_into()
+                .expect("Slice with incorrect length for Luma quant table"),
+            true, // non_linear_scaling = true for Jpegli
+            false, // is_chroma_420 = false for Luma
+            quant_max,
+        );
+        let chroma_table_raw = crate::jpegli::quant::compute_quant_table_values(
+            distance,
+            crate::jpegli::quant_constants::GLOBAL_SCALE_YCBCR, // Use quant_constants
+            // Slice the next 64 elements (Cb) from the YCbCr base matrix
+            crate::jpegli::quant_constants::BASE_QUANT_MATRIX_YCBCR[64..128]
+                .try_into()
+                .expect("Slice with incorrect length for Chroma quant table"),
+            true, // non_linear_scaling = true for Jpegli
+            is_yuv420, // is_chroma_420 depends on sampling factor
+            quant_max,
+        );
+
+        // Removed call to compute_zero_bias_tables - logic needs integration elsewhere
+        // Zero bias tables will be initialized later, likely within the encoder state
+        let zero_bias_offsets: Vec<[f32; 64]> = Vec::with_capacity(num_components);
+        let zero_bias_multipliers: Vec<[f32; 64]> = Vec::with_capacity(num_components);
 
         Self {
             distance,

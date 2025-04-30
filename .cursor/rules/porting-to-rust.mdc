@@ -3,6 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
-Always read [porting.md](mdc:src/jpegli/porting.md) to keep the key rules in mind. We only change files inside src/jpegli/, we keep going until things work. We run tests and filter them, we make things correct above all, we try to reuse code when possible, and we avoid technical debt.
+Always read [porting.md](mdc:src/jpegli/porting.md) to keep the key rules in mind, and @cjpegli.md to understand the original jpegli design and happy paths. We only change files inside src/jpegli/, we keep going until things work. We run tests and filter them, we make things correct above all, we try to reuse code when possible, and we avoid technical debt.
 
 We look in /jpegli/src/jpegli/ for the authoritative cpp implementation, and remember we can use ripgrep (rg "pq|transfer" --type cpp) for example to search.

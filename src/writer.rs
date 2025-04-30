@@ -297,18 +297,17 @@ impl<W: JfifWrite> JfifWriter<W> {
         dc_table: &HuffmanTable,
         ac_table: &HuffmanTable,
     ) -> Result<(), EncodingError> {
-        self.write_dc(block[0], prev_dc, dc_table)?;
+        let dc_diff = block[0].wrapping_sub(prev_dc);
+        self.write_dc(dc_diff, dc_table)?;
         self.write_ac_block(block, 1, 64, ac_table)
     }
 
     pub fn write_dc(
         &mut self,
-        value: i16,
-        prev_dc: i16,
+        dc_diff: i16,
         dc_table: &HuffmanTable,
     ) -> Result<(), EncodingError> {
-        let diff = value - prev_dc;
-        let (size, value) = get_code(diff);
+        let (size, value) = get_code(dc_diff);
 
         self.huffman_encode_value(size, size, value, dc_table)?;
 
@@ -410,6 +409,27 @@ impl<W: JfifWrite> JfifWriter<W> {
         // Successive approximation bit position high and low
         self.write_u8(0)?;
 
+        Ok(())
+    }
+
+    /// Emits a restart marker (RSTm).
+    pub fn emit_restart_marker(&mut self, marker_num: u8) -> Result<(), EncodingError> {
+        assert!(marker_num <= 7, "Invalid restart marker number");
+        // Finalize current byte if needed
+        if self.free_bits != (BUFFER_SIZE as i8) {
+            // Pad remaining bits with 1s to byte-align
+            let pad_bits = self.free_bits;
+            self.write_bits((1 << pad_bits) - 1, pad_bits as u8)?;
+        }
+        // Flush any fully formed bytes (should be byte aligned now)
+        self.flush_bit_buffer()?;
+
+        // Write the marker
+        self.write_marker(Marker::RST(marker_num))?;
+
+        // Reset bit buffer state
+        self.bit_buffer = 0;
+        self.free_bits = BUFFER_SIZE as i8;
         Ok(())
     }
 }

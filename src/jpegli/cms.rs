@@ -163,6 +163,7 @@ pub struct JxlCms {
     hlg_ootf_luminances: Option<[f32; 3]>, 
     src_storage: Mutex<Vec<f32>>,
     dst_storage: Mutex<Vec<f32>>,
+    hlg_ootf_instance: Option<tf::hlg::HlgOotf>,
 }
 
 impl JxlCms {
@@ -188,12 +189,16 @@ impl JxlCms {
 
         let mut apply_hlg_ootf = false;
         let mut hlg_ootf_luminances = None;
+        let mut hlg_ootf_instance: Option<tf::hlg::HlgOotf> = None;
+
         if internal_in.transfer_function == TfType::HLG && internal_out.transfer_function != TfType::HLG {
             apply_hlg_ootf = true;
-            eprintln!("HLG OOTF needed but not fully implemented.");
+            hlg_ootf_instance = Some(tf::hlg::HlgOotf::from_scene_light(intensity_target));
+            eprintln!("HLG OOTF needed (Forward).");
         } else if internal_in.transfer_function != TfType::HLG && internal_out.transfer_function == TfType::HLG {
             apply_hlg_ootf = true;
-             eprintln!("Inverse HLG OOTF needed but not fully implemented.");
+            hlg_ootf_instance = Some(tf::hlg::HlgOotf::to_scene_light(intensity_target));
+            eprintln!("HLG OOTF needed (Inverse).");
         }
 
         let lcms_transform = if !skip_lcms {
@@ -249,6 +254,7 @@ impl JxlCms {
             hlg_ootf_luminances,
             src_storage,
             dst_storage,
+            hlg_ootf_instance,
         })
     }
 
@@ -293,12 +299,32 @@ impl JxlCms {
              return Err(EncodingError::CmsError("CMS transform not available".to_string()));
         }
 
-        tf::after_transform(self.postprocess, self.intensity_target, &mut dst_guard[..expected_output_len])?;
-
-        if self.apply_hlg_ootf {
-            eprintln!("HLG OOTF apply step not implemented.");
-            // tf::apply_hlg_ootf(dst_buffer, self.hlg_ootf_luminances, self.intensity_target);
+        if self.apply_hlg_ootf && self.postprocess == tf::ExtraTF::kHLG {
+            if let Some(ootf) = &self.hlg_ootf_instance {
+                if self.channels_src == 3 {
+                     let (r, rest) = src_buffer.split_at_mut(num_pixels);
+                     let (g, b) = rest.split_at_mut(num_pixels);
+                     ootf.apply(r, g, b, num_pixels);
+                } else {
+                    eprintln!("Warning: Cannot apply inverse HLG OOTF to non-RGB data ({} channels)", self.channels_src);
+                }
+            }
         }
+
+        if self.apply_hlg_ootf && self.preprocess == tf::ExtraTF::kHLG {
+             if let Some(ootf) = &self.hlg_ootf_instance {
+                 if self.channels_dst == 3 {
+                    let dst_buffer = &mut dst_guard[..expected_output_len];
+                    let (r, rest) = dst_buffer.split_at_mut(num_pixels);
+                    let (g, b) = rest.split_at_mut(num_pixels);
+                    ootf.apply(r, g, b, num_pixels);
+                 } else {
+                    eprintln!("Warning: Cannot apply forward HLG OOTF to non-RGB data ({} channels)", self.channels_dst);
+                 }
+             }
+        }
+
+        tf::after_transform(self.postprocess, self.intensity_target, &mut dst_guard[..expected_output_len])?;
 
         output_slice[..expected_output_len].copy_from_slice(&dst_guard[..expected_output_len]);
 

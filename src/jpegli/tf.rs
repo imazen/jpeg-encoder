@@ -139,8 +139,110 @@ pub mod hlg {
         encoded as f32
     }
 
-    // TODO: Add ApplyHlgOotf logic from jxl_cms.cc if needed later.
-    // This involves matrix multiplication with luminances and gamma adjustment based on intensity_target.
+    // Structure to hold HLG OOTF parameters
+    // Corresponds to HlgOOTF in C++
+    #[derive(Debug, Clone, Copy)]
+    pub struct HlgOotf {
+        apply_ootf: bool,
+        exponent: f32,
+        // Precomputed luminance factors (assuming BT.709 primaries for OOTF calculation)
+        // Note: C++ uses actual primaries, this is a simplification for now.
+        // TODO: Use actual primaries from ColorEncodingInternal if available.
+        red_y: f32,
+        green_y: f32,
+        blue_y: f32,
+    }
+
+    impl HlgOotf {
+        // Corresponds to HlgOOTF::FromSceneLight
+        pub fn from_scene_light(display_luminance: f32) -> Self {
+            let display_luminance = display_luminance.max(1e-6); // Avoid log(0)
+            // Gamma calculation matching C++
+            let gamma = 1.2 * (1.111f32).powf((display_luminance / 1000.0).log2());
+            // Exponent is gamma - 1.0
+            let exponent = gamma - 1.0;
+            
+            // Use standard BT.709 luminance coefficients
+            let red_y = 0.2126;
+            let green_y = 0.7152;
+            let blue_y = 0.0722;
+
+            Self {
+                apply_ootf: true, // Assume OOTF should be applied by default
+                exponent,
+                red_y,
+                green_y,
+                blue_y,
+            }
+        }
+
+        // Corresponds to HlgOOTF::ToSceneLight (Inverse OOTF)
+        pub fn to_scene_light(display_luminance: f32) -> Self {
+            let display_luminance = display_luminance.max(1e-6);
+            // Gamma calculation matching C++
+            let gamma = (1.0 / 1.2) * (1.111f32).powf(-(display_luminance / 1000.0).log2());
+            let exponent = gamma - 1.0;
+
+            // Use standard BT.709 luminance coefficients
+            let red_y = 0.2126;
+            let green_y = 0.7152;
+            let blue_y = 0.0722;
+
+            Self {
+                apply_ootf: true,
+                exponent,
+                red_y,
+                green_y,
+                blue_y,
+            }
+        }
+
+        /// Applies the HLG OOTF (forward or inverse based on exponent) to RGB pixel data.
+        /// Operates in-place on planar buffers.
+        pub fn apply(&self, r: &mut [f32], g: &mut [f32], b: &mut [f32], num_pixels: usize) {
+            if !self.apply_ootf { return; }
+            assert!(r.len() >= num_pixels);
+            assert!(g.len() >= num_pixels);
+            assert!(b.len() >= num_pixels);
+
+            for i in 0..num_pixels {
+                let luminance = self.red_y * r[i] + self.green_y * g[i] + self.blue_y * b[i];
+                // Use fast_pow2f for pow(luminance, exponent)
+                // exponent = gamma - 1
+                // pow(lum, exp) = pow(lum, gamma-1) = pow(lum, gamma) / lum
+                // C++ uses FastPowf(df, luminance, Set(df, exponent_))
+                // Let's match the direct exponent application using standard powf for now.
+                // Avoid powf if exponent is 0.
+                let ratio = if self.exponent == 0.0 {
+                    1.0 
+                } else {
+                    luminance.powf(self.exponent).min(1e9) // Clamp to avoid overflow
+                };
+
+                // Handle potential division by zero or NaN if luminance is <= 0
+                let safe_ratio = if luminance <= 1e-9 { 1.0 } else { ratio }; // Keep original color if luminance is near zero
+
+                r[i] *= safe_ratio;
+                g[i] *= safe_ratio;
+                b[i] *= safe_ratio;
+            }
+        }
+    }
+
+    // TODO: Implement ApplyHlgOotf (Opto-Optical Transfer Function).
+    // This function should take linear RGB display light (relative to peak display luminance,
+    // typically after CMS conversion) and apply the HLG system gamma adjustment based on
+    // peak luminance (intensity_target) and potentially scene/surround assumptions
+    // (see ITU-R BT.2100). It produces the non-linear HLG signal *before* the OETF.
+    // The inverse function (Inverse OOTF) would be needed in `before_transform`.
+    // C++ reference implementation location unclear.
+    pub fn apply_hlg_ootf(
+        // r: &mut f32, g: &mut f32, b: &mut f32, // Or operate on buffer
+        // intensity_target: f32, // Peak display luminance in nits (e.g., 1000)
+        // scene_luminance: f32, // Assumed scene white luminance (e.g. 100?)
+    ) -> () {
+        unimplemented!("HLG OOTF is not implemented.");
+    }
 }
 
 // Perceptual Quantizer (PQ)
@@ -246,6 +348,8 @@ pub mod pq {
         let final_result = magnitude_relative.copysign(encoded_f64) as f32;
         #[cfg(feature = "std")]
         println!("[PQ_DEBUG] display_from_encoded final_result: {}", final_result);
+        // TODO: Verify if the output range should be [0, 1] relative to intensity_target
+        // or absolute [0, intensity_target]. Current scaling matches C++ code structure.
         final_result
     }
 
@@ -355,6 +459,7 @@ pub fn before_transform(
         },
         ExtraTF::kHLG => {
             for val in input_buf.iter_mut() { // Use iter_mut()
+                // TODO: Apply HLG OOTF/inverse OOTF if needed (currently just EOTF)
                 *val = hlg::display_from_encoded(*val, intensity_target, None); // Luminances not used here
             }
         },
@@ -384,6 +489,7 @@ pub fn after_transform(
         },
         ExtraTF::kHLG => {
             for val in buffer.iter_mut() { // Use iter_mut()
+                 // TODO: Apply HLG OOTF/inverse OOTF if needed (currently just OETF)
                  *val = hlg::encoded_from_display(*val, intensity_target, None);
             }
         },
@@ -398,3 +504,4 @@ pub fn after_transform(
 
 // TODO: Implement HLG OOTF application if needed (separate function?)
 // pub fn apply_hlg_ootf(buffer: &mut [f32], luminances: Option<[f32; 3]>, intensity_target: f32) { ... }
+// CURRENTLY UNIMPLEMENTED

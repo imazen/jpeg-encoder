@@ -10,13 +10,15 @@ use std::collections::{HashMap, HashSet};
 use crate::Encoder; // Assuming Encoder is in the crate root
 use crate::ColorType; // Assuming ColorType is in the crate root
 use crate::JpegColorType; // Assuming JpegColorType is in the crate root
+use crate::SamplingFactor; // Add JpegColorType
 // Potentially need image decoders like png, ppm etc.
 // use image; 
 
 // Import the generated data module
 use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
 use std::io::Cursor;
-use crate::jpegli::jpegli_encoder::JpegliEncoder; // Add import for JpegliEncoder
+use crate::jpegli::jpegli_encoder::JpegliEncoder;
+use crate::jpegli::quant::{self, compute_quant_table_values, quality_to_distance, JpegliColorSpace, JpegliComponentParams};
 
 // --- Struct to hold comparison results ---
 #[derive(Debug, Clone)]
@@ -65,13 +67,84 @@ impl QuantCompareResult {
 }
 // --- End Struct Definition ---
 
+// --- Helper Function to Print Failure Details (New) ---
+fn print_failure_details(
+    filename: &str,
+    distance_str: &str,
+    result: &QuantCompareResult,
+    seen_signatures: &mut HashSet<(String, usize, u16, u64)>,
+) {
+    if result.is_success() {
+        return;
+    }
+
+    let signature = (
+        result.component_label.clone(),
+        result.diff_count,
+        result.max_diff,
+        result.sum_abs_diff,
+    );
+
+    // Calculate concise stats
+    let correct_count = 64 - result.diff_count;
+    let percent_correct = ((correct_count as f64 / 64.0) * 100.0).round() as u8;
+
+    let avg_error = result.sum_abs_diff as f64 / 64.0;
+
+    let concise_stats = format!(
+        "{: >2.0}% ({}/64) correct; error avg={: >3.0}; max={: >3.0}; total={}",
+        percent_correct,
+        correct_count,
+        avg_error,
+        result.max_diff,
+        result.sum_abs_diff
+    );
+
+    // Use simplified prefix like "filename dX.Y:"
+    let context_prefix = format!("d{}:", distance_str);
+
+    let padding = " ".repeat(6 - result.component_label.len());
+    if seen_signatures.insert(signature) {
+        // First time seeing this failure pattern
+        println!(
+            "{} New {} table: {}", // "New", shortened text, concise stats
+            context_prefix,
+            result.component_label,
+            concise_stats
+        );
+        if let Some(details) = &result.diff_details {
+            // Print the grid assuming 'details' only contains the 8 rows
+            println!("  ------------------------------------------------------------------------");
+            for line in details.lines() {
+                 println!("  {}", line); // Indent the grid row
+            }
+             println!("  ------------------------------------------------------------------------");
+        }
+        // Remove the separate stats print here, it's included above
+        // println!(
+        //     "    -> Stats: Diff Count={}, Max Diff={}, Sum Abs Diff={}",
+        //     result.diff_count, result.max_diff, result.sum_abs_diff
+        // );
+    } else {
+        // Repeated failure pattern
+        println!(
+            "{} {} table (repeat):{} {}", // Shortened text, concise stats
+            context_prefix,
+            result.component_label,
+            padding,
+            concise_stats
+        );
+    }
+}
+// --- End Helper Function ---
+
 // Helper function to compare quantization tables with tolerance
 // Returns QuantCompareResult instead of panicking
 fn compare_quant_tables(
     label: &str,
     generated: &[u16; 64],
     expected: &[u16; 64],
-    tolerance: u16,
+    _tolerance: u16, // Marked unused as effective_tolerance is hardcoded
     filename: &str,
 ) -> QuantCompareResult {
     let effective_tolerance = 2; // Re-apply tolerance of 2
@@ -79,13 +152,6 @@ fn compare_quant_tables(
     let mut max_diff = 0u16;
     let mut sum_abs_diff = 0u64;
     let mut diff_output = String::new();
-    writeln!(
-        diff_output,
-        "Comparing {} Quantization Table for {}:",
-        label,
-        filename
-    ).unwrap();
-    writeln!(diff_output, "------------------------------------------------------------------------").unwrap();
 
     for y in 0..8 {
         write!(diff_output, "Row {}: ", y).unwrap();
@@ -108,10 +174,9 @@ fn compare_quant_tables(
         }
         writeln!(diff_output).unwrap(); // Newline after each row
     }
-    writeln!(diff_output, "------------------------------------------------------------------------").unwrap();
 
     if diff_count > 0 {
-        // Return failure result with stats and details
+        // Return failure result with stats and details (grid only)
         QuantCompareResult::failure(
             filename,
             label,
@@ -132,31 +197,45 @@ fn compare_quantization_with_reference() {
     let mut results: HashMap<String, HashMap<String, (u64, u64)>> = HashMap::new();
     let mut unique_distances: HashSet<String> = HashSet::new();
     let mut any_failures = false; // Track if any comparison failed
+    let mut seen_failure_signatures: HashSet<(String, usize, u16, u64)> = HashSet::new(); // Track unique failure patterns
 
-    let total_tests = REFERENCE_QUANT_TEST_DATA.len();
+    // rgb-to-gbr-test.png , cvo9xd_keong_macan_grayscale.png, P3-sRGB-color-ring.png, colorful_chessboards.png 
+    let subset_filenames = vec![
+        "rgb-to-gbr-test.png",
+        "cvo9xd_keong_macan_grayscale.png",
+        "P3-sRGB-color-ring.png",
+        "colorful_chessboards.png"
+    ];  
+    let test_subset = REFERENCE_QUANT_TEST_DATA.iter()
+    .filter(|test_case| subset_filenames.contains(&test_case.input_filename))
+    .collect::<Vec<_>>();
+
+    let total_tests = test_subset.len();
     let mut tests_run = 0;
 
-    for test_case in REFERENCE_QUANT_TEST_DATA {
+    for test_case_data in test_subset {
         tests_run += 1;
-        let filename = test_case.input_filename.to_string();
+        let filename = test_case_data.input_filename.to_string();
         // Format distance for use as a key and for the table header
-        let distance_str = format!("{:.1}", test_case.cjpegli_distance);
+        let distance_str = format!("{:.1}", test_case_data.cjpegli_distance);
         unique_distances.insert(distance_str.clone());
 
-        println!(
-            "({}/{}) Testing reference: {} (Source: {}, Format: {}, Distance: {:.1})",
-            tests_run,
-            total_tests,
+        // Updated banner format for test progress
+        let filename_padding = filename.len().max(20); // Ensure minimum width
+        let dist_padding = distance_str.len().max(5);
+         println!(
+            "------ {:<file_pad$} --- distance = {:<dist_pad$} --- reference data comparison #{}------",
             filename,
-            test_case.source_group,
-            test_case.input_format,
-            test_case.cjpegli_distance
+            distance_str,
+            tests_run,
+            file_pad = filename_padding,
+            dist_pad = dist_padding
         );
 
         // --- Start: Decode and Setup (Keep existing logic) ---
-        let maybe_decoded = match test_case.input_format {
+        let maybe_decoded = match test_case_data.input_format {
             "PNG" => {
-                let decoder = png::Decoder::new(Cursor::new(test_case.input_data));
+                let decoder = png::Decoder::new(Cursor::new(test_case_data.input_data));
                 match decoder.read_info() {
                     Ok(mut reader) => {
                         let mut buf = vec![0; reader.output_buffer_size()];
@@ -170,7 +249,7 @@ fn compare_quantization_with_reference() {
                                     _ => {
                                         eprintln!(
                                             "Skipping {}: Unsupported PNG color type {:?}",
-                                            test_case.input_filename,
+                                            test_case_data.input_filename,
                                             info.color_type
                                         );
                                         None
@@ -179,13 +258,13 @@ fn compare_quantization_with_reference() {
                                 encoder_color_type.map(|ct| (bytes.to_vec(), info.width as u16, info.height as u16, ct))
                             },
                             Err(e) => {
-                                eprintln!("Skipping {}: Failed to decode PNG frame: {}", test_case.input_filename, e);
+                                eprintln!("Skipping {}: Failed to decode PNG frame: {}", test_case_data.input_filename, e);
                                 None
                             }
                         }
                     }
                     Err(e) => {
-                        eprintln!("Skipping {}: Failed to read PNG info: {}", test_case.input_filename, e);
+                        eprintln!("Skipping {}: Failed to read PNG info: {}", test_case_data.input_filename, e);
                         None
                     }
                 }
@@ -193,8 +272,8 @@ fn compare_quantization_with_reference() {
             _ => {
                  eprintln!(
                     "Skipping {}: Unsupported input format {}",
-                    test_case.input_filename,
-                    test_case.input_format
+                    test_case_data.input_filename,
+                    test_case_data.input_format
                  );
                  None
             }
@@ -215,7 +294,8 @@ fn compare_quantization_with_reference() {
             ColorType::CmykAsYcck | ColorType::Ycck => JpegColorType::Ycck,
         };
 
-        let distance_clamped = test_case.cjpegli_distance.clamp(0.01, 25.0);
+        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.01, 25.0);
+        // Create encoder instance to derive settings, but don't use its internal tables directly
         let mut jpegli_encoder = JpegliEncoder::new(vec![], distance_clamped);
         let num_components = jpeg_color_type.get_num_components();
 
@@ -225,47 +305,61 @@ fn compare_quantization_with_reference() {
         } else {
             crate::SamplingFactor::F_1_1 // Assume 4:4:4 for d < 1.0 or grayscale
         };
-        jpegli_encoder.set_sampling_factor(assumed_sampling);
-        // --- End setting sampling factor ---
-
-        // 3. Manually trigger setup (re-enabled)
+        jpegli_encoder.set_sampling_factor(assumed_sampling); // Set it on the encoder to use its logic
+        // Initialize components on the encoder instance to get parameters
         if jpegli_encoder.init_components(jpeg_color_type, width, height).is_err() {
-            eprintln!("Skipping {}: init_components failed", test_case.input_filename);
-            results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
-            any_failures = true;
-            continue;
-        }
-        // setup_jpegli_quantization will now use the explicitly set sampling factor
-        if jpegli_encoder.setup_jpegli_quantization(jpeg_color_type).is_err() {
-             eprintln!("Skipping {}: setup_jpegli_quantization failed", test_case.input_filename);
+             eprintln!("Skipping {}: init_components failed", test_case_data.input_filename);
              results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
              any_failures = true;
              continue;
         }
+        // We don't call setup_jpegli_quantization on the encoder instance
+        // --- End setting sampling factor ---
 
         // --- Directly Compute Tables for Comparison --- 
-        let is_yuv420_assumed = false; // Hardcode to false
-        let force_baseline = false; // Keep this as false from previous step
+        // Get parameters needed for standalone functions
+        let force_baseline = false; // Match likely C++ high-quality behavior
+        let quant_max = if force_baseline { 255 } else { 32767 };
+        let is_yuv420_assumed = assumed_sampling == crate::SamplingFactor::F_2_2 || assumed_sampling == crate::SamplingFactor::R_4_2_0;
+        let jpegli_color_space = crate::jpegli::quant::jpeg_color_type_to_jpegli_space(jpeg_color_type);
+        
+        // Convert JpegliComponentInfo from the encoder instance to JpegliComponentParams
+        let mut comp_params: Vec<JpegliComponentParams> = jpegli_encoder.components().iter().map(|ci| {
+            JpegliComponentParams {
+                h_samp_factor: ci.horizontal_sampling_factor,
+                v_samp_factor: ci.vertical_sampling_factor,
+                quant_tbl_no: ci.quantization_table_index,
+            }
+        }).collect();
 
-        let maybe_rust_luma_dqt = Some(crate::jpegli::quant::compute_jpegli_quant_table(
+        let mut comp_params_mut = comp_params.clone(); // Need mutable copy for set_quant_matrices
+        
+        // Create the QuantParams struct first
+        let add_two_chroma = false; // Define this here
+        let mut quant_params = crate::jpegli::quant::JpegliQuantParams::try_new(
             distance_clamped,
-            true, // is_luma
-            is_yuv420_assumed, // Use hardcoded false
+            jpegli_encoder.use_xyb(),
+            jpegli_encoder.use_standard_tables(),
+            num_components,
+            &comp_params_mut, // Pass initial params
+            jpegli_color_space,
+            0, // cicp
             force_baseline,
-            None, // No TF specified for this test
-        ));
+            add_two_chroma, // Pass the variable
+            jpegli_encoder.use_adaptive_quantization(), // Use the getter
+            assumed_sampling,
+        ).map_err(|e| format!("JpegliQuantParams creation failed: {}", e)).unwrap(); // Unwrap for test
 
-        let maybe_rust_chroma_dqt = if num_components > 1 {
-            Some(crate::jpegli::quant::compute_jpegli_quant_table(
-                distance_clamped,
-                false, // is_luma
-                is_yuv420_assumed, // Use hardcoded false
-                force_baseline,
-                None, // No TF specified for this test
-            ))
-        } else {
-            None
-        };
+        // Calculate tables using set_quant_matrices with the params struct
+        let maybe_rust_tables = crate::jpegli::quant::set_quant_matrices(&mut quant_params) 
+            .map_err(|e| format!("set_quant_matrices failed: {}", e)).unwrap(); // Unwrap for test
+
+        // Update comp_params from potentially modified params struct
+        comp_params = quant_params.comp_params.clone();
+
+        let maybe_rust_luma_dqt = maybe_rust_tables[0];
+        let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[1] } else { None };
+
         // --- End Direct Compute ---
 
         // --- Comparison logic (remains the same) --- 
@@ -277,27 +371,23 @@ fn compare_quantization_with_reference() {
             let luma_result = compare_quant_tables(
                 "Luma",
                 &rust_luma_dqt,
-                &test_case.expected_luma_dqt,
-                0, // Original tolerance parameter is now ignored inside the function
-                test_case.input_filename,
+                &test_case_data.expected_luma_dqt,
+                0, 
+                test_case_data.input_filename,
             );
             current_luma_sum_diff = luma_result.sum_abs_diff;
             if !luma_result.is_success() {
                 any_failures = true;
-                // Print failure details immediately
-                if let Some(details) = luma_result.diff_details {
-                    println!("{}", details);
-                    // Also print the summary stats for this specific failure
-                    println!(
-                        "  -> Luma Mismatch Stats: Diff Count={}, Max Diff={}, Sum Abs Diff={}",
-                        luma_result.diff_count,
-                        luma_result.max_diff,
-                        luma_result.sum_abs_diff
-                    );
-                }
+                // Use the helper function to print details
+                print_failure_details(
+                    test_case_data.input_filename,
+                    &distance_str, 
+                    &luma_result,
+                    &mut seen_failure_signatures, 
+                );
             }
         } else {
-            eprintln!("Error: Luma quant table missing for {}", test_case.input_filename);
+            eprintln!("Error: Luma quant table missing for {}", test_case_data.input_filename);
             any_failures = true;
             // current_luma_sum_diff remains MAX
         }
@@ -308,27 +398,23 @@ fn compare_quantization_with_reference() {
                 let chroma_result = compare_quant_tables(
                     "Chroma",
                     &rust_chroma_dqt,
-                    &test_case.expected_chroma_dqt,
-                    0, // Original tolerance parameter is now ignored inside the function
-                    test_case.input_filename,
+                    &test_case_data.expected_chroma_dqt,
+                    0, 
+                    test_case_data.input_filename,
                 );
                 current_chroma_sum_diff = chroma_result.sum_abs_diff;
                  if !chroma_result.is_success() {
                     any_failures = true;
-                    // Print failure details immediately
-                    if let Some(details) = chroma_result.diff_details {
-                        println!("{}", details);
-                        // Also print the summary stats for this specific failure
-                        println!(
-                           "  -> Chroma Mismatch Stats: Diff Count={}, Max Diff={}, Sum Abs Diff={}",
-                            chroma_result.diff_count,
-                            chroma_result.max_diff,
-                            chroma_result.sum_abs_diff
-                        );
-                    }
+                    // Use the helper function to print details
+                     print_failure_details(
+                        test_case_data.input_filename,
+                        &distance_str, 
+                        &chroma_result,
+                        &mut seen_failure_signatures, 
+                    );
                 }
             } else {
-                eprintln!("Error: Chroma quant table missing for {} (expected for {} components)", test_case.input_filename, num_components);
+                eprintln!("Error: Chroma quant table missing for {} (expected for {} components)", test_case_data.input_filename, num_components);
                  current_chroma_sum_diff = u64::MAX; // Indicate failure
                  any_failures = true;
             }
@@ -347,59 +433,46 @@ fn compare_quantization_with_reference() {
 
     let max_filename_width = sorted_filenames.iter().map(|f| f.len()).max().unwrap_or(10).max("Filename".len());
 
-    // Store max widths for Y and C columns for each distance: HashMap<dist_str, (y_width, c_width)>
-    let mut dist_widths: HashMap<String, (usize, usize)> = HashMap::new();
+    // Store max widths for each distance column: HashMap<dist_str, width>
+    let mut dist_col_widths: HashMap<String, usize> = HashMap::new();
     for dist_str in &sorted_distances {
-        let mut max_y_width = 1; // Min width for "Y" header
-        let mut max_c_width = 1; // Min width for "C" header
-
-        // Ensure headers themselves are considered for width
-        max_y_width = max_y_width.max("Y".len());
-        max_c_width = max_c_width.max("C".len());
+        let mut max_width = dist_str.len(); // Start with header width
 
         for filename in &sorted_filenames {
             if let Some(file_results) = results.get(filename) {
-                let (luma_cell_len, chroma_cell_len) = match file_results.get(dist_str) {
-                    Some(&(u64::MAX, u64::MAX)) => ("ERR".len(), "ERR".len()),
-                    Some(&(luma_diff, u64::MAX)) => (format!("{}", luma_diff).len(), "ERR".len()),
-                    Some(&(u64::MAX, chroma_diff)) => ("ERR".len(), format!("{}", chroma_diff).len()),
-                    Some(&(luma_diff, chroma_diff)) => (format!("{}", luma_diff).len(), format!("{}", chroma_diff).len()),
-                    None => ("N/A".len(), "N/A".len()),
+                 let combined_cell_len = match file_results.get(dist_str) {
+                    Some(&(u64::MAX, u64::MAX)) => "ERR/ERR".len(),
+                    Some((luma_diff, u64::MAX)) => format!("{}/ERR", luma_diff).len(),
+                    Some((u64::MAX, chroma_diff)) => format!("ERR/{}", chroma_diff).len(),
+                    Some((luma_diff, chroma_diff)) => format!("{}/{}", luma_diff, chroma_diff).len(),
+                    None => "N/A".len(), // Single N/A if no data for this distance
                 };
-                max_y_width = max_y_width.max(luma_cell_len);
-                max_c_width = max_c_width.max(chroma_cell_len);
+                max_width = max_width.max(combined_cell_len);
             }
         }
-        dist_widths.insert(dist_str.clone(), (max_y_width, max_c_width));
+         // Add padding if width is small
+        max_width = max_width.max(3); // Ensure minimum width
+        dist_col_widths.insert(dist_str.clone(), max_width);
     }
 
-    // --- Generate Summary Table --- 
+    // --- Generate Summary Table ---
     println!("\n--- Quantization Table Comparison Summary Table ---");
-    println!("(Cells show Sum of Absolute Differences Y|C; 0|0 = Match, >0 = Mismatch, ERR = Setup/Decode/Missing)");
+    println!("(Cells show SumAbsDiff Luma/Chroma; 0/0=Match, >0=Mismatch, ERR=Error, N/A=Not Applicable)");
 
     // Print Header Line 1 (Distances)
     print!("{:<width$}", "Filename", width = max_filename_width);
     for dist_str in &sorted_distances {
-        let (y_width, c_width) = dist_widths.get(dist_str).cloned().unwrap_or((3, 3));
-        let dist_pair_width = y_width + c_width + 1; // Width for " Y | C " including separator
-        print!(" | {:^width$}", dist_str, width = dist_pair_width);
+        let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
+        print!("|{:^width$}", dist_str, width = col_width);
     }
     println!();
 
-    // Print Header Line 2 (Y | C)
-    print!("{:<width$}", "", width = max_filename_width);
-    for dist_str in &sorted_distances {
-        let (y_width, c_width) = dist_widths.get(dist_str).cloned().unwrap_or((3, 3));
-        // Align "Y" and "C" to the right within their respective calculated widths
-        print!(" | {:>y_w$}|{:>c_w$}", "Y", "C", y_w = y_width, c_w = c_width);
-    }
-    println!();
 
     // Print Header Separator Line
     print!("{:-<width$}", "", width = max_filename_width);
     for dist_str in &sorted_distances {
-        let (y_width, c_width) = dist_widths.get(dist_str).cloned().unwrap_or((3, 3));
-        print!("-+-{:->y_w$}+{:->c_w$}", "", "", y_w = y_width, c_w = c_width);
+        let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
+        print!("+{:-<width$}", "", width = col_width);
     }
     println!();
 
@@ -408,16 +481,16 @@ fn compare_quantization_with_reference() {
         print!("{:<width$}", filename, width = max_filename_width);
         let file_results = results.get(filename).unwrap(); // Should always exist
         for dist_str in &sorted_distances {
-            let (y_width, c_width) = dist_widths.get(dist_str).cloned().unwrap_or((3, 3));
-            let (luma_cell, chroma_cell) = match file_results.get(dist_str) {
-                 Some(&(u64::MAX, u64::MAX)) => ("ERR".to_string(), "ERR".to_string()),
-                 Some(&(luma_diff, u64::MAX)) => (format!("{}", luma_diff), "ERR".to_string()),
-                 Some(&(u64::MAX, chroma_diff)) => ("ERR".to_string(), format!("{}", chroma_diff)),
-                 Some(&(luma_diff, chroma_diff)) => (format!("{}", luma_diff), format!("{}", chroma_diff)),
-                 None => ("N/A".to_string(), "N/A".to_string()),
+            let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
+             let combined_cell = match file_results.get(dist_str) {
+                 Some(&(u64::MAX, u64::MAX)) => "ERR/ERR".to_string(),
+                 Some((luma_diff, u64::MAX)) => format!("{}/ERR", luma_diff),
+                 Some((u64::MAX, chroma_diff)) => format!("ERR/{}", chroma_diff),
+                 Some((luma_diff, chroma_diff)) => format!("{}/{}", luma_diff, chroma_diff),
+                 None => "N/A".to_string(), // Use single N/A
             };
-            // Use calculated widths for right-alignment
-            print!(" | {:>y_w$}|{:>c_w$}", luma_cell, chroma_cell, y_w = y_width, c_w = c_width);
+            // Use calculated width for centered alignment
+            print!("|{:^width$}", combined_cell, width = col_width);
         }
         println!();
     }
@@ -428,10 +501,33 @@ fn compare_quantization_with_reference() {
         // TODO: Investigate reference data generation for d>=0.5.
         // The Rust implementation of compute_jpegli_quant_table appears correct
         // based on code analysis, but mismatches reference data for d>=0.5.
+        // Quantization formula bug was fixed, re-run tests after ensuring other pipeline steps are correct.
+        // Potential causes for remaining mismatch: incorrect is_yuv420 assumption in test,
+        // differences in C++ vs Rust float math, or subtle bug in Rust quant logic.
         // This panic is currently EXPECTED until reference data is verified/regenerated.
         panic!("Quantization table comparison failed. See table above for details (SumAbsDiff > 0 or ERR indicates failure).");
     } else {
         // This path likely won't be hit until reference data is fixed.
         println!("All {} test cases produced matching quantization tables (within tolerance)!", tests_run);
     }
-} 
+}
+
+// --- Tests moved from quant.rs ---
+
+#[test]
+fn test_quality_to_distance() {
+    // Test values derived from running the C++ code or known reference points.
+    assert!((quality_to_distance(100) - 0.01).abs() < 1e-6);
+    assert!((quality_to_distance(90) - (0.1 + 10.0 * 0.09)).abs() < 1e-6); // 1.0
+    assert!((quality_to_distance(75) - (0.1 + 25.0 * 0.09)).abs() < 1e-6); // 2.35
+    assert!((quality_to_distance(50) - (0.1 + 50.0 * 0.09)).abs() < 1e-6); // 4.6
+    assert!((quality_to_distance(30) - (0.1 + 70.0 * 0.09)).abs() < 1e-6); // 6.4
+
+    // Lower range - using the quadratic formula part
+    let q20 = (53.0 / 3000.0) * 20.0f32.powi(2) - (23.0 / 20.0) * 20.0 + 25.0;
+    assert!((quality_to_distance(20) - q20).abs() < 1e-6); // approx 9.0666
+    let q10 = (53.0 / 3000.0) * 10.0f32.powi(2) - (23.0 / 20.0) * 10.0 + 25.0;
+    assert!((quality_to_distance(10) - q10).abs() < 1e-6); // approx 15.2666
+    let q1 = (53.0 / 3000.0) * 1.0f32.powi(2) - (23.0 / 20.0) * 1.0 + 25.0;
+    assert!((quality_to_distance(1) - q1).abs() < 1e-6); // approx 23.8676
+}

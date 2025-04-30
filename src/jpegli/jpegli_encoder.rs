@@ -2,7 +2,7 @@ use crate::error::EncodingError;
 use crate::writer::{JfifWrite, JfifWriter};
 use crate::marker::{Marker, SOFType};
 use crate::Density;
-use crate::jpegli::quant::{self, quality_to_distance, JpegliQuantizerState, JpegliColorSpace, JpegliComponentParams, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams};
+use crate::jpegli::quant::{self, quality_to_distance, JpegliQuantizerState, JpegliColorSpace, JpegliComponentParams, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams, JpegliQuantConfigOptions};
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::{self, ImageBuffer};
 use crate::{ColorType, JpegColorType, SamplingFactor};
@@ -12,7 +12,7 @@ use alloc::format;
 use crate::jpegli::fdct_jpegli::forward_dct_float;
 use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
 use crate::image_buffer::RgbImage; // Need RgbImage for buffer creation
-use super::quant_constants::*;
+use super::{quant_constants::*, SimplifiedTransferCharacteristics, Subsampling};
 use super::tf;
 use super::xyb;
 
@@ -542,46 +542,43 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             return Err(EncodingError::JpegliError("Cannot setup quantization for 0 components".into()));
         }
 
-        // Create initial component params from JpegliComponentInfo
-        let initial_comp_params: Vec<JpegliComponentParams> = self.components.iter().map(|ci| {
-            JpegliComponentParams {
-                h_samp_factor: ci.horizontal_sampling_factor,
-                v_samp_factor: ci.vertical_sampling_factor,
-                quant_tbl_no: ci.quantization_table_index, 
+        // 1. Create Config Options struct
+        let config_options = JpegliQuantConfigOptions {
+            // Pass distance/quality directly from encoder state
+            // from_config will handle precedence and defaults.
+            distance: Some(self.distance),
+            quality: None, // Assuming distance is primary unless quality is explicitly set somehow
+            xyb_mode: Some(self.use_xyb),
+            use_std_tables: Some(self.use_standard_tables),
+            use_adaptive_quantization: Some(self.use_adaptive_quant),
+            force_baseline: Some(false), // Assuming default
+            chroma_subsampling: Some(Subsampling::from_sampling_factor(self.sampling_factor).unwrap()), // Pass the encoder's current setting
+            // Required info from image/encoder state
+
+            jpeg_color_type: color_type, 
+            cicp_transfer_function: None, // TODO: Get actual transfer function if known
+        };
+
+        // 2. Create validated low-level params from options
+        //    Need initial comp_params for validation inside from_config.
+        //    Create a temporary one based *only* on num_components and default table indices.
+        //    The real sampling factors will be set inside from_config based on `sampling_factor`.
+        let initial_comp_params_for_validation: Vec<JpegliComponentParams> = (0..num_components).map(|i| {
+            let table_idx = if i == 0 { 0 } else { 1 }; // Default table assignment
+            JpegliComponentParams { 
+                h_samp_factor: 1, // Placeholder, will be set by from_config
+                v_samp_factor: 1, // Placeholder
+                quant_tbl_no: table_idx 
             }
         }).collect();
 
-        // Map color type
-        let jpegli_color_space = if self.use_xyb {
-             JpegliColorSpace::RGB 
-        } else {
-            quant::jpeg_color_type_to_jpegli_space(color_type)
-        };
+        let mut quant_params = JpegliQuantParams::from_config(&config_options)
+            .map_err(|e| EncodingError::JpegliError(e.into()))?;
 
-        // TODO: Determine add_two_chroma_tables based on encoder settings/needs.
-        let add_two_chroma_tables = false; 
-        let force_baseline = false; // Jpegli typically doesn't force baseline
-        let cicp_transfer_function = 0; // TODO: Get real value if available
-
-        // Create and validate parameters first
-        let mut quant_params = JpegliQuantParams::try_new(
-             self.distance,
-             self.use_xyb,
-             self.use_standard_tables, 
-             num_components,
-             &initial_comp_params, // Pass initial params for validation
-             jpegli_color_space,
-             cicp_transfer_function, 
-             force_baseline, 
-             add_two_chroma_tables, 
-             self.use_adaptive_quant, 
-             self.sampling_factor, // Pass sampling factor
-        ).map_err(|e| EncodingError::JpegliError(e.into()))?;
-
-        // Create the new QuantizerState using the validated params
+        // 3. Create Quantizer State using the validated params
         let quant_state = JpegliQuantizerState::new(
-            &mut quant_params, // Pass validated & potentially modified params
-            QuantPass::NoSearch // Assuming default pass for now
+            &mut quant_params, // Pass the validated params struct
+            QuantPass::NoSearch 
         ).map_err(|e| EncodingError::JpegliError(e.into()))?;
 
         // Store the created state
@@ -591,6 +588,9 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         for (idx, ci) in self.components.iter_mut().enumerate() {
              if idx < quant_params.comp_params.len() {
                  ci.quantization_table_index = quant_params.comp_params[idx].quant_tbl_no;
+                 // Update sampling factors too, as they are now determined in from_config
+                 ci.horizontal_sampling_factor = quant_params.comp_params[idx].h_samp_factor;
+                 ci.vertical_sampling_factor = quant_params.comp_params[idx].v_samp_factor;
              }
         }
 
@@ -989,27 +989,25 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             }
         }
 
-        // Compute the reference Y quant value for AC coeff (0, 1) at distance 1.0
-        let ref_comp_params = vec![JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 0 }];
-        let ref_color_space = JpegliColorSpace::GRAYSCALE; // Use GRAYSCALE for Luma ref table
-        
-        // Create and validate parameters for the reference calculation
-        let mut ref_quant_params = JpegliQuantParams::try_new(
-            1.0,    // distance
-            false,  // xyb_mode
-            false,  // use_std_tables
-            1,      // num_components (Luma only)
-            &ref_comp_params, 
-            ref_color_space,
-            0,      // cicp
-            false,  // force_baseline
-            false,  // add_two_chroma
-            true,   // use_adaptive_quant (doesn't affect set_quant_matrices)
-            SamplingFactor::F_1_1, // Sampling factor for Luma ref table
-        ).map_err(|e| EncodingError::JpegliError(format!("Failed to create ref quant params: {}", e).into()))?;
-        
+        // Create JpegliQuantConfigOptions for the reference calculation
+        let ref_config_options = JpegliQuantConfigOptions {
+             distance: Some(1.0), // Fixed distance 1.0
+             quality: None,
+             xyb_mode: Some(false),
+             use_std_tables: Some(false),
+             use_adaptive_quantization: Some(true), // Doesn't affect table gen
+             force_baseline: Some(false),
+             chroma_subsampling: None, // Doesn't affect luma table
+             jpeg_color_type: JpegColorType::Luma, // For grayscale calculation
+             cicp_transfer_function: None, 
+        };
+
+        // Create validated params from config
+        let mut ref_quant_params = JpegliQuantParams::from_config(&ref_config_options)
+            .map_err(|e| EncodingError::JpegliError(format!("Failed to create ref quant params: {}", e).into()))?;
+
         // Compute only the raw tables needed using the validated params
-        let ref_tables = quant::set_quant_matrices(&mut ref_quant_params) // Pass mutable params struct
+        let ref_tables = quant::set_quant_matrices(&mut ref_quant_params)
             .map_err(|e| EncodingError::JpegliError(e.into()))?;
 
         let ref_luma_table = ref_tables[0].ok_or_else(|| EncodingError::JpegliError("Failed to compute reference Luma table for AQ".into()))?;

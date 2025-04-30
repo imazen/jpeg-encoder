@@ -7,10 +7,9 @@ use alloc::string::String;
 use alloc::vec;
 use std::collections::{HashMap, HashSet};
 
+use crate::jpegli::{SimplifiedTransferCharacteristics, Subsampling};
 use crate::Encoder; // Assuming Encoder is in the crate root
-use crate::ColorType; // Assuming ColorType is in the crate root
-use crate::JpegColorType; // Assuming JpegColorType is in the crate root
-use crate::SamplingFactor; // Add JpegColorType
+use crate::{ColorType, JpegColorType, SamplingFactor}; // Keep combined import
 // Potentially need image decoders like png, ppm etc.
 // use image; 
 
@@ -18,7 +17,7 @@ use crate::SamplingFactor; // Add JpegColorType
 use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
 use std::io::Cursor;
 use crate::jpegli::jpegli_encoder::JpegliEncoder;
-use crate::jpegli::quant::{self, compute_quant_table_values, quality_to_distance, JpegliColorSpace, JpegliComponentParams};
+use crate::jpegli::quant::{self, compute_quant_table_values, quality_to_distance, JpegliColorSpace, JpegliComponentParams, JpegliQuantizerState, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams, JpegliQuantConfigOptions};
 
 // --- Struct to hold comparison results ---
 #[derive(Debug, Clone)]
@@ -285,77 +284,53 @@ fn compare_quantization_with_reference() {
             None => continue, // Go to the next test case
         };
 
-        // Map ColorType to JpegColorType for JpegliEncoder
+        // Map ColorType to JpegColorType
         let jpeg_color_type = match color_type {
             ColorType::Luma => JpegColorType::Luma,
-            ColorType::Rgb | ColorType::Rgba | ColorType::Bgr | ColorType::Bgra => JpegColorType::Ycbcr, // Assume conversion for test
-            ColorType::Ycbcr => JpegColorType::Ycbcr,
+            ColorType::Rgb | ColorType::Rgba => JpegColorType::Ycbcr, // Treat RGB/RGBA as YCbCr input for Jpegli
+            ColorType::Ycbcr => JpegColorType::Ycbcr, // Pass through YCbCr
             ColorType::Cmyk => JpegColorType::Cmyk,
             ColorType::CmykAsYcck | ColorType::Ycck => JpegColorType::Ycck,
+            _ => { 
+                 eprintln!("Skipping {}: Unsupported input ColorType {:?} for JpegColorType mapping", filename, color_type);
+                 continue; 
+            } 
         };
-
-        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.01, 25.0);
-        // Create encoder instance to derive settings, but don't use its internal tables directly
-        let mut jpegli_encoder = JpegliEncoder::new(vec![], distance_clamped);
         let num_components = jpeg_color_type.get_num_components();
 
-        // --- Explicitly set sampling factor based on distance heuristic --- 
-        let assumed_sampling = if distance_clamped >= 1.0 && num_components > 1 {
-            crate::SamplingFactor::F_2_2 // Assume 4:2:0 for d >= 1.0 (color)
-        } else {
-            crate::SamplingFactor::F_1_1 // Assume 4:4:4 for d < 1.0 or grayscale
+        // --- Create Config Options --- 
+        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.01, 25.0);
+        let config_options = JpegliQuantConfigOptions {
+            distance: Some(distance_clamped),
+            quality: None,
+            xyb_mode: Some(false), 
+            use_std_tables: Some(false), 
+            use_adaptive_quantization: Some(true), 
+            force_baseline: Some(true),
+            chroma_subsampling: Some(Subsampling::YCbCr444), // Let from_config decide default based on distance
+            jpeg_color_type, 
+            cicp_transfer_function: Some(SimplifiedTransferCharacteristics::Default), 
         };
-        jpegli_encoder.set_sampling_factor(assumed_sampling); // Set it on the encoder to use its logic
-        // Initialize components on the encoder instance to get parameters
-        if jpegli_encoder.init_components(jpeg_color_type, width, height).is_err() {
-             eprintln!("Skipping {}: init_components failed", test_case_data.input_filename);
+
+        // --- Create Validated Params --- 
+        let mut quant_params_result = JpegliQuantParams::from_config(&config_options);
+        if quant_params_result.is_err() {
+             eprintln!("Skipping {}: JpegliQuantParams creation failed: {:?}", filename, quant_params_result.err().unwrap());
              results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
              any_failures = true;
              continue;
         }
-        // We don't call setup_jpegli_quantization on the encoder instance
-        // --- End setting sampling factor ---
+        let mut quant_params = quant_params_result.unwrap(); // Now safe to unwrap
 
-        // --- Directly Compute Tables for Comparison --- 
-        // Get parameters needed for standalone functions
-        let force_baseline = false; // Match likely C++ high-quality behavior
-        let quant_max = if force_baseline { 255 } else { 32767 };
-        let is_yuv420_assumed = assumed_sampling == crate::SamplingFactor::F_2_2 || assumed_sampling == crate::SamplingFactor::R_4_2_0;
-        let jpegli_color_space = crate::jpegli::quant::jpeg_color_type_to_jpegli_space(jpeg_color_type);
-        
-        // Convert JpegliComponentInfo from the encoder instance to JpegliComponentParams
-        let mut comp_params: Vec<JpegliComponentParams> = jpegli_encoder.components().iter().map(|ci| {
-            JpegliComponentParams {
-                h_samp_factor: ci.horizontal_sampling_factor,
-                v_samp_factor: ci.vertical_sampling_factor,
-                quant_tbl_no: ci.quantization_table_index,
-            }
-        }).collect();
-
-        let mut comp_params_mut = comp_params.clone(); // Need mutable copy for set_quant_matrices
-        
-        // Create the QuantParams struct first
-        let add_two_chroma = false; // Define this here
-        let mut quant_params = crate::jpegli::quant::JpegliQuantParams::try_new(
-            distance_clamped,
-            jpegli_encoder.use_xyb(),
-            jpegli_encoder.use_standard_tables(),
-            num_components,
-            &comp_params_mut, // Pass initial params
-            jpegli_color_space,
-            0, // cicp
-            force_baseline,
-            add_two_chroma, // Pass the variable
-            jpegli_encoder.use_adaptive_quantization(), // Use the getter
-            assumed_sampling,
-        ).map_err(|e| format!("JpegliQuantParams creation failed: {}", e)).unwrap(); // Unwrap for test
-
-        // Calculate tables using set_quant_matrices with the params struct
-        let maybe_rust_tables = crate::jpegli::quant::set_quant_matrices(&mut quant_params) 
-            .map_err(|e| format!("set_quant_matrices failed: {}", e)).unwrap(); // Unwrap for test
-
-        // Update comp_params from potentially modified params struct
-        comp_params = quant_params.comp_params.clone();
+        // --- Directly Compute Tables for Comparison using set_quant_matrices --- 
+        let maybe_rust_tables_result = crate::jpegli::quant::set_quant_matrices(&mut quant_params);
+        if maybe_rust_tables_result.is_err() {
+             eprintln!("Skipping {}: set_quant_matrices failed: {:?}", filename, maybe_rust_tables_result.err().unwrap());
+             results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
+             any_failures = true;
+             continue;
+        }
+        let maybe_rust_tables = maybe_rust_tables_result.unwrap();
 
         let maybe_rust_luma_dqt = maybe_rust_tables[0];
         let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[1] } else { None };

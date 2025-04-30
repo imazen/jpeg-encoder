@@ -268,14 +268,6 @@ pub(crate) fn quant_vals_to_distance(
 
 /// Checks if the sampling factors correspond to YUV420.
 /// Corresponds to C++ IsYUV420.
-pub(crate) fn is_yuv420(num_components: usize, comp_info: &[JpegliComponentParams], jpeg_color_space: JpegliColorSpace) -> bool {
-    if jpeg_color_space != JpegliColorSpace::YCbCr || num_components < 3 {
-        return false;
-    }
-    comp_info[0].h_samp_factor == 2 && comp_info[0].v_samp_factor == 2 &&
-    comp_info[1].h_samp_factor == 1 && comp_info[1].v_samp_factor == 1 &&
-    comp_info[2].h_samp_factor == 1 && comp_info[2].v_samp_factor == 1
-}
 
 
 // --- Ported Core Functions ---
@@ -288,7 +280,7 @@ pub(crate) fn set_quant_matrices(
     params: &mut JpegliQuantParams,
 ) -> Result<[Option<[u16; 64]>; 4], &'static str> {
     let mut computed_tables: [Option<[u16; 64]>; 4] = [None; 4];
-    let is_yuv420 = is_yuv420(params.num_components, &params.comp_params, params.jpegli_color_space);
+    let is_yuv420 = params.subsampling.is_yuv420() && params.jpegli_color_space == JpegliColorSpace::YCbCr;
 
     let mut global_scale: f32;
     let mut non_linear_scaling = true;
@@ -527,7 +519,7 @@ pub(crate) struct JpegliQuantParams {
     pub force_baseline: bool,
     pub add_two_chroma_tables: bool,
     pub use_adaptive_quantization: bool,
-    pub sampling_factor: SamplingFactor,
+    pub subsampling: Subsampling,
 }
 
 impl JpegliQuantParams {
@@ -549,34 +541,7 @@ impl JpegliQuantParams {
         }.clamp(0.1, 25.0); // Clamp final distance
 
         // 2. Validate and Determine Sampling Factor
-        let sampling_factor = match config.chroma_subsampling {
-            Some(sf) => {
-                // Check if the provided sampling factor is one of the allowed ones
-                match sf {
-                     Subsampling::YCbCr444 => {
-                        SamplingFactor::F_1_1
-                     }
-                     Subsampling::YCbCr440 => {
-                        SamplingFactor::F_1_2
-                     }
-                     Subsampling::YCbCr422 => {
-                        SamplingFactor::F_2_1
-                     }
-                     Subsampling::YCbCr420 => {
-                        SamplingFactor::F_2_2
-                     }
-                     _ => return Err("Unsupported chroma subsampling factor provided"),
-                }
-            },
-            None => {
-                // Apply default heuristic based on distance
-                if distance >= 1.0 && config.jpeg_color_type.get_num_components() > 1 {
-                    SamplingFactor::F_2_2 // 4:2:0
-                } else {
-                    SamplingFactor::F_1_1 // 4:4:4 or grayscale
-                }
-            }
-        };
+        let subsampling = config.chroma_subsampling.unwrap_or(Subsampling::YCbCr444);
         
         // 3. Determine Jpegli Internal Color Space
         let jpegli_color_space = if xyb_mode {
@@ -595,7 +560,7 @@ impl JpegliQuantParams {
 
          let num_components = config.jpeg_color_type.get_num_components();
         // 4. Generate Initial Component Params
-        let (max_h_samp, max_v_samp) = sampling_factor.get_sampling_factors();
+        let (max_h_samp, max_v_samp) = subsampling.to_h_v_samp_factor();
         let mut comp_params: Vec<JpegliComponentParams> = Vec::with_capacity(num_components);
         match config.jpeg_color_type {
             JpegColorType::Luma => {
@@ -635,7 +600,7 @@ impl JpegliQuantParams {
             force_baseline,
             add_two_chroma_tables,
             use_adaptive_quantization,
-            sampling_factor,
+            subsampling
         )
     }
 
@@ -651,7 +616,7 @@ impl JpegliQuantParams {
         force_baseline: bool,
         add_two_chroma_tables: bool,
         use_adaptive_quantization: bool,
-        sampling_factor: SamplingFactor,
+        subsampling: Subsampling,
     ) -> Result<Self, &'static str> {
         // Validations moved from from_config or kept here
         if distance < 0.0 {
@@ -690,7 +655,7 @@ impl JpegliQuantParams {
             force_baseline,
             add_two_chroma_tables,
             use_adaptive_quantization,
-            sampling_factor,
+            subsampling,
         })
     }
 }

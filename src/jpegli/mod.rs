@@ -309,6 +309,10 @@ impl Subsampling{
         }
     }
 
+    pub fn is_yuv420(&self) -> bool{
+        matches!(self, Self::YCbCr420)  
+    }
+
     pub fn to_sampling_factor(&self) -> crate::SamplingFactor{
         match self{
             Self::YCbCr444 => crate::SamplingFactor::F_1_1,

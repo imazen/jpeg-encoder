@@ -310,6 +310,7 @@ fn compare_quantization_with_reference() {
             chroma_subsampling: Some(Subsampling::YCbCr444), // Let from_config decide default based on distance
             jpeg_color_type, 
             cicp_transfer_function: Some(SimplifiedTransferCharacteristics::Default), 
+            add_two_chroma_tables: Some(true),
         };
 
         // --- Create Validated Params --- 
@@ -335,7 +336,7 @@ fn compare_quantization_with_reference() {
         .raw_quant_tables;
 
         let maybe_rust_luma_dqt = maybe_rust_tables[0];
-        let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[1] } else { None };
+        let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[2] } else { None };
 
         // --- End Direct Compute ---
 

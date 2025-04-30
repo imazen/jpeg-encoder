@@ -540,6 +540,8 @@ impl JpegliQuantParams {
             (Some(_), Some(_)) => return Err("Cannot specify both quality and distance"),
         }.clamp(0.1, 25.0); // Clamp final distance
 
+        let add_two_chroma_tables = config.add_two_chroma_tables.unwrap_or(config.distance.is_some());
+
         // 2. Validate and Determine Sampling Factor
         let subsampling = config.chroma_subsampling.unwrap_or(Subsampling::YCbCr444);
         
@@ -585,9 +587,7 @@ impl JpegliQuantParams {
             }
         }
 
-        // 5. Determine add_two_chroma_tables (internal decision)
-        let add_two_chroma_tables = false; // Keep false as default
-
+        
         // 6. Perform final validation via try_new
         Self::try_new(
             distance,
@@ -676,7 +676,7 @@ pub(crate) struct JpegliQuantConfigOptions {
     pub chroma_subsampling: Option<Subsampling>,
     pub jpeg_color_type: JpegColorType,
     pub cicp_transfer_function: Option<SimplifiedTransferCharacteristics>,
-    // add_two_chroma_tables is likely an internal decision, not a direct user config
+    pub add_two_chroma_tables: Option<bool>,
 }
 
 // Implement Default to provide cjpegli-like defaults
@@ -692,6 +692,7 @@ impl Default for JpegliQuantConfigOptions {
             chroma_subsampling: None, // Default determined by distance later
             jpeg_color_type: JpegColorType::Cmyk, // Placeholder, must be set
             cicp_transfer_function: None, // Default to unknown/none
+            add_two_chroma_tables: None,
         }
     }
 }
@@ -704,6 +705,7 @@ impl JpegliQuantConfigOptions {
                 distance: distance,
                 jpeg_color_type: color_type,
                 cicp_transfer_function: cicp_transfer_function,
+                add_two_chroma_tables: Some(true),
                 ..Default::default()
             }
         

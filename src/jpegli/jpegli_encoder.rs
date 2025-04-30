@@ -554,7 +554,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             force_baseline: Some(false), // Assuming default
             chroma_subsampling: Some(Subsampling::from_sampling_factor(self.sampling_factor).unwrap()), // Pass the encoder's current setting
             // Required info from image/encoder state
-
+            add_two_chroma_tables: Some(true),
             jpeg_color_type: color_type, 
             cicp_transfer_function: None, // TODO: Get actual transfer function if known
         };
@@ -1000,6 +1000,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
              chroma_subsampling: None, // Doesn't affect luma table
              jpeg_color_type: JpegColorType::Luma, // For grayscale calculation
              cicp_transfer_function: None, 
+             add_two_chroma_tables: Some(true),
         };
 
         // Create validated params from config

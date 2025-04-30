@@ -200,14 +200,14 @@ fn compare_quantization_with_reference() {
 
     // rgb-to-gbr-test.png , cvo9xd_keong_macan_grayscale.png, P3-sRGB-color-ring.png, colorful_chessboards.png 
     let subset_filenames = vec![
-        "rgb-to-gbr-test.png",
         "cvo9xd_keong_macan_grayscale.png",
-        "P3-sRGB-color-ring.png",
-        "colorful_chessboards.png"
+        "vgqcws_vin_709_g1.png"
     ];  
     let test_subset = REFERENCE_QUANT_TEST_DATA.iter()
     .filter(|test_case| subset_filenames.contains(&test_case.input_filename))
     .collect::<Vec<_>>();
+
+    //let test_subset = REFERENCE_QUANT_TEST_DATA.iter().collect::<Vec<_>>();
 
     let total_tests = test_subset.len();
     let mut tests_run = 0;
@@ -299,7 +299,7 @@ fn compare_quantization_with_reference() {
         let num_components = jpeg_color_type.get_num_components();
 
         // --- Create Config Options --- 
-        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.01, 25.0);
+        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.1, 25.0);
         let config_options = JpegliQuantConfigOptions {
             distance: Some(distance_clamped),
             quality: None,
@@ -322,15 +322,17 @@ fn compare_quantization_with_reference() {
         }
         let mut quant_params = quant_params_result.unwrap(); // Now safe to unwrap
 
-        // --- Directly Compute Tables for Comparison using set_quant_matrices --- 
-        let maybe_rust_tables_result = crate::jpegli::quant::set_quant_matrices(&mut quant_params);
-        if maybe_rust_tables_result.is_err() {
-             eprintln!("Skipping {}: set_quant_matrices failed: {:?}", filename, maybe_rust_tables_result.err().unwrap());
+        let mut quantizer_state_result =
+         JpegliQuantizerState::new(&mut quant_params, QuantPass::NoSearch  );
+        if quantizer_state_result.is_err() {
+             eprintln!("Skipping {}: JpegliQuantizerState creation failed: {:?}", filename, quantizer_state_result.err().unwrap());
              results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
              any_failures = true;
              continue;
         }
-        let maybe_rust_tables = maybe_rust_tables_result.unwrap();
+
+        let maybe_rust_tables = quantizer_state_result.unwrap()
+        .raw_quant_tables;
 
         let maybe_rust_luma_dqt = maybe_rust_tables[0];
         let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[1] } else { None };

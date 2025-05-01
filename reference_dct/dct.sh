@@ -105,7 +105,8 @@ pub struct ReferenceQuantTestData {
     pub cjpegli_distance: f32,
     pub cjpegli_output_data: &'static [u8], // Bytes of the cjpegli *output* JPEG file via include_bytes!
     pub expected_luma_dqt: [u16; 64],
-    pub expected_chroma_dqt: [u16; 64],
+    pub expected_chroma1_dqt: Option<[u16; 64]>, // Renamed
+    pub expected_chroma2_dqt: Option<[u16; 64]>, // Added optional second chroma table
 }
 
 pub const REFERENCE_QUANT_TEST_DATA: &[ReferenceQuantTestData] = &[
@@ -248,7 +249,11 @@ mod tests {
             assert!(test_case.input_data.len() > 0, "Input data is empty for {}", test_case.input_filename);
             assert!(test_case.cjpegli_output_data.len() > 0, "cjpegli output data is empty for {}", test_case.input_filename);
             assert_eq!(test_case.expected_luma_dqt.len(), 64);
-            assert_eq!(test_case.expected_chroma_dqt.len(), 64);
+            assert_eq!(test_case.expected_chroma1_dqt.len(), 64); // Check renamed field
+            // Check chroma2 only if it exists
+            if let Some(chroma2_table) = test_case.expected_chroma2_dqt {
+                assert_eq!(chroma2_table.len(), 64, "Chroma2 table has incorrect size for {}", test_case.input_filename);
+            }
             // Check a few values to ensure they're not all zero
             // Allow tables to be all zero if extraction failed, maybe add a check for filename?
             // assert!(test_case.expected_luma_dqt.iter().any(|&x| x > 0), "Luma table seems empty");

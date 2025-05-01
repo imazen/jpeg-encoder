@@ -6,23 +6,28 @@ use std::fmt::Write;
 use alloc::string::String;
 use alloc::vec;
 use std::collections::{HashMap, HashSet};
+use core::convert::TryInto; // Added for Vec to Array conversion
 
-use crate::jpegli::{SimplifiedTransferCharacteristics, Subsampling};
-use crate::Encoder; // Assuming Encoder is in the crate root
-use crate::{ColorType, JpegColorType, SamplingFactor}; // Keep combined import
-// Potentially need image decoders like png, ppm etc.
-// use image; 
+use crate::jpegli::{SimplifiedTransferCharacteristics, Subsampling}; // Removed JpegColorType from here
+use crate::JpegColorType; // Added direct import
 
-// Import the generated data module
-use super::reference_test_data::REFERENCE_QUANT_TEST_DATA;
-use std::io::Cursor;
-use crate::jpegli::jpegli_encoder::JpegliEncoder;
-use crate::jpegli::quant::{self, compute_quant_table_values, quality_to_distance, JpegliColorSpace, JpegliComponentParams, JpegliQuantizerState, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams, JpegliQuantConfigOptions};
+// Import the new data source and struct
+// use super::reference_test_data::REFERENCE_QUANT_TEST_DATA; // Removed old import
+use super::tests::testdata::SET_QUANT_MATRICES_TESTS;
+use super::tests::structs::SetQuantMatricesTest;
+
+// Removed unused JpegliEncoder import
+use crate::jpegli::quant::{self, quality_to_distance, JpegliColorSpace, JpegliQuantizerState, QuantPass, DCTSIZE2, JpegliQuantParams, JpegliQuantConfigOptions};
+// Removed unused: compute_quant_table_values, JpegliComponentParams, MAX_COMPONENTS
+
+// Constants for table indices
+const MAX_QUANT_TABLES: usize = 4;
 
 // --- Struct to hold comparison results ---
 #[derive(Debug, Clone)]
 struct QuantCompareResult {
-    filename: String,
+    // filename: String, // Use test_case_id instead
+    test_case_id: String, // Changed from filename
     component_label: String,
     diff_count: usize,
     max_diff: u16,
@@ -31,9 +36,10 @@ struct QuantCompareResult {
 }
 
 impl QuantCompareResult {
-    fn success(filename: &str, component_label: &str) -> Self {
+    // Updated to use test_case_id
+    fn success(test_case_id: &str, component_label: &str) -> Self {
         Self {
-            filename: filename.to_string(),
+            test_case_id: test_case_id.to_string(),
             component_label: component_label.to_string(),
             diff_count: 0,
             max_diff: 0,
@@ -42,8 +48,9 @@ impl QuantCompareResult {
         }
     }
 
+    // Updated to use test_case_id
     fn failure(
-        filename: &str,
+        test_case_id: &str,
         component_label: &str,
         diff_count: usize,
         max_diff: u16,
@@ -51,7 +58,7 @@ impl QuantCompareResult {
         diff_details: String,
     ) -> Self {
         Self {
-            filename: filename.to_string(),
+            test_case_id: test_case_id.to_string(),
             component_label: component_label.to_string(),
             diff_count,
             max_diff,
@@ -67,16 +74,17 @@ impl QuantCompareResult {
 // --- End Struct Definition ---
 
 // --- Helper Function to Print Failure Details (New) ---
+// Updated signature to use test_case_id
 fn print_failure_details(
-    filename: &str,
+    test_case_id: &str, // Changed from filename
     distance_str: &str,
     result: &QuantCompareResult,
     seen_signatures: &mut HashSet<(String, usize, u16, u64)>,
-) {
+) -> Option<String> {
     if result.is_success() {
-        return;
+        return None;
     }
-
+    let mut output = String::new();
     let signature = (
         result.component_label.clone(),
         result.diff_count,
@@ -99,52 +107,49 @@ fn print_failure_details(
         result.sum_abs_diff
     );
 
-    // Use simplified prefix like "filename dX.Y:"
-    let context_prefix = format!("d{}:", distance_str);
+    // Use simplified prefix like "Test Case #N dX.Y:"
+    let context_prefix = format!("{} d{}:", test_case_id, distance_str);
 
-    let padding = " ".repeat(6 - result.component_label.len());
+    let padding = " ".repeat(7usize.saturating_sub(result.component_label.len())); // Adjusted padding slightly
     if seen_signatures.insert(signature) {
         // First time seeing this failure pattern
-        println!(
-            "{} New {} table: {}", // "New", shortened text, concise stats
+        writeln!(output,
+            "{} New {} table: {}", // "New", component label, concise stats
             context_prefix,
             result.component_label,
             concise_stats
-        );
+        ).unwrap();
         if let Some(details) = &result.diff_details {
             // Print the grid assuming 'details' only contains the 8 rows
-            println!("  ------------------------------------------------------------------------");
+            writeln!(output, "  ------------------------------------------------------------------------").unwrap();
             for line in details.lines() {
-                 println!("  {}", line); // Indent the grid row
+                 writeln!(output, "  {}", line).unwrap(); // Indent the grid row
             }
-             println!("  ------------------------------------------------------------------------");
+            writeln!(output, "  ------------------------------------------------------------------------").unwrap();
         }
-        // Remove the separate stats print here, it's included above
-        // println!(
-        //     "    -> Stats: Diff Count={}, Max Diff={}, Sum Abs Diff={}",
-        //     result.diff_count, result.max_diff, result.sum_abs_diff
-        // );
     } else {
         // Repeated failure pattern
-        println!(
-            "{} {} table (repeat):{} {}", // Shortened text, concise stats
+        writeln!(output,
+            "{} {} table (repeat):{} {}", // component label, concise stats
             context_prefix,
             result.component_label,
             padding,
             concise_stats
-        );
+        ).unwrap();
     }
+    Some(output)
 }
 // --- End Helper Function ---
 
 // Helper function to compare quantization tables with tolerance
 // Returns QuantCompareResult instead of panicking
+// Updated signature to use test_case_id
 fn compare_quant_tables(
     label: &str,
     generated: &[u16; 64],
     expected: &[u16; 64],
     _tolerance: u16, // Marked unused as effective_tolerance is hardcoded
-    filename: &str,
+    test_case_id: &str, // Changed from filename
 ) -> QuantCompareResult {
     let effective_tolerance = 2; // Re-apply tolerance of 2
     let mut diff_count = 0;
@@ -176,8 +181,8 @@ fn compare_quant_tables(
 
     if diff_count > 0 {
         // Return failure result with stats and details (grid only)
-        QuantCompareResult::failure(
-            filename,
+        QuantCompareResult::failure( // Updated call
+            test_case_id,
             label,
             diff_count,
             max_diff,
@@ -186,307 +191,389 @@ fn compare_quant_tables(
         )
     } else {
         // Return success result
-        QuantCompareResult::success(filename, label)
+        QuantCompareResult::success(test_case_id, label) // Updated call
     }
 }
 
-#[test]
-fn compare_quantization_with_reference() {
-    // Data structure: HashMap<filename, HashMap<distance_str, (luma_sum_diff, chroma_sum_diff)>>
-    let mut results: HashMap<String, HashMap<String, (u64, u64)>> = HashMap::new();
-    let mut unique_distances: HashSet<String> = HashSet::new();
-    let mut any_failures = false; // Track if any comparison failed
-    let mut seen_failure_signatures: HashSet<(String, usize, u16, u64)> = HashSet::new(); // Track unique failure patterns
+// Helper function to get a standard label for a quantization table index
+fn get_table_label(index: usize) -> String {
+    match index {
+        0 => "Luma".to_string(),
+        1 => "Chroma1".to_string(),
+        2 => "Chroma2".to_string(),
+        3 => "Table 3".to_string(), // Or handle as needed
+        _ => format!("Table {}", index),
+    }
+}
 
-    // rgb-to-gbr-test.png , cvo9xd_keong_macan_grayscale.png, P3-sRGB-color-ring.png, colorful_chessboards.png 
-    let subset_filenames = vec![
-        "cvo9xd_keong_macan_grayscale.png",
-        "vgqcws_vin_709_g1.png"
-    ];  
-    let test_subset = REFERENCE_QUANT_TEST_DATA.iter()
-    .filter(|test_case| subset_filenames.contains(&test_case.input_filename))
-    .collect::<Vec<_>>();
-
-    //let test_subset = REFERENCE_QUANT_TEST_DATA.iter().collect::<Vec<_>>();
-
-    let total_tests = test_subset.len();
-    let mut tests_run = 0;
-
-    for test_case_data in test_subset {
-        tests_run += 1;
-        let filename = test_case_data.input_filename.to_string();
-        // Format distance for use as a key and for the table header
-        let distance_str = format!("{:.1}", test_case_data.cjpegli_distance);
-        unique_distances.insert(distance_str.clone());
-
-        // Updated banner format for test progress
-        let filename_padding = filename.len().max(20); // Ensure minimum width
-        let dist_padding = distance_str.len().max(5);
-         println!(
-            "------ {:<file_pad$} --- distance = {:<dist_pad$} --- reference data comparison #{}------",
-            filename,
-            distance_str,
-            tests_run,
-            file_pad = filename_padding,
-            dist_pad = dist_padding
-        );
-
-        // --- Start: Decode and Setup (Keep existing logic) ---
-        let maybe_decoded = match test_case_data.input_format {
-            "PNG" => {
-                let decoder = png::Decoder::new(Cursor::new(test_case_data.input_data));
-                match decoder.read_info() {
-                    Ok(mut reader) => {
-                        let mut buf = vec![0; reader.output_buffer_size()];
-                        match reader.next_frame(&mut buf) {
-                            Ok(info) => {
-                                let bytes = &buf[..info.buffer_size()];
-                                let encoder_color_type = match info.color_type {
-                                    png::ColorType::Grayscale => Some(ColorType::Luma),
-                                    png::ColorType::Rgb => Some(ColorType::Rgb),
-                                    png::ColorType::Rgba => Some(ColorType::Rgba),
-                                    _ => {
-                                        eprintln!(
-                                            "Skipping {}: Unsupported PNG color type {:?}",
-                                            test_case_data.input_filename,
-                                            info.color_type
-                                        );
-                                        None
-                                    }
-                                };
-                                encoder_color_type.map(|ct| (bytes.to_vec(), info.width as u16, info.height as u16, ct))
-                            },
-                            Err(e) => {
-                                eprintln!("Skipping {}: Failed to decode PNG frame: {}", test_case_data.input_filename, e);
-                                None
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("Skipping {}: Failed to read PNG info: {}", test_case_data.input_filename, e);
-                        None
-                    }
-                }
-            }
-            _ => {
-                 eprintln!(
-                    "Skipping {}: Unsupported input format {}",
-                    test_case_data.input_filename,
-                    test_case_data.input_format
-                 );
-                 None
-            }
-        };
-
-        // Skip test case if decoding failed
-        let (_pixels, width, height, color_type) = match maybe_decoded {
-            Some(data) => data,
-            None => continue, // Go to the next test case
-        };
-
-        // Map ColorType to JpegColorType
-        let jpeg_color_type = match color_type {
-            ColorType::Luma => JpegColorType::Luma,
-            ColorType::Rgb | ColorType::Rgba => JpegColorType::Ycbcr, // Treat RGB/RGBA as YCbCr input for Jpegli
-            ColorType::Ycbcr => JpegColorType::Ycbcr, // Pass through YCbCr
-            ColorType::Cmyk => JpegColorType::Cmyk,
-            ColorType::CmykAsYcck | ColorType::Ycck => JpegColorType::Ycck,
-            _ => { 
-                 eprintln!("Skipping {}: Unsupported input ColorType {:?} for JpegColorType mapping", filename, color_type);
-                 continue; 
-            } 
-        };
-        let num_components = jpeg_color_type.get_num_components();
-
-        // --- Create Config Options --- 
-        let distance_clamped = test_case_data.cjpegli_distance.clamp(0.1, 25.0);
-        let config_options = JpegliQuantConfigOptions {
-            distance: Some(distance_clamped),
-            quality: None,
-            xyb_mode: Some(false), 
-            use_std_tables: Some(false), 
-            use_adaptive_quantization: Some(true), 
-            force_baseline: Some(true),
-            chroma_subsampling: Some(Subsampling::YCbCr444), // Let from_config decide default based on distance
-            jpeg_color_type, 
-            cicp_transfer_function: Some(SimplifiedTransferCharacteristics::Default), 
-            add_two_chroma_tables: Some(true),
-        };
-
-        // --- Create Validated Params --- 
-        let mut quant_params_result = JpegliQuantParams::from_config(&config_options);
-        if quant_params_result.is_err() {
-             eprintln!("Skipping {}: JpegliQuantParams creation failed: {:?}", filename, quant_params_result.err().unwrap());
-             results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
-             any_failures = true;
-             continue;
-        }
-        let mut quant_params = quant_params_result.unwrap(); // Now safe to unwrap
-
-        let mut quantizer_state_result =
-         JpegliQuantizerState::new(&mut quant_params, QuantPass::NoSearch  );
-        if quantizer_state_result.is_err() {
-             eprintln!("Skipping {}: JpegliQuantizerState creation failed: {:?}", filename, quantizer_state_result.err().unwrap());
-             results.entry(filename).or_default().insert(distance_str, (u64::MAX, u64::MAX));
-             any_failures = true;
-             continue;
-        }
-
-        let maybe_rust_tables = quantizer_state_result.unwrap()
-        .raw_quant_tables;
-
-        let maybe_rust_luma_dqt = maybe_rust_tables[0];
-        let maybe_rust_chroma_dqt = if num_components > 1 { maybe_rust_tables[2] } else { None };
-
-        // --- End Direct Compute ---
-
-        // --- Comparison logic (remains the same) --- 
-        let mut current_luma_sum_diff = u64::MAX; 
-        let mut current_chroma_sum_diff = if num_components > 1 { u64::MAX } else { 0u64 };
-
-        // 5. Compare Luma Table
-        if let Some(rust_luma_dqt) = maybe_rust_luma_dqt {
-            let luma_result = compare_quant_tables(
-                "Luma",
-                &rust_luma_dqt,
-                &test_case_data.expected_luma_dqt,
-                0, 
-                test_case_data.input_filename,
-            );
-            current_luma_sum_diff = luma_result.sum_abs_diff;
-            if !luma_result.is_success() {
-                any_failures = true;
-                // Use the helper function to print details
-                print_failure_details(
-                    test_case_data.input_filename,
-                    &distance_str, 
-                    &luma_result,
-                    &mut seen_failure_signatures, 
-                );
-            }
-        } else {
-            eprintln!("Error: Luma quant table missing for {}", test_case_data.input_filename);
-            any_failures = true;
-            // current_luma_sum_diff remains MAX
-        }
-
-        // 6. Compare Chroma Table (if applicable)
-        if num_components > 1 {
-            if let Some(rust_chroma_dqt) = maybe_rust_chroma_dqt {
-                let chroma_result = compare_quant_tables(
-                    "Chroma",
-                    &rust_chroma_dqt,
-                    &test_case_data.expected_chroma_dqt,
-                    0, 
-                    test_case_data.input_filename,
-                );
-                current_chroma_sum_diff = chroma_result.sum_abs_diff;
-                 if !chroma_result.is_success() {
-                    any_failures = true;
-                    // Use the helper function to print details
-                     print_failure_details(
-                        test_case_data.input_filename,
-                        &distance_str, 
-                        &chroma_result,
-                        &mut seen_failure_signatures, 
-                    );
-                }
-            } else {
-                eprintln!("Error: Chroma quant table missing for {} (expected for {} components)", test_case_data.input_filename, num_components);
-                 current_chroma_sum_diff = u64::MAX; // Indicate failure
-                 any_failures = true;
-            }
-        } // else: current_chroma_sum_diff remains 0 for Luma-only images
-
-        // Store results
-        results.entry(filename).or_default().insert(distance_str, (current_luma_sum_diff, current_chroma_sum_diff));
+// --- New Helper Function to Print Summary Table (for SetQuantMatricesTest) ---
+// Renamed and adjusted for the new results structure
+fn print_set_quant_summary_table(
+    results: &HashMap<String, HashMap<String, [Option<u64>; MAX_QUANT_TABLES]>>, // Adjusted value type
+    unique_distances: &HashSet<String>,
+    row_key_label: &str, // e.g., "Test Case"
+    skip_passing_results: bool,
+) {
+    if results.is_empty() {
+        println!("\n--- No SetQuantMatrices results to summarize. ---");
+        return;
     }
 
-    // --- Pre-calculate Column Widths --- 
-    let mut sorted_distances: Vec<String> = unique_distances.into_iter().collect();
+    // --- Sort Keys for Consistent Output ---
+    let mut sorted_distances: Vec<String> = unique_distances.iter().cloned().collect();
     sorted_distances.sort_by(|a, b| a.parse::<f32>().unwrap_or(f32::NAN).partial_cmp(&b.parse::<f32>().unwrap_or(f32::NAN)).unwrap_or(std::cmp::Ordering::Equal));
 
-    let mut sorted_filenames: Vec<String> = results.keys().cloned().collect();
-    sorted_filenames.sort();
+    let mut sorted_row_keys: Vec<String> = results.keys().cloned().collect();
+    // Sort by the numeric part of "#N" if possible
+    sorted_row_keys.sort_by_key(|id| id.trim_start_matches('#').split(':').next().unwrap_or("").trim().parse::<usize>().unwrap_or(usize::MAX));
 
-    let max_filename_width = sorted_filenames.iter().map(|f| f.len()).max().unwrap_or(10).max("Filename".len());
+    // --- RE-ADD Column Width Calculations (Strict Max) ---
+    let max_row_key_width = sorted_row_keys.iter().map(|f| f.len()).max().unwrap_or(10).max(row_key_label.len());
 
-    // Store max widths for each distance column: HashMap<dist_str, width>
     let mut dist_col_widths: HashMap<String, usize> = HashMap::new();
     for dist_str in &sorted_distances {
         let mut max_width = dist_str.len(); // Start with header width
 
-        for filename in &sorted_filenames {
-            if let Some(file_results) = results.get(filename) {
-                 let combined_cell_len = match file_results.get(dist_str) {
-                    Some(&(u64::MAX, u64::MAX)) => "ERR/ERR".len(),
-                    Some((luma_diff, u64::MAX)) => format!("{}/ERR", luma_diff).len(),
-                    Some((u64::MAX, chroma_diff)) => format!("ERR/{}", chroma_diff).len(),
-                    Some((luma_diff, chroma_diff)) => format!("{}/{}", luma_diff, chroma_diff).len(),
-                    None => "N/A".len(), // Single N/A if no data for this distance
-                };
-                max_width = max_width.max(combined_cell_len);
+        for row_key in &sorted_row_keys {
+            if let Some(row_results) = results.get(row_key) {
+                let passed = row_results.get(dist_str).map(|table_results| {
+                    table_results.iter()
+                        .filter_map(|result_opt| result_opt.as_ref()) // Keep only Some(value)
+                        .all(|result| *result == 0) // Check if all results are 0
+                }).unwrap_or(false);
+                if passed && skip_passing_results {
+                    continue;
+                }
+                // Adjust cell length calculation: only join existing results
+                let table_results_str = row_results.get(dist_str).map(|table_results| {
+                    table_results.iter()
+                        .filter_map(|result_opt| result_opt.as_ref()) // Keep only Some(value)
+                        .map(|result| { // result here is &u64
+                            match result { // Match against references
+                                &0 => "0".to_string(),
+                                &u64::MAX => "ERR".to_string(),
+                                diff => diff.to_string(),
+                            }
+                        })
+                        .collect::<Vec<_>>().join("/")
+                }).unwrap_or_else(|| "".to_string());
+
+                max_width = max_width.max(table_results_str.len());
             }
         }
-         // Add padding if width is small
-        max_width = max_width.max(3); // Ensure minimum width
+        // REMOVED: max_width = max_width.max(X); // NO minimum width enforcement
         dist_col_widths.insert(dist_str.clone(), max_width);
     }
 
-    // --- Generate Summary Table ---
-    println!("\n--- Quantization Table Comparison Summary Table ---");
-    println!("(Cells show SumAbsDiff Luma/Chroma; 0/0=Match, >0=Mismatch, ERR=Error, N/A=Not Applicable)");
+    let mut test_output = String::new();
+    // --- Generate Aligned Table Output (Strict Width) ---
+    writeln!(test_output, "\n--- Quantization Table Comparison Summary (SetQuantMatrices Data) ---").unwrap();
+    writeln!(test_output, "(Cells show SumAbsDiff T0/T1/T2..; 0=Match, >0=Mismatch, ERR=Error, Blank=Inactive/NA)").unwrap();
 
-    // Print Header Line 1 (Distances)
-    print!("{:<width$}", "Filename", width = max_filename_width);
+    // Print Header Line (Aligned with strict padding)
+    // Don't put labels in the table, sep lines. write!(test_output, "{:<width$}", row_key_label, width = max_row_key_width).unwrap(); // Left align header
     for dist_str in &sorted_distances {
-        let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
-        print!("|{:^width$}", dist_str, width = col_width);
+        let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(dist_str.len()); // Default to header len if no data
+        write!(test_output, "|{:^width$}", dist_str, width = col_width).unwrap(); // REMOVED leading space before |
     }
-    println!();
+    writeln!(test_output).unwrap();
 
+    // Print Data Rows (Aligned with strict padding)
+    for row_key in &sorted_row_keys {
+        let mut passed = true;
+        let mut row_string = String::new();
+        write!(row_string, "{:<width$}\n", row_key, width = max_row_key_width).unwrap(); // Left align row key
+        if let Some(row_results) = results.get(row_key) {
 
-    // Print Header Separator Line
-    print!("{:-<width$}", "", width = max_filename_width);
-    for dist_str in &sorted_distances {
-        let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
-        print!("+{:-<width$}", "", width = col_width);
-    }
-    println!();
+            for dist_str in &sorted_distances {
+                let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(0); // Default to 0 if no data
+                // Format cell content: join only existing results
+                 let combined_cell = row_results.get(dist_str).map(|table_results| {
+                     table_results.iter()
+                         .filter_map(|result_opt| result_opt.as_ref())
+                         .map(|result| { // result here is &u64
+                             match result { // Match against references
+                                 &0 => "0".to_string(),
+                                 &u64::MAX => "ERR".to_string(),
+                                 diff => diff.to_string(),
+                             }
+                         })
+                         .collect::<Vec<_>>().join("/")
+                 }).unwrap_or_else(|| "".to_string());
 
-    // Print Rows
-    for filename in &sorted_filenames {
-        print!("{:<width$}", filename, width = max_filename_width);
-        let file_results = results.get(filename).unwrap(); // Should always exist
-        for dist_str in &sorted_distances {
-            let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(3);
-             let combined_cell = match file_results.get(dist_str) {
-                 Some(&(u64::MAX, u64::MAX)) => "ERR/ERR".to_string(),
-                 Some((luma_diff, u64::MAX)) => format!("{}/ERR", luma_diff),
-                 Some((u64::MAX, chroma_diff)) => format!("ERR/{}", chroma_diff),
-                 Some((luma_diff, chroma_diff)) => format!("{}/{}", luma_diff, chroma_diff),
-                 None => "N/A".to_string(), // Use single N/A
-            };
-            // Use calculated width for centered alignment
-            print!("|{:^width$}", combined_cell, width = col_width);
+                let all_zero = row_results.get(dist_str).map(|table_results| {
+                table_results.iter()
+                    .filter_map(|result_opt| result_opt.as_ref()) // Keep only Some(value)
+                    .all(|result| *result == 0)
+                }).unwrap_or(false);
+
+                if !combined_cell.is_empty() && !all_zero {  // Check if all results are 0
+                    passed = false;
+                }
+                write!(row_string, "|{:^width$}", combined_cell, width = col_width).unwrap(); // REMOVED leading space before |
+            }
+        } else {
+            // Print empty padded cells for missing data row
+             for dist_str in &sorted_distances {
+                 let col_width = dist_col_widths.get(dist_str).cloned().unwrap_or(0);
+                write!(row_string, "|{:^width$}", "", width = col_width).unwrap(); // REMOVED leading space before |
+             }
         }
-        println!();
+        if !passed || !skip_passing_results {
+            writeln!(test_output, "{}", row_string).unwrap(); // Newline after each row
+        }
     }
-    println!("---------------------------------------------------");
+    println!("{}", test_output);
+}
+// --- End Helper Function ---
 
-    // --- Final Verdict --- 
+#[test]
+// Renamed test function
+fn compare_set_quant_matrices_with_reference() {
+    // Data structure: HashMap<test_case_id, HashMap<distance_str, [Option<u64>; MAX_QUANT_TABLES]>>
+    let mut results: HashMap<String, HashMap<String, [Option<u64>; MAX_QUANT_TABLES]>> = HashMap::new();
+    let mut unique_distances: HashSet<String> = HashSet::new();
+    let mut any_failures = false; // Track if any comparison failed
+    let mut seen_failure_signatures: HashSet<(String, usize, u16, u64)> = HashSet::new(); // Track unique failure patterns
+
+    // Use the new data source
+    let test_subset = &*SET_QUANT_MATRICES_TESTS;
+
+    // No longer filtering by filename
+    // let subset_filenames = vec![...];
+    // let test_subset = REFERENCE_QUANT_TEST_DATA.iter()...
+
+    let total_tests = test_subset.len(); // Keep total test count
+    let mut tests_run = 0;
+
+    println!("\n--- Running Quant Table Comparison (SetQuantMatrices Data, {} cases) ---", total_tests);
+
+    // Iterate over SetQuantMatricesTest data
+    for test_case_data in test_subset {
+        let mut test_output = String::new();
+        tests_run += 1;
+        let mut case_failed_this_run = false; // Track failure for this specific case
+
+        // Create a Test Case ID (e.g., using index and source file) - Changed prefix
+        let mut test_case_id = format!("#{}: {}", tests_run, test_case_data.source_file);
+
+        // Parse distance from command_params
+        let mut distance_f32 = f32::NAN;
+        if let Some(index) = test_case_data.command_params.iter().position(|s| s == "--distance") {
+            if let Some(dist_str) = test_case_data.command_params.get(index + 1) {
+                if let Ok(d) = dist_str.parse::<f32>() {
+                    distance_f32 = d;
+                }
+            }
+        }
+        // Parse subsampling from command_params
+        let mut subsampling = None;
+        if let Some(index) = test_case_data.command_params.iter().position(|s| s == "--chroma_subsampling") {
+            if let Some(sub_str) = test_case_data.command_params.get(index + 1) {
+                subsampling = Subsampling::from_str(sub_str);
+            }
+        }
+        let distance_str = format!("{:.1}", distance_f32); // Use parsed distance
+        // Format active tables based on component order
+        let component_table_indices: Vec<usize> = test_case_data.config_components.iter()
+            .map(|comp| comp.quant_tbl_no as usize)
+            .collect();
+        let active_tables_str = format!("tables=[{}]", component_table_indices.iter().map(|i| i.to_string()).collect::<Vec<_>>().join(","));
+
+        // Updated Config Print Line
+        let header_line = format!(
+            "{} d{} (base={},std={},xyb={},add2chr={},adapt={},sub={},{}\n",
+            test_case_id,
+            distance_str,
+            test_case_data.config_force_baseline,
+            test_case_data.config_use_std_tables,
+            test_case_data.config_xyb_mode,
+            test_case_data.config_add_two_chroma_tables,
+            test_case_data.config_use_adaptive_quantization,
+            subsampling.map_or("444", |s|s.to_str()),   
+            active_tables_str // Add formatted active tables
+        );
+        test_case_id = header_line.clone();
+        test_output.push_str(&header_line);
+
+            
+        if distance_f32.is_nan() {
+            writeln!(test_output, "Skipping {}: Could not parse --distance from command_params: {:?}", test_case_id, test_case_data.command_params).unwrap();
+            results.entry(test_case_id).or_default().insert("N/A".to_string(), [Some(u64::MAX); MAX_QUANT_TABLES]); // Mark all tables as error for this case
+            any_failures = true;
+            case_failed_this_run = true; // Mark case as failed
+            eprintln!("FAIL {}", test_output);
+            continue;
+        }
+
+        // Now distance_str can be safely created
+        unique_distances.insert(distance_str.clone());
+
+ 
+        // Determine num_components based on the *config's* JpegColorSpace
+        let num_components = test_case_data.config_jpeg_color_space.get_num_components();
+
+        test_output.push_str(&format!("num_components: {}\n", num_components));
+        // --- Configure Quant Params from Test Case ---
+        let distance_clamped = distance_f32.clamp(0.0, 25.0); // Use parsed distance
+        let config_options = JpegliQuantConfigOptions {
+            distance: Some(distance_clamped),
+            quality: None,
+            xyb_mode: Some(test_case_data.config_xyb_mode),
+            use_std_tables: Some(test_case_data.config_use_std_tables),
+            use_adaptive_quantization: Some(test_case_data.config_use_adaptive_quantization),
+            force_baseline: Some(test_case_data.config_force_baseline),
+            // Assume 444 for simplicity, component info/subsampling isn't used directly for quant table gen here
+            chroma_subsampling: subsampling,
+            jpeg_color_space: test_case_data.config_jpeg_color_space,
+            cicp_transfer_function: SimplifiedTransferCharacteristics::from_int(
+                test_case_data.config_cicp_transfer_function
+            ),
+            add_two_chroma_tables: Some(test_case_data.config_add_two_chroma_tables),
+        };
+        if config_options.cicp_transfer_function.is_some() &&
+            config_options.cicp_transfer_function.unwrap() != SimplifiedTransferCharacteristics::Default {
+            writeln!(test_output, "DEBUG {}: config_cicp_transfer_function: {:?}", test_case_id, config_options.cicp_transfer_function).unwrap();
+        }
+
+        // --- Create Validated Params & State (as before) ---
+        let quant_params_result = JpegliQuantParams::from_config(&config_options);
+        if quant_params_result.is_err() {
+             writeln!(test_output, "Skipping {}: JpegliQuantParams creation failed: {:?}", test_case_id, quant_params_result.err().unwrap()).unwrap();
+             results.entry(test_case_id.clone()).or_default().insert(distance_str.clone(), [Some(u64::MAX); MAX_QUANT_TABLES]);
+             any_failures = true;
+             case_failed_this_run = true; // Mark case as failed
+             eprintln!("FAIL {}", test_output);
+             continue;
+        }
+        let mut quant_params = quant_params_result.unwrap();
+
+        let quantizer_state_result =
+         JpegliQuantizerState::new(&mut quant_params, QuantPass::NoSearch);
+        if quantizer_state_result.is_err() {
+             writeln!(test_output, "Skipping {}: JpegliQuantizerState creation failed: {:?}", test_case_id, quantizer_state_result.err().unwrap()).unwrap();
+             results.entry(test_case_id.clone()).or_default().insert(distance_str.clone(), [Some(u64::MAX); MAX_QUANT_TABLES]);
+             any_failures = true;
+             case_failed_this_run = true; // Mark case as failed
+             eprintln!("FAIL {}", test_output);
+             continue;
+        }
+        let quantizer_state = quantizer_state_result.unwrap();
+        let maybe_rust_tables = quantizer_state.raw_quant_tables;
+
+        // --- Determine Active Tables --- 
+        let active_table_indices: HashSet<usize> = test_case_data.config_components.iter()
+            .map(|comp| comp.quant_tbl_no as usize)
+            .collect();
+        // println!("DEBUG {}: Active table indices (set): {:?}", test_case_id, active_table_indices);
+
+
+        // Remove the sort step
+        // let mut sorted_active_indices: Vec<usize> = active_table_indices.iter().cloned().collect();
+        // sorted_active_indices.sort();
+        
+ 
+        // --- Refactored Comparison Logic --- 
+        let mut current_results: [Option<u64>; MAX_QUANT_TABLES] = [None; MAX_QUANT_TABLES];
+
+        for table_idx in 0..MAX_QUANT_TABLES { // Check all potential table slots
+
+            let is_active = active_table_indices.contains(&table_idx);
+            let table_label = get_table_label(table_idx);
+
+            let generated_table_opt = maybe_rust_tables.get(table_idx).and_then(|t| t.as_ref());
+            let expected_table_opt = test_case_data.expected_quant_tables.get(table_idx).and_then(|o| o.as_ref());
+
+            let mut comparison_result: Option<u64> = None; // Default to inactive/not compared
+            let mut error_occurred = false;
+
+            match (generated_table_opt, expected_table_opt) {
+                (Some(generated_vec), Some(expected_vec)) => {
+                    // Both exist, compare if active
+                    if is_active {
+                        if let (Ok(generated_arr), Ok(expected_arr)) =
+                           (<&[u16; DCTSIZE2]>::try_from(generated_vec.as_slice()), <&[u16; DCTSIZE2]>::try_from(expected_vec.as_slice()))
+                        {
+                           let result = compare_quant_tables(&table_label, generated_arr, expected_arr, 0, &test_case_id);
+                           comparison_result = Some(result.sum_abs_diff); // 0 for match, >0 for mismatch
+                           if !result.is_success() {
+                               any_failures = true;
+                               case_failed_this_run = true; // Mark case as failed
+                               let failure_details = print_failure_details(&test_case_id, &distance_str, &result, &mut seen_failure_signatures);
+                               if let Some(details) = failure_details {
+                                   write!(test_output, "{}", details).unwrap();
+                               }
+                           }
+                        } else {
+                            writeln!(test_output, "Error {}: Size mismatch for active Table {} (Generated: {}, Expected: {})", test_case_id, table_idx, generated_vec.len(), expected_vec.len()).unwrap();
+                            error_occurred = true;
+                            case_failed_this_run = true; // Mark case as failed
+                        }
+                    } else {
+                         // Both exist, but table is not active - potentially WARN if different?
+                         // For now, treat as inactive (None result)
+                    }
+                }
+                (Some(generated_vec), None) => {
+                    // Generated exists, but expected is missing (or None entry)
+                    if is_active {
+                         writeln!(test_output, "Error {}: Generated Table {} but expected None or missing", test_case_id, table_idx).unwrap();
+                         error_occurred = true;
+                         case_failed_this_run = true; // Mark case as failed
+                    } else {
+                        // Generated exists, but inactive -> Not an error, just ignore
+                        // println!("WARN {}: Generated inactive Table {} ({:?}...)", test_case_id, table_idx, &generated_vec[0..4.min(generated_vec.len())]);
+                    }
+                }
+                (None, Some(expected_vec)) => {
+                     // Generated is missing, but expected exists
+                     if is_active {
+                          writeln!(test_output, "Error {}: Missing generated Table {}, but expected", test_case_id, table_idx).unwrap();
+                          error_occurred = true;
+                          case_failed_this_run = true; // Mark case as failed
+                     } else {
+                          // Expected exists, but inactive -> Not an error, just ignore
+                          // println!("WARN {}: Expected inactive Table {} ({:?}...)", test_case_id, table_idx, &expected_vec[0..4.min(expected_vec.len())]);
+                     }
+                }
+                (None, None) => {
+                     // Both missing, OK whether active or not.
+                     // comparison_result remains None
+                }
+            }
+
+            if error_occurred {
+                 current_results[table_idx] = Some(u64::MAX); // Store Error marker
+                 any_failures = true;
+                 // case_failed_this_run is already set above when error_occurred is true
+            } else {
+                 current_results[table_idx] = comparison_result; // Store None, Some(0), or Some(diff)
+            }
+        }
+
+        // --- End Refactored Comparison Logic ---
+
+        // Store results using Test Case ID and distance string
+        results.entry(test_case_id.clone()).or_default().insert(distance_str.clone(), current_results);
+
+        // Print PASS/FAIL for this specific test case
+        if case_failed_this_run {
+            eprintln!("FAIL {}", test_output.trim_end());
+        } else {
+            eprintln!("PASS {}", test_output.trim_end());
+        }
+
+    }
+
+    // --- Generate Summary Table using Helper ---
+    print_set_quant_summary_table(&results, &unique_distances, "Test Case", true); // Use updated helper
+
+    // --- Final Verdict ---
     if any_failures {
-        // TODO: Investigate reference data generation for d>=0.5.
-        // The Rust implementation of compute_jpegli_quant_table appears correct
-        // based on code analysis, but mismatches reference data for d>=0.5.
-        // Quantization formula bug was fixed, re-run tests after ensuring other pipeline steps are correct.
-        // Potential causes for remaining mismatch: incorrect is_yuv420 assumption in test,
-        // differences in C++ vs Rust float math, or subtle bug in Rust quant logic.
-        // This panic is currently EXPECTED until reference data is verified/regenerated.
-        panic!("Quantization table comparison failed. See table above for details (SumAbsDiff > 0 or ERR indicates failure).");
+        // Adjust panic message
+        panic!("Quantization table comparison failed for SetQuantMatrices tests. See table above for details (SumAbsDiff > 0 or ERR indicates failure).");
     } else {
-        // This path likely won't be hit until reference data is fixed.
-        println!("All {} test cases produced matching quantization tables (within tolerance)!", tests_run);
+        println!("All {} SetQuantMatrices test cases produced matching quantization tables (within tolerance)!", tests_run);
     }
 }
 

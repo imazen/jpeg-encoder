@@ -1,2 +1,11 @@
 !external
 !jpegli
+*.json
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.bmp
+*.gif
+*.tiff
+*.testdata

@@ -12,7 +12,7 @@ use alloc::format;
 use crate::jpegli::fdct_jpegli::forward_dct_float;
 use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
 use crate::image_buffer::RgbImage; // Need RgbImage for buffer creation
-use super::{quant_constants::*, SimplifiedTransferCharacteristics, Subsampling};
+use super::{quant_constants::*, JpegColorSpace, SimplifiedTransferCharacteristics, Subsampling};
 use super::tf;
 use super::xyb;
 
@@ -310,7 +310,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         self.init_components(jpeg_color_type, width, height)?;
 
         // 2. Setup Jpegli quantization tables and zero-bias info
-        self.setup_jpegli_quantization(jpeg_color_type)?;
+        self.setup_jpegli_quantization(JpegColorSpace::from(jpeg_color_type))?;
 
         // 3. Read and pad all image rows (full resolution, float [0, 255])
         let full_res_padded_planes = self.read_and_pad_rows(image, width as usize, height as usize)?;
@@ -536,7 +536,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
     }
 
     /// Computes and stores Jpegli quantization tables and zero-bias info.
-    pub(crate) fn setup_jpegli_quantization(&mut self, color_type: JpegColorType) -> Result<(), EncodingError> {
+    pub(crate) fn setup_jpegli_quantization(&mut self, color_type: JpegColorSpace) -> Result<(), EncodingError> {
         let num_components = color_type.get_num_components();
         if num_components == 0 {
             return Err(EncodingError::JpegliError("Cannot setup quantization for 0 components".into()));
@@ -555,7 +555,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             chroma_subsampling: Some(Subsampling::from_sampling_factor(self.sampling_factor).unwrap()), // Pass the encoder's current setting
             // Required info from image/encoder state
             add_two_chroma_tables: Some(true),
-            jpeg_color_type: color_type, 
+            jpeg_color_space: color_type, 
             cicp_transfer_function: None, // TODO: Get actual transfer function if known
         };
 
@@ -998,7 +998,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
              use_adaptive_quantization: Some(true), // Doesn't affect table gen
              force_baseline: Some(false),
              chroma_subsampling: None, // Doesn't affect luma table
-             jpeg_color_type: JpegColorType::Luma, // For grayscale calculation
+             jpeg_color_space: JpegColorSpace::Grayscale, // For grayscale calculation
              cicp_transfer_function: None, 
              add_two_chroma_tables: Some(true),
         };

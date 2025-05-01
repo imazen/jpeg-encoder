@@ -1,11 +1,16 @@
 use serde::Deserialize;
+use serde_repr::*;
+
+use crate::{jpegli::JpegColorSpace, JpegColorType};
 
 // Common types used across tests (assuming these exist or will be created in Rust)
 // TODO: Define these properly based on Rust implementation
-pub type JpegColorSpace = i32; // Represents J_COLOR_SPACE
+
 pub type QuantPass = i32;      // Represents jpegli::QuantPass enum
 pub type JpegliDataType = i32; // Represents JpegliDataType enum
 pub type JpegliEndianness = i32; // Represents JpegliEndianness enum
+
+
 
 // Minimal component info needed for various setup steps
 #[derive(Debug, PartialEq, Clone, Deserialize)]
@@ -63,6 +68,11 @@ pub struct SetQuantMatricesTest {
     pub config_jpeg_color_space: JpegColorSpace,
     pub config_cicp_transfer_function: i32,
     pub config_components: Vec<ComponentInfoMinimal>,
+    pub config_add_two_chroma_tables: bool,
+    pub config_use_adaptive_quantization: bool,
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 
     // Direct function argument (or derived from quality/linear_quality)
     pub input_distances: Vec<f32>, // Size NUM_QUANT_TBLS (typically 4)
@@ -70,7 +80,7 @@ pub struct SetQuantMatricesTest {
     // Expected state *after* the function call (quant tables in cinfo)
     // Using Vec<u16> directly assumes table indices 0..N are used contiguously.
     // Option<Vec<u16>> allows for potentially skipped/null tables.
-    pub expected_quant_tables: Vec<Option<Vec<u16>>>, // Size NUM_QUANT_TBLS (4)
+    pub expected_quant_tables: Vec<Option<Vec<u16>>>, 
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
@@ -82,6 +92,9 @@ pub struct InitQuantizerTest {
     pub config_components: Vec<ComponentInfoMinimal>, // Needed for QuantValsToDistance if adaptive
     pub config_force_baseline: bool, // Needed for QuantValsToDistance
     pub config_cicp_transfer_function: i32, // Needed for QuantValsToDistance
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 
     // Direct input parameter
     pub input_pass: QuantPass,
@@ -101,6 +114,9 @@ pub struct ComputePreErosionTest {
     pub input_y0: usize, // Start row index for processing
     pub input_ylen: usize, // Number of rows processed
 
+    pub source_file: String,
+    pub command_params: Vec<String>,
+
     // Input State (Slice of Y input buffer with required context/borders)
     pub input_luma_slice: RustRowBufferSliceF32,
 
@@ -112,6 +128,9 @@ pub struct ComputePreErosionTest {
 pub struct FuzzyErosionTest {
     // Input State (Slice of pre-erosion buffer with required context/borders)
     pub input_pre_erosion_slice: RustRowBufferSliceF32,
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 
     // Config/Parameters (block coordinates)
     pub config_yb0: usize, // Start block row
@@ -128,6 +147,9 @@ pub struct PerBlockModulationsTest {
     pub config_xsize_blocks: usize, // Y component width in blocks
     pub input_yb: usize, // Start block row
     pub input_yblen: usize, // Number of block rows
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 
     // Input State
     pub input_luma_slice: RustRowBufferSliceF32,
@@ -150,6 +172,9 @@ pub struct ComputeAdaptiveQuantFieldTest {
     // pub config_max_v_samp_factor: i32, // Derived
     pub config_y_comp_width_in_blocks: usize,
     pub config_y_comp_height_in_blocks: usize,
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 
     // Processing parameters for this specific call
     pub input_y0: usize, // Start row index
@@ -175,6 +200,9 @@ pub struct RgbToYCbCrTest {
     pub expected_y_row: Vec<f32>,
     pub expected_cb_row: Vec<f32>,
     pub expected_cr_row: Vec<f32>,
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
@@ -190,6 +218,9 @@ pub struct DownsampleInputBufferTest {
     // State: Expected slices of m->raw_data for each component after downsampling
     // Contains only valid downsampled data (e.g. 4x4 for Cb/Cr) padded to block size (8x8)
     pub expected_raw_data_slices: Vec<RustRowBufferSliceF32>,
+
+    pub source_file: String,
+    pub command_params: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
@@ -208,6 +239,9 @@ pub struct ComputeCoefficientBlockTest {
      // Expected Output State & Results for the block
      pub expected_coeffs_block: BlockI32, // 64 quantized coefficients (int32)
      pub expected_new_last_dc_coeff: i16, // State after processing this block
+
+     pub source_file: String,
+     pub command_params: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
@@ -221,4 +255,7 @@ pub struct ComputeTokensForBlockTest {
 
      // Expected Output
      pub expected_tokens: Vec<Token>, // Sequence of tokens generated for this block
+
+     pub source_file: String,
+     pub command_params: Vec<String>,
  } 

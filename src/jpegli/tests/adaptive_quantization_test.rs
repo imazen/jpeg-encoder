@@ -3,9 +3,10 @@
 #[cfg(test)]
 mod adaptive_quantization_tests {
     use crate::jpegli::adaptive_quantization::*;
-    use crate::jpegli::tests::structs::*;
-    use crate::jpegli::tests::testdata::*;
-    use crate::jpegli::tests::test_utils::assert_buffer_eq;
+    use super::structs::{ComputeAdaptiveQuantFieldTest, ComputePreErosionTest, FuzzyErosionTest, PerBlockModulationsTest};
+    use super::testdata::*;
+    use super::test_utils::assert_buffer_eq;
+    use crate::assert_float_relative_eq;
     use alloc::vec;
     use alloc::vec::Vec;
 

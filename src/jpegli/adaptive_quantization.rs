@@ -230,7 +230,7 @@ fn ratio_of_derivatives(val: f32, invert: bool) -> f32 {
 }
 
 /// Ported from ComputePreErosion (scalar version).
-fn compute_pre_erosion_scalar(
+pub(crate) fn compute_pre_erosion_scalar(
     input_scaled: &[f32], // Input scaled to [0, 1]
     width: usize,
     height: usize,
@@ -315,7 +315,7 @@ fn update_min4(val: f32, mins: &mut [f32; 4]) {
 
 /// Ported from FuzzyErosion (scalar version).
 /// NOTE: The final mapping to the output block might be an approximation of C++ SIMD logic.
-fn fuzzy_erosion_scalar(
+pub(crate) fn fuzzy_erosion_scalar(
     pre_erosion: &[f32],
     pre_erosion_w: usize,
     pre_erosion_h: usize,
@@ -474,13 +474,8 @@ fn fast_pow2f(x: f32) -> f32 {
     }
 }
 
-/// Ported from PerBlockModulations (scalar version).
-/// Calculates the final AQ map values based on various inputs.
-/// Modifies aq_map in place.
-// Remove the multiversion attribute for now, focus on scalar correctness
-// #[multiversion(targets("x86_64+avx2", "x86_64+sse4.1", "aarch64+neon"))]
-#[inline]
-fn per_block_modulations_scalar(
+/// Applies per-block modulations based on local pixel intensity.
+pub(crate) fn per_block_modulations_scalar(
     ymap: &[f32], // Input map from fuzzy erosion (block level)
     input_scaled: &[f32], // Original scaled pixel data (pixel level)
     block_w: usize,

@@ -13,11 +13,16 @@ pub mod xyb;
 pub mod jpegli_encoder;
 pub use jpegli_encoder::JpegliEncoder;
 
-#[cfg(test)]
+use serde::{Deserialize, Serialize};
+use serde_repr::*;
+
 mod reference_test_data;
 
 #[cfg(test)]
 mod reference_tests;
+
+#[cfg(test)]
+mod tests;
 
 // Define the configuration and state for Jpegli encoding
 #[derive(Debug, Clone)] // Added Clone for convenience, might need review
@@ -109,7 +114,7 @@ impl JpegliConfig {
 // 0	reserved	―
 // 1	ITU-R BT.709	“bt709”, Rec. 709 HDTV SDR gamma ≈ 2.4 (also reused for BT.601/2020 SDR) 
 // GitHub
-// 2	unspecified	encoder didn’t signal – decoder must assume container defaults 
+// 2	unspecified	encoder didn't signal – decoder must assume container defaults 
 // matroska.org
 // 3	reserved	―
 // 4	BT.470 System M	CRT gamma 2.2 (NTSC-M SDTV)
@@ -135,13 +140,13 @@ impl JpegliConfig {
 // Values 1 / 6 / 14 / 15 are mathematically identical; many tool-chains treat them as synonyms. 
 // W3C
 
-// HEVC/AV1, WebCodecs, GStreamer, FFmpeg/Libav and AVIF/JPEG-XL libraries fully parse the table above. Libjpeg/libjpeg-turbo ignore CICP because “legacy” JPEG has no carriage for it; color is assumed sRGB.
+// HEVC/AV1, WebCodecs, GStreamer, FFmpeg/Libav and AVIF/JPEG-XL libraries fully parse the table above. Libjpeg/libjpeg-turbo ignore CICP because "legacy" JPEG has no carriage for it; color is assumed sRGB.
 
 // When a full ICC profile is present (e.g. in HEIF/AVIF), the CICP triplet is advisory and may be overridden.
 
 // For SDR JPEG workflows, signalling 1/13/6 (BT.709 primaries, sRGB TRC, BT.601 coeffs) mirrors the implicit assumptions of most JPEG decoders and avoids surprise gamut shifts.
 
-// Use only the enumerated values; anything else risks being rejected or silently mapped to ‘unspecified’.
+// Use only the enumerated values; anything else risks being rejected or silently mapped to 'unspecified'.
 
 /// Unspecified and reserved valus are not permitted in this enum
 #[derive(Debug, Clone, Copy)]
@@ -181,7 +186,7 @@ pub(crate) enum TransferCharacteristics{
 }
 
 /// 444|422|420|440
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Subsampling{
     /// 4:4:4
     YCbCr444 = 1,
@@ -300,6 +305,14 @@ impl Subsampling{
             _ => None,
         }
     }
+    pub fn to_str(&self) -> &'static str{
+        match self{
+            Self::YCbCr444 => "444",
+            Self::YCbCr440 => "440",
+            Self::YCbCr422 => "422",
+            Self::YCbCr420 => "420",
+        }
+    }
     pub fn to_h_v_samp_factor(&self) -> (u8, u8){
         match self{
             Self::YCbCr444 => (1, 1),
@@ -334,7 +347,7 @@ impl Subsampling{
 }
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SimplifiedTransferCharacteristics{
     /// SDR (default)
     Default = 1,
@@ -354,12 +367,121 @@ impl SimplifiedTransferCharacteristics{
             Self::Hlg => 18,
         }
     }
-    pub fn from_int(value: u8) -> Option<Self>{
+    pub fn from_int(value: i32) -> Option<Self>{
         match value{
             1 | 13 | 6 => Some(Self::Default),
             16 => Some(Self::Pq),
             18 => Some(Self::Hlg),
             _ => None,
+        }
+    }
+}
+
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
+#[repr(i32)]
+pub enum JpegColorSpace {
+    /// error/unspecified
+    Unknown = 0,            /* error/unspecified */
+    /// monochrome
+    Grayscale = 1,          /* monochrome */
+    /// red/green/blue as specified by the RGB_RED,
+    /// RGB_GREEN, RGB_BLUE, and RGB_PIXELSIZE macros */
+    Rgb = 2,                /* red/green/blue as specified by the RGB_RED,
+                               RGB_GREEN, RGB_BLUE, and RGB_PIXELSIZE macros */
+    /// Y/Cb/Cr (also known as YUV)
+    YCbCr = 3,              /* Y/Cb/Cr (also known as YUV) */
+    /// C/M/Y/K
+    Cmyk = 4,               /* C/M/Y/K */
+    /// Y/Cb/Cr/K
+    Ycck = 5,               /* Y/Cb/Cr/K */
+    /// red/green/blue
+    ExtRgb = 6,            /* red/green/blue */
+    /// red/green/blue/x
+    ExtRgbx = 7,           /* red/green/blue/x */
+    /// blue/green/red
+    ExtBgr = 8,            /* blue/green/red */
+    /// blue/green/red/x
+    ExtBgrx = 9,           /* blue/green/red/x */
+    /// x/blue/green/red
+    ExtXbgr = 10,           /* x/blue/green/red */
+    /// x/red/green/blue
+    ExtXrgb = 11,           /* x/red/green/blue */
+    /// red/green/blue/alpha
+    ExtRgba = 12,           /* red/green/blue/alpha */
+    /// blue/green/red/alpha
+    ExtBgra = 13,           /* blue/green/red/alpha */
+    /// alpha/blue/green/red
+    ExtAbgr = 14,           /* alpha/blue/green/red */
+    /// alpha/red/green/blue
+    ExtArgb = 15,           /* alpha/red/green/blue */
+    /// 5-bit red/6-bit green/5-bit blue
+    Rgb565 = 16,           /* 5-bit red/6-bit green/5-bit blue */
+}
+
+impl TryFrom<i32> for JpegColorSpace {
+    type Error = String;
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        if JpegColorSpace::from_i32(value).is_some() {
+            Ok(JpegColorSpace::from_i32(value).unwrap())
+        } else {
+            Err("Invalid value for JpegColorSpace".to_string())
+        }
+    }
+}
+impl From<crate::encoder::JpegColorType> for JpegColorSpace {
+    fn from(value: crate::encoder::JpegColorType) -> Self {
+        match value{
+            crate::encoder::JpegColorType::Luma => Self::Grayscale,
+            crate::encoder::JpegColorType::Ycbcr => Self::YCbCr,
+            crate::encoder::JpegColorType::Cmyk => Self::Cmyk,
+            crate::encoder::JpegColorType::Ycck => Self::Ycck,
+            _ => panic!("Invalid color type"),
+        }
+    }
+}
+impl JpegColorSpace {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Unknown),
+            1 => Some(Self::Grayscale),
+            2 => Some(Self::Rgb),
+            3 => Some(Self::YCbCr),
+            4 => Some(Self::Cmyk),
+            5 => Some(Self::Ycck),
+            6 => Some(Self::ExtRgb),
+            7 => Some(Self::ExtRgbx),
+            8 => Some(Self::ExtBgr),
+            9 => Some(Self::ExtBgrx),
+            10 => Some(Self::ExtXbgr),
+            11 => Some(Self::ExtXrgb),
+            12 => Some(Self::ExtRgba),
+            13 => Some(Self::ExtBgra),
+            14 => Some(Self::ExtAbgr),
+            15 => Some(Self::ExtArgb),
+            16 => Some(Self::Rgb565),
+            _ => None,
+        }
+    }
+    /// What the output format is for the given imput format.
+    pub fn to_output_color_type(&self) -> crate::encoder::JpegColorType {
+        match self {
+            Self::Grayscale => crate::encoder::JpegColorType::Luma,
+            Self::Cmyk => crate::encoder::JpegColorType::Cmyk,
+            Self::Ycck => crate::encoder::JpegColorType::Ycck,
+            _ => crate::encoder::JpegColorType::Ycbcr,
+        }
+    }
+
+    pub fn get_num_components(&self) -> usize{
+        match self{
+            Self::Grayscale => 1,
+            Self::Rgb => 3,
+            Self::YCbCr => 3,
+            Self::Cmyk => 4,
+            Self::Ycck => 4,
+            Self::ExtRgb => 3,
+            Self::ExtBgr => 3,
+            _ => panic!("Invalid color space"),
         }
     }
 }

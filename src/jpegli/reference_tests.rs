@@ -358,11 +358,11 @@ fn compare_set_quant_matrices_with_reference() {
         let mut test_case_id = format!("#{}: {}", tests_run, test_case_data.source_file);
 
         // Parse distance from command_params
-        let mut distance_f32 = f32::NAN;
+        let mut distance_command = f32::NAN;
         if let Some(index) = test_case_data.command_params.iter().position(|s| s == "--distance") {
             if let Some(dist_str) = test_case_data.command_params.get(index + 1) {
                 if let Ok(d) = dist_str.parse::<f32>() {
-                    distance_f32 = d;
+                    distance_command = d;
                 }
             }
         }
@@ -373,7 +373,9 @@ fn compare_set_quant_matrices_with_reference() {
                 subsampling = Subsampling::from_str(sub_str);
             }
         }
-        let distance_str = format!("{:.1}", distance_f32); // Use parsed distance
+        let logged_distance = test_case_data.input_distances.first().unwrap();
+
+        let distance_str = format!("{:.1}", logged_distance); // Use parsed distance
         // Format active tables based on component order
         let component_table_indices: Vec<usize> = test_case_data.config_components.iter()
             .map(|comp| comp.quant_tbl_no as usize)
@@ -397,13 +399,8 @@ fn compare_set_quant_matrices_with_reference() {
         test_output.push_str(&header_line);
 
             
-        if distance_f32.is_nan() {
-            writeln!(test_output, "Skipping {}: Could not parse --distance from command_params: {:?}", test_case_id, test_case_data.command_params).unwrap();
-            results.entry(test_case_id).or_default().insert("N/A".to_string(), [Some(u64::MAX); MAX_QUANT_TABLES]); // Mark all tables as error for this case
-            any_failures = true;
-            case_failed_this_run = true; // Mark case as failed
-            eprintln!("FAIL {}", test_output);
-            continue;
+        if distance_command != *logged_distance {
+            writeln!(test_output, "(normal in some code paths): SetQuantMatricesTest was called with different distance than logged: {} != {}, command: {:?}", distance_command, logged_distance, test_case_data.command_params ).unwrap();
         }
 
         // Now distance_str can be safely created
@@ -413,9 +410,9 @@ fn compare_set_quant_matrices_with_reference() {
         // Determine num_components based on the *config's* JpegColorSpace
         let num_components = test_case_data.config_jpeg_color_space.get_num_components();
 
-        test_output.push_str(&format!("num_components: {}\n", num_components));
+        //test_output.push_str(&format!("num_components: {}\n", num_components));
         // --- Configure Quant Params from Test Case ---
-        let distance_clamped = distance_f32.clamp(0.0, 25.0); // Use parsed distance
+        let distance_clamped = logged_distance.clamp(0.0, 25.0); // Use parsed distance
         let config_options = JpegliQuantConfigOptions {
             distance: Some(distance_clamped),
             quality: None,

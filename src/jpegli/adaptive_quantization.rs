@@ -1,4 +1,7 @@
+#![allow(unused_imports)] // Allow temporarily during refactoring
 //! Adaptive quantization logic ported from Jpegli.
+
+use crate::jpegli::adaptive_quant_math as aq_math; // Use crate-relative path
 
 use alloc::vec;
 use alloc::vec::Vec;
@@ -10,55 +13,23 @@ use std::println;
 #[cfg(feature = "std")]
 use std::eprintln;
 
-// Constants ported from adaptive_quantization.cc
-// const K_MASK_MULTIPLIER: f32 = 0.855;
-// const K_EDGE_MULTIPLIER: f32 = 0.6;
-// const K_BORDER_MULTIPLIER: f32 = 0.125;
-
-// Gamma-related constant from ComputePreErosion
-const MATCH_GAMMA_OFFSET: f32 = 0.019; // Note: Jpegli divides by kInputScaling (255.0), applied at usage.
-const LIMIT: f32 = 0.2;
-
-// Constants from MaskingSqrt
-// const K_LOG_OFFSET_SQRT: f32 = 28.0; // Seems unused in C++?
-// const K_MUL_SQRT: f32 = 211.50759899638012 * 1e8; // Seems unused in C++?
-
-// Constants for PerBlockModulations
+// Constants specific to the top-level AQ modulation logic
 const K_AC_QUANT: f32 = 0.841;
 const K_BASE_LEVEL: f32 = 0.48 * K_AC_QUANT;
 const K_DAMPEN_RAMP_START: f32 = 9.0;
 const K_DAMPEN_RAMP_END: f32 = 65.0;
-// Note: kInputScaling (1.0 / 255.0) is applied where needed
-const K_INPUT_SCALING: f32 = 1.0 / 255.0;
-const K_GAMMA_MOD_BIAS: f32 = 0.16 * K_INPUT_SCALING; // Adjusted for scaling
-const K_GAMMA_MOD_SCALE: f32 = 1.0 / 64.0; // Scale is independent of input scaling here
-const K_INV_LOG2E: f32 = 0.6931471805599453; // ln(2)
+
+// Constants needed by remaining scalar functions in this file
+// TODO: Remove these once compute_pre_erosion_scalar is replaced
+const K_INPUT_SCALING: f32 = 1.0 / 255.0; // Still used by compute_pre_erosion_scalar offset calc
+const MATCH_GAMMA_OFFSET: f32 = 0.019; // Used by compute_pre_erosion_scalar
+const LIMIT: f32 = 0.2; // Used by compute_pre_erosion_scalar
+// Restore constants needed by hf_modulation_scalar and gamma_modulation_scalar
+const K_HF_MOD_COEFF: f32 = -2.0052193233688884 * K_INPUT_SCALING / 112.0;
+const K_GAMMA_MOD_BIAS: f32 = 0.16 / K_INPUT_SCALING;
+const K_GAMMA_MOD_SCALE: f32 = 1.0 / 64.0;
+const K_INV_LOG2E: f32 = 0.6931471805599453;
 const K_GAMMA_MOD_GAMMA: f32 = -0.15526878023684174 * K_INV_LOG2E;
-const K_HF_MOD_COEFF: f32 = -2.0052193233688884 / 112.0;
-
-// Constants for ComputeMask (from C++)
-const K_MASK_BASE: f32 = 0.6109318733215332;
-const K_MUL4: f32 = 0.03879999369382858;
-const K_MUL2: f32 = 0.17580001056194305;
-const K_MASK_MUL4: f32 = 3.2353257320940401;
-const K_MASK_MUL2: f32 = 12.906028311180409;
-const K_MASK_OFFSET2: f32 = 305.04035728311436;
-const K_MASK_MUL3: f32 = 5.0220313103171232;
-const K_MUL3: f32 = 0.30230000615119934;
-const K_MASK_OFFSET3: f32 = 2.1925739705298404;
-const K_MASK_OFFSET4: f32 = 0.25 * K_MASK_OFFSET3;
-const K_MASK_MUL0: f32 = 0.74760422233706747;
-
-// Constants from C++ RatioOfDerivatives...
-const K_EPSILON_RATIO: f32 = 1e-2;
-const K_NUM_OFFSET_RATIO: f32 = K_EPSILON_RATIO / K_INPUT_SCALING / K_INPUT_SCALING;
-const K_SG_MUL: f32 = 226.0480446705883;
-const K_SG_MUL2: f32 = 1.0 / 73.377132366608819;
-const K_SG_RET_MUL: f32 = K_SG_MUL2 * 18.6580932135 * K_INV_LOG2E;
-const K_NUM_MUL_RATIO: f32 = K_SG_RET_MUL * 3.0 * K_SG_MUL;
-const K_SG_VOFFSET: f32 = 7.14672470003;
-const K_VOFFSET_RATIO: f32 = (K_SG_VOFFSET * K_INV_LOG2E + K_EPSILON_RATIO) / K_INPUT_SCALING;
-const K_DEN_MUL_RATIO: f32 = K_INV_LOG2E * K_SG_MUL * K_INPUT_SCALING * K_INPUT_SCALING;
 
 struct PerBlockModulations {
     scale: f32,
@@ -206,29 +177,6 @@ fn downsample_to_blocks(
     }
 }
 
-/// Scalar implementation approximating jpegli's Masking function.
-/// NOTE: This function is removed as its logic is integrated into ComputeAdaptiveQuantField
-// fn masking_scalar(...) { ... }
-
-/// Scalar implementation approximating jpegli's EdgeDetector function.
-/// NOTE: This function is removed as its logic is integrated into ComputeAdaptiveQuantField
-// fn edge_detector_scalar(...) { ... }
-
-/// Calculates the ratio of derivatives needed for psychovisual modulation.
-/// Ported from RatioOfDerivativesOfCubicRootToSimpleGamma.
-fn ratio_of_derivatives(val: f32, invert: bool) -> f32 {
-    let v = val.max(0.0); // Equivalent to ZeroIfNegative
-    let v2 = v * v;
-
-    let num = K_NUM_MUL_RATIO * v2 + K_NUM_OFFSET_RATIO;
-    let den = (K_DEN_MUL_RATIO * v) * v2 + K_VOFFSET_RATIO;
-
-    // Avoid division by zero, although den should be > 0 for v >= 0
-    let safe_den = if den == 0.0 { 1e-9 } else { den };
-
-    if invert { num / safe_den } else { safe_den / num }
-}
-
 /// Ported from ComputePreErosion (scalar version).
 pub(crate) fn compute_pre_erosion_scalar(
     input_scaled: &[f32], // Input scaled to [0, 1]
@@ -238,85 +186,95 @@ pub(crate) fn compute_pre_erosion_scalar(
 ) {
     let pre_erosion_w = (width + 3) / 4;
     let pre_erosion_h = (height + 3) / 4;
-    pre_erosion.resize(pre_erosion_w * pre_erosion_h, 0.0);
+    if pre_erosion.len() < pre_erosion_w * pre_erosion_h {
+        pre_erosion.resize(pre_erosion_w * pre_erosion_h, 0.0);
+    }
+    pre_erosion.fill(0.0);
 
-    let limit = LIMIT / K_INPUT_SCALING; // Adjust limit based on input scaling
-    let offset = MATCH_GAMMA_OFFSET / K_INPUT_SCALING; // Adjust offset
+    // --- Padding --- 
+    // Create padded versions of input rows needed for neighbor access
+    // We need border of 1 pixel left/right. Top/bottom handled by loop bounds.
+    let border = 1;
+    let padded_width = width + 2 * border;
+    let mut row_t_padded = vec![0.0; padded_width];
+    let mut row_m_padded = vec![0.0; padded_width];
+    let mut row_b_padded = vec![0.0; padded_width];
 
-    for y_block in 0..pre_erosion_h {
-        let y_start = y_block * 4;
-        for x_block in 0..pre_erosion_w {
-            let x_start = x_block * 4;
-            let mut minval: f32 = f32::INFINITY;
+    // Helper to fill a padded row, replicating edges
+    let fill_padded_row = |padded: &mut [f32], y: usize| {
+        let y_clamped = y.min(height - 1);
+        let src_row_start = y_clamped * width;
+        padded[border..border+width].copy_from_slice(&input_scaled[src_row_start..src_row_start+width]);
+        // Replicate borders
+        padded[0] = padded[border];
+        padded[border+width] = padded[border+width-1];
+    };
 
-            for iy in 0..4 {
-                let y = y_start + iy;
-                if y >= height { continue; }
-                let row_start = y * width;
-                for ix in 0..4 {
-                    let x = x_start + ix;
-                    if x >= width { continue; }
+    // Buffer to store the vertically accumulated diffs for the *previous* row processed.
+    let mut prev_diff_buffer: Option<Vec<f32>> = None;
+    // Buffer for the *current* row's diffs (potentially including accumulation from prev).
+    let mut current_diff_buffer = vec![0.0f32; width]; // Output size is width
 
-                    let val = input_scaled[row_start + x];
+    // Initialize row_t and row_m for the first iteration (y=0)
+    fill_padded_row(&mut row_t_padded, 0); // y-1 for y=0 is row 0
+    fill_padded_row(&mut row_m_padded, 0);
 
-                    // Find min ratio_of_derivatives in the 4x4 block
-                    let ratio = ratio_of_derivatives(val, false);
-                    if ratio < minval {
-                        minval = ratio;
+    for y in 0..height {
+        let y_out = y / 4;
+        let iy = y & 3; // Row index within the 4x4 block (0, 1, 2, 3)
+        if y_out >= pre_erosion_h { continue; }
+
+        // Fill row_b for this iteration (y+1)
+        fill_padded_row(&mut row_b_padded, y + 1);
+
+        // Call the SIMD math function for the current row y
+        aq_math::compute_diff_buffer_row(
+            &row_t_padded, // Padded row y-1
+            &row_m_padded, // Padded row y
+            &row_b_padded, // Padded row y+1
+            width,         // Process 'width' elements
+            &mut current_diff_buffer, // Output for this row
+            prev_diff_buffer.as_deref() // Pass previous row's diffs if available
+        );
+
+        // Every 4th row, average the horizontal diffs *from this final row* and store in output
+        if iy == 3 {
+            for x_out in 0..pre_erosion_w {
+                let x_start_4x4 = x_out * 4;
+                let mut avg_diff = 0.0;
+                let mut count = 0;
+                for dx in 0..4 {
+                    let x = x_start_4x4 + dx;
+                    if x < width {
+                        avg_diff += current_diff_buffer[x];
+                        count += 1;
                     }
                 }
-            }
-
-            // Apply limit and offset logic based on the min value found
-            let val_transformed = if minval < limit {
-                offset // If below limit, use offset
-            } else {
-                (minval - limit) + offset // If above limit, add the difference to offset
-            };
-
-            pre_erosion[y_block * pre_erosion_w + x_block] = val_transformed;
-        }
-    }
-}
-
-/// Scalar implementation of Sort4.
-#[inline]
-fn sort4(v: &mut [f32; 4]) {
-    // Simple bubble sort for 4 elements
-    if v[0] > v[1] { v.swap(0, 1); }
-    if v[2] > v[3] { v.swap(2, 3); }
-    if v[0] > v[2] { v.swap(0, 2); }
-    if v[1] > v[3] { v.swap(1, 3); }
-    if v[1] > v[2] { v.swap(1, 2); }
-}
-
-/// Scalar implementation of UpdateMin4.
-#[inline]
-fn update_min4(val: f32, mins: &mut [f32; 4]) {
-    if val < mins[3] {
-        if val < mins[2] {
-            mins[3] = mins[2];
-            if val < mins[1] {
-                mins[2] = mins[1];
-                if val < mins[0] {
-                    mins[1] = mins[0];
-                    mins[0] = val;
-                } else {
-                    mins[1] = val;
+                if count > 0 {
+                    avg_diff /= count as f32;
                 }
-            } else {
-                mins[2] = val;
+
+                let out_idx = y_out * pre_erosion_w + x_out;
+                if out_idx < pre_erosion.len() {
+                    pre_erosion[out_idx] = avg_diff;
+                }
             }
-        } else {
-            mins[3] = val;
         }
+
+        // Prepare for next iteration: current becomes previous
+        // Swap padded rows
+        core::mem::swap(&mut row_t_padded, &mut row_m_padded);
+        core::mem::swap(&mut row_m_padded, &mut row_b_padded);
+        // Update prev_diff_buffer, taking ownership of current_diff_buffer
+        prev_diff_buffer = Some(core::mem::replace(&mut current_diff_buffer, vec![0.0; width]));
+
     }
+     // TODO: Add Padding equivalent to C++ PadRow if necessary for FuzzyErosion
 }
 
-/// Ported from FuzzyErosion (scalar version).
-/// NOTE: The final mapping to the output block might be an approximation of C++ SIMD logic.
+/// Ported from FuzzyErosion (scalar version). Matches C++ logic.
 pub(crate) fn fuzzy_erosion_scalar(
-    pre_erosion: &[f32],
+    pre_erosion: &[f32], // Input buffer (needs access to y-1, y, y+1)
     pre_erosion_w: usize,
     pre_erosion_h: usize,
     block_w: usize,
@@ -327,154 +285,153 @@ pub(crate) fn fuzzy_erosion_scalar(
     assert_eq!(aq_map.len(), block_w * block_h);
     assert!(tmp.len() >= pre_erosion_w * pre_erosion_h);
 
-    // Process rows
+    // --- Padding --- 
+    // Create padded versions of input rows. Needs border=1 for 3x3 neighborhood.
+    let border = 1;
+    let padded_width = pre_erosion_w + 2 * border;
+    let mut row_t_padded = vec![0.0; padded_width];
+    let mut row_m_padded = vec![0.0; padded_width];
+    let mut row_b_padded = vec![0.0; padded_width];
+
+    // Helper to fill a padded row, replicating edges
+    let fill_padded_row = |padded: &mut [f32], y: usize| {
+        let y_clamped = y.min(pre_erosion_h - 1);
+        let src_row_start = y_clamped * pre_erosion_w;
+        padded[border..border+pre_erosion_w].copy_from_slice(&pre_erosion[src_row_start..src_row_start+pre_erosion_w]);
+        padded[0] = padded[border];
+        padded[border+pre_erosion_w] = padded[border+pre_erosion_w-1];
+    };
+
+    // Initialize rows for first iteration
+    fill_padded_row(&mut row_t_padded, 0); // y-1 for y=0 is row 0
+    fill_padded_row(&mut row_m_padded, 0);
+
+    // --- Pass 1: Compute weighted 3x3 mins into tmp buffer using SIMD --- 
     for y in 0..pre_erosion_h {
-        let mut mins = [f32::INFINITY; 4];
-        let row_start = y * pre_erosion_w;
-        for x in 0..pre_erosion_w {
-            let val = pre_erosion[row_start + x];
-            update_min4(val, &mut mins);
-            tmp[row_start + x] = mins[0]; // Store the minimum of the sliding window
-        }
-        let mut mins = [f32::INFINITY; 4];
-        for x in (0..pre_erosion_w).rev() {
-             let val = pre_erosion[row_start + x];
-             update_min4(val, &mut mins);
-             // Combine with forward pass minimum
-             tmp[row_start + x] = tmp[row_start + x].min(mins[0]);
-        }
+        // Fill row_b for this iteration
+        fill_padded_row(&mut row_b_padded, y + 1);
+
+        // Output slice for this row of the tmp buffer
+        let tmp_out_row_start = y * pre_erosion_w;
+        let tmp_out_slice = &mut tmp[tmp_out_row_start..tmp_out_row_start + pre_erosion_w];
+
+        // Call SIMD function for the row
+        aq_math::compute_fuzzy_erosion_row(
+            &row_t_padded, // Padded row y-1
+            &row_m_padded, // Padded row y
+            &row_b_padded, // Padded row y+1
+            pre_erosion_w, // Process this many elements
+            tmp_out_slice // Write to tmp buffer row
+        );
+
+        // Swap rows for next iteration
+        core::mem::swap(&mut row_t_padded, &mut row_m_padded);
+        core::mem::swap(&mut row_m_padded, &mut row_b_padded);
     }
 
-    // Process columns (using the row-processed `tmp` buffer as input)
-    for x in 0..pre_erosion_w {
-        let mut mins = [f32::INFINITY; 4];
-        // Forward pass (top to bottom)
-        for y in 0..pre_erosion_h {
-            let idx = y * pre_erosion_w + x;
-            let val = tmp[idx]; // Read from row-processed data
-            update_min4(val, &mut mins);
-            // Store intermediate result back into tmp (overwriting safely)
-            tmp[idx] = mins[0];
-        }
-        let mut mins = [f32::INFINITY; 4];
-        // Backward pass (bottom to top)
-        for y in (0..pre_erosion_h).rev() {
-            let idx = y * pre_erosion_w + x;
-            let val = tmp[idx]; // Read intermediate result
-            update_min4(val, &mut mins);
-            // Final minimum for this column element, write to final aq_map
-            // Need to map pre_erosion coords (x, y) to block coords (bx, by)
-            // This assumes 1 pre_erosion pixel corresponds to 2x2 blocks.
-            // bx = x * 2, by = y * 2
-            let bx_start = x * 2;
-            let by_start = y * 2;
-            let final_val = tmp[idx].min(mins[0]);
+    // --- Pass 2: Sum 2x2 blocks from tmp into aq_map (Scalar) ---
+    for by in 0..block_h {
+        // Indices for the two rows in tmp buffer needed for this block row
+        let y_tmp0 = by * 2;
+        let y_tmp1 = y_tmp0 + 1;
 
-            for by_off in 0..2 {
-                let by = by_start + by_off;
-                if by >= block_h { continue; }
-                for bx_off in 0..2 {
-                    let bx = bx_start + bx_off;
-                    if bx >= block_w { continue; }
-                    aq_map[by * block_w + bx] = final_val;
-                }
-            }
+        // Check if rows are valid
+        if y_tmp1 >= pre_erosion_h { continue; } // Need both rows
+
+        let row_tmp0_start = y_tmp0 * pre_erosion_w;
+        let row_tmp1_start = y_tmp1 * pre_erosion_w;
+        let aq_row_start = by * block_w;
+
+        for bx in 0..block_w {
+            // Indices for the two columns in tmp buffer needed for this block col
+            let x_tmp0 = bx * 2;
+            let x_tmp1 = x_tmp0 + 1;
+
+            // Check if cols are valid
+            if x_tmp1 >= pre_erosion_w { continue; } // Need both columns
+
+            // Sum the 2x2 block from tmp (matching C++ which doesn't average)
+            let sum_2x2 = tmp[row_tmp0_start + x_tmp0] +
+                          tmp[row_tmp0_start + x_tmp1] +
+                          tmp[row_tmp1_start + x_tmp0] +
+                          tmp[row_tmp1_start + x_tmp1];
+
+            aq_map[aq_row_start + bx] = sum_2x2;
         }
     }
 }
 
-/// Ported from ComputeMask (scalar version)
-fn compute_mask_scalar(out_val: f32) -> f32 {
-    // Avoid division by zero.
-    let v1 = (out_val * K_MASK_MUL0).max(1e-3);
-    let v2 = 1.0 / (v1 + K_MASK_OFFSET2);
-    let v3 = 1.0 / (v1 * v1 + K_MASK_OFFSET3);
-    let v4 = 1.0 / (v1 * v1 + K_MASK_OFFSET4);
-    // TODO(jyrki): Logarithm mentioned in C++ comment is not present in C++ code.
-    K_MASK_BASE + K_MUL4 * v4 + K_MUL2 * v2 + K_MUL3 * v3
-}
-
-/// Ported from HFModulation (scalar version)
-/// NOTE: This scalar version uses immediate neighbors only. C++ SIMD might operate on the full 8x8 block.
+/// Ported from HFModulation - updated to process 8x8 block
+// Keep this scalar implementation for now as it's called by per_block_modulations_scalar
+#[inline]
 fn hf_modulation_scalar(
-    x: usize, y: usize,
+    x_start: usize, y_start: usize, // Top-left corner of 8x8 block
     input_scaled: &[f32], width: usize, height: usize,
-    current_val: f32 // The value from the fuzzy erosion step
+    current_val: f32 // The value from the ComputeMask step
 ) -> f32 {
-    // Approximate C++ logic: calculate horizontal and vertical differences
-    // using neighboring pixels from the original scaled input.
-    let center_idx = y * width + x;
-    let center_val = input_scaled[center_idx];
+    let mut sum_abs_diff = 0.0f32;
 
-    // Get neighbors, clamping at borders
-    let left_idx = y * width + x.saturating_sub(1);
-    let right_idx = y * width + (x + 1).min(width - 1);
-    let top_idx = y.saturating_sub(1) * width + x;
-    let bottom_idx = (y + 1).min(height - 1) * width + x;
+    for dy in 0..8 {
+        let y = y_start + dy;
+        let y_clamped = y.min(height - 1);
+        let y_next_clamped = (y + 1).min(height - 1);
+        let row_idx = y_clamped * width;
+        let row_next_idx = y_next_clamped * width;
 
-    let diff_h = (input_scaled[left_idx] - center_val).abs() + (input_scaled[right_idx] - center_val).abs();
-    let diff_v = (input_scaled[top_idx] - center_val).abs() + (input_scaled[bottom_idx] - center_val).abs();
+        for dx in 0..8 {
+            let x = x_start + dx;
+            let x_clamped = x.min(width - 1);
+            let x_next_clamped = (x + 1).min(width - 1);
 
-    // Combine differences and modulate `current_val`
-    let diff_sum = diff_h + diff_v;
-    // The C++ code seems to use K_HF_MOD_COEFF * diff_sum directly.
-    // log2 approximation from C++ FastLog2f is complex, using simple ln as placeholder approximation.
-    // `diff_sum` is already scaled by K_INPUT_SCALING.
-    // Let's match the C++ direct multiplication first.
-    current_val + K_HF_MOD_COEFF * diff_sum
+            let center_val = *input_scaled.get(row_idx + x_clamped).unwrap_or(&0.0);
+            let right_val = *input_scaled.get(row_idx + x_next_clamped).unwrap_or(&center_val);
+            let bottom_val = *input_scaled.get(row_next_idx + x_clamped).unwrap_or(&center_val);
+
+            if x < width - 1 { sum_abs_diff += (center_val - right_val).abs(); }
+            if y < height - 1 { sum_abs_diff += (center_val - bottom_val).abs(); }
+        }
+    }
+    // Uses K_HF_MOD_COEFF
+    sum_abs_diff.mul_add(K_HF_MOD_COEFF, current_val)
 }
 
-/// Ported from GammaModulation (scalar version)
-/// NOTE: This scalar version operates per-pixel. C++ SIMD might average over the 8x8 block.
+/// Ported from GammaModulation - updated to process 8x8 block
+// Keep this scalar implementation for now as it's called by per_block_modulations_scalar
+#[inline]
 fn gamma_modulation_scalar(
-    x: usize, y: usize,
+    x_start: usize, y_start: usize, // Top-left corner of 8x8 block
     input_scaled: &[f32], width: usize, height: usize,
     current_val: f32 // Value after HF modulation
 ) -> f32 {
-     let val = input_scaled[y * width + x];
-     // Avoid log(0) or log(<0)
-     let log_arg = (val * K_GAMMA_MOD_SCALE + K_GAMMA_MOD_BIAS).max(1e-9);
-     let modulation = K_GAMMA_MOD_GAMMA * log_arg.ln(); // Using ln instead of log2 directly
-     current_val + modulation
-}
+     let mut overall_ratio_sum = 0.0f32;
+     let mut count = 0;
 
-/// Fast approximation for 2^x.
-#[inline]
-fn fast_pow2f(x: f32) -> f32 {
-    // Ported from jpegli/lib/base/fast_math-inl.h FastPow2f
-    // max relative error ~3e-7
+     for dy in 0..8 {
+         let y = y_start + dy;
+         if y >= height { continue; }
+         let row_idx = y * width;
+         for dx in 0..8 {
+             let x = x_start + dx;
+             if x >= width { continue; }
+             if let Some(val) = input_scaled.get(row_idx + x) {
+                 // Uses K_GAMMA_MOD_SCALE, K_GAMMA_MOD_BIAS
+                 let val_offset = (*val).mul_add(K_GAMMA_MOD_SCALE, K_GAMMA_MOD_BIAS).max(1e-9);
+                 // Use math module version
+                 overall_ratio_sum += aq_math::scalar_ratio_of_derivatives::<true>(val_offset);
+                 count += 1;
+             }
+         }
+     }
 
-    let floorx = x.floor();
-    let frac = x - floorx;
-
-    // Calculate exponent part: 2^floorx via bit manipulation
-    // floorx + 127 (exponent bias), shifted into exponent field
-    let exp_bits = (((floorx as i32) + 127) << 23) as u32;
-    let exp_val = f32::from_bits(exp_bits);
-
-    // Polynomial approximation P(frac) / Q(frac) for 2^frac
-    // P(f) = f * (f * (f + 1.01749063e+01) + 4.88687798e+01) + 9.85506591e+01
-    let mut num = frac + 1.01749063e+01;
-    num = num * frac + 4.88687798e+01;
-    num = num * frac + 9.85506591e+01;
-    num *= exp_val; // Multiply numerator by 2^floorx
-
-    // Q(f) = f * (f * (f * 2.10242958e-01 - 2.22328856e-02) - 1.94414990e+01) + 9.85506633e+01
-    // Note: C++ uses MulAdd, equivalent here is fma or separate mul/add
-    let mut den = frac * 2.10242958e-01 - 2.22328856e-02;
-    den = den * frac - 1.94414990e+01;
-    den = den * frac + 9.85506633e+01;
-
-    // Handle potential division by zero, though unlikely with this polynomial
-    if den == 0.0 {
-        // Return a large value or infinity, depending on expected behavior
-        f32::INFINITY
-    } else {
-        num / den
-    }
+     if count == 0 { return current_val; }
+     let overall_ratio_avg = overall_ratio_sum / count as f32;
+     let log_ratio = overall_ratio_avg.max(1e-9).ln(); // NOTE: Using ln() directly here
+     // Uses K_GAMMA_MOD_GAMMA
+     log_ratio.mul_add(K_GAMMA_MOD_GAMMA, current_val)
 }
 
 /// Applies per-block modulations based on local pixel intensity.
+/// Uses SIMD math helpers internally.
 pub(crate) fn per_block_modulations_scalar(
     ymap: &[f32], // Input map from fuzzy erosion (block level)
     input_scaled: &[f32], // Original scaled pixel data (pixel level)
@@ -482,64 +439,104 @@ pub(crate) fn per_block_modulations_scalar(
     block_h: usize,
     width: usize,
     height: usize,
-    distance: f32,
+    _distance: f32, // Marked unused
     y_quant_01: f32,
-    aq_map: &mut [f32], // Output AQ map (block level). Also used for initial ymap values.
+    aq_map: &mut [f32], // Output AQ map (block level).
 ) {
     assert_eq!(ymap.len(), block_w * block_h);
     assert_eq!(aq_map.len(), block_w * block_h);
 
-    // Calculate dampen factor based on y_quant_01
-    // Constants from C++ PerBlockModulations scope
-    // Note: K_AC_QUANT is already defined globally, using it directly.
-    // const K_AC_QUANT_PBM: f32 = 0.841;
-    // const K_BASE_LEVEL_PBM: f32 = 0.48 * K_AC_QUANT_PBM;
-    // const K_DAMPEN_RAMP_START_PBM: f32 = 9.0;
-    // const K_DAMPEN_RAMP_END_PBM: f32 = 65.0;
+    let dampen = (1.0 - (y_quant_01 - K_DAMPEN_RAMP_START)
+        .max(0.0) / (K_DAMPEN_RAMP_END - K_DAMPEN_RAMP_START))
+        .min(1.0);
 
-    let dampen = (y_quant_01 - K_DAMPEN_RAMP_START)
-        .clamp(0.0, K_DAMPEN_RAMP_END - K_DAMPEN_RAMP_START)
-        / (K_DAMPEN_RAMP_END - K_DAMPEN_RAMP_START);
+    let mul_pbm = K_AC_QUANT * dampen;
+    let add_pbm = (1.0 - dampen) * K_BASE_LEVEL;
 
-    // C++ uses different names here, let's align:
-    // let mul = K_BASE_LEVEL * dampen + K_AC_QUANT * (1.0 - dampen);
-    // let add = K_BASE_LEVEL * (1.0 - dampen);
-    let mul_pbm = K_AC_QUANT * dampen; // Renamed to match C++ `mul` calculation
-    let add_pbm = (1.0 - dampen) * K_BASE_LEVEL; // Renamed to match C++ `add` calculation
-
-    // REMOVED: let dist_sqrt = distance.sqrt(); // Distance seems unused in C++ PerBlockModulations
+    // Pre-allocate row slice buffer
+    let mut row_slices_hf: Vec<&[f32]> = Vec::with_capacity(9);
+    let mut row_slices_gamma: Vec<&[f32]> = Vec::with_capacity(8);
 
     for by in 0..block_h {
         let block_row_start = by * block_w;
         let y_start = by * 8;
-
         for bx in 0..block_w {
             let block_idx = block_row_start + bx;
             let x_start = bx * 8;
+            if block_idx >= ymap.len() { continue; }
 
-            // Get block-level input from ymap (result of fuzzy erosion)
             let ymap_val = ymap[block_idx];
+            // Use math module scalar version
+            let mask_val = aq_math::compute_mask_scalar(ymap_val);
 
-            // --- Apply Mask/HF/Gamma to the ymap_val ---
-            let center_x = (x_start + 4).min(width - 1);
-            let center_y = (y_start + 4).min(height - 1);
+            // --- HF Modulation --- 
+            row_slices_hf.clear();
+            for dy in 0..9 { // Need 9 rows for HF metric
+                let y = (y_start + dy).min(height - 1); // Clamp row index
+                let row_start_idx = y * width;
+                // Ensure slice has enough elements (x_start to x_start + 8)
+                let row_end_idx = (x_start + 9).min(width); // Clamp column index + needed neighbor
+                if row_start_idx + row_end_idx > input_scaled.len() {
+                     // Handle edge case where slice would be out of bounds
+                     // This might indicate an issue upstream or require different padding
+                     eprintln!("Warning: HF slice out of bounds at block ({}, {}), y={}", bx, by, y);
+                     // Skip this block or use default value? Using 0 for sum for now.
+                     row_slices_hf.push(&input_scaled[row_start_idx..row_start_idx + (width - row_start_idx).min(x_start+9)]);
+                     // Fallback or error needed here
+                     // continue; 
+                } else {
+                     row_slices_hf.push(&input_scaled[row_start_idx..row_start_idx + row_end_idx]);
+                }
+            }
+            // Pad slice lengths if necessary (simplistic padding: repeat last element)
+             // This padding is crude and might not match C++ behavior exactly.
+             let mut padded_rows_hf: Vec<Vec<f32>> = Vec::with_capacity(9);
+             let min_hf_len = x_start + 9;
+             for slice in row_slices_hf.iter() {
+                 let mut padded = slice.to_vec();
+                 if padded.len() < min_hf_len {
+                     let last_val = *padded.last().unwrap_or(&0.0);
+                     padded.resize(min_hf_len, last_val);
+                 }
+                 padded_rows_hf.push(padded);
+             }
+             let hf_slices_ref: Vec<&[f32]> = padded_rows_hf.iter().map(|v| v.as_slice()).collect();
 
-            let mask_val = compute_mask_scalar(ymap_val);
-            let hf_modulated_val = hf_modulation_scalar(center_x, center_y, input_scaled, width, height, mask_val);
-            let gamma_modulated_val = gamma_modulation_scalar(center_x, center_y, input_scaled, width, height, hf_modulated_val);
-            // --- End of mask/hf/gamma ---
+            // Call math module SIMD helper
+            let sum_abs_diff = aq_math::compute_hf_metric_8x8(&hf_slices_ref, x_start);
+            let hf_modulated_val = mask_val.mul_add(K_HF_MOD_COEFF, sum_abs_diff);
+
+            // --- Gamma Modulation --- 
+            row_slices_gamma.clear();
+            for dy in 0..8 { // Need 8 rows for Gamma metric
+                 let y = (y_start + dy).min(height - 1);
+                 let row_start_idx = y * width;
+                 let row_end_idx = (x_start + 8).min(width);
+                 row_slices_gamma.push(&input_scaled[row_start_idx..row_start_idx + row_end_idx]);
+            }
+             // Pad slice lengths if necessary
+             let mut padded_rows_gamma: Vec<Vec<f32>> = Vec::with_capacity(8);
+             let min_gamma_len = x_start + 8;
+             for slice in row_slices_gamma.iter() {
+                 let mut padded = slice.to_vec();
+                 if padded.len() < min_gamma_len {
+                     let last_val = *padded.last().unwrap_or(&0.0);
+                     padded.resize(min_gamma_len, last_val);
+                 }
+                 padded_rows_gamma.push(padded);
+             }
+             let gamma_slices_ref: Vec<&[f32]> = padded_rows_gamma.iter().map(|v| v.as_slice()).collect();
+
+            // Call math module SIMD helper
+            let overall_ratio_sum = aq_math::compute_gamma_sum_8x8(&gamma_slices_ref, x_start);
+            let log_ratio = (overall_ratio_sum * K_GAMMA_MOD_SCALE).max(1e-9).ln(); // Apply scale here
+            let gamma_modulated_val = hf_modulated_val.mul_add(K_GAMMA_MOD_GAMMA, log_ratio);
 
             let butteraugli_estimate = gamma_modulated_val;
-            // REMOVED: let diff_mul = xmap_val * dist_sqrt; // Apply distance scaling
+            let result_exponent_log2e = butteraugli_estimate * 1.442695041f32;
 
-            // Final calculation for the block's AQ value, matching C++
-            // C++: row_out[ix] = FastPow2f(GetLane(out_val) * 1.442695041f) * mul + add;
-            // out_val corresponds to butteraugli_estimate here.
-            // The multiplication by 1.44... (1/ln(2)) converts ln to log2.
-            // Our FastPow2f uses exp(x*ln(2)), so we don't need the 1/ln(2) factor.
-            // C++ `mul` and `add` correspond to `mul_pbm` and `add_pbm`.
-            let result_exponent = butteraugli_estimate; // Exponent is just the modulated value
-            aq_map[block_idx] = fast_pow2f(result_exponent) * mul_pbm + add_pbm;
+            // Use math module version
+            aq_map[block_idx] = aq_math::fast_pow2f_scalar(result_exponent_log2e).mul_add(mul_pbm, add_pbm);
         }
     }
 }
@@ -643,11 +640,11 @@ mod tests {
     // Test for fast_pow2f
     #[test]
     fn test_fast_pow2f() {
-        assert!((fast_pow2f(0.0) - 1.0).abs() < 1e-6);
-        assert!((fast_pow2f(1.0) - 2.0).abs() < 1e-6);
-        assert!((fast_pow2f(2.0) - 4.0).abs() < 1e-6);
-        assert!((fast_pow2f(-1.0) - 0.5).abs() < 1e-6);
-        assert!((fast_pow2f(10.0) - 1024.0).abs() < 1e-3); // Allow larger tolerance for larger numbers
+        assert!((aq_math::fast_pow2f_scalar(0.0) - 1.0).abs() < 1e-6);
+        assert!((aq_math::fast_pow2f_scalar(1.0) - 2.0).abs() < 1e-6);
+        assert!((aq_math::fast_pow2f_scalar(2.0) - 4.0).abs() < 1e-6);
+        assert!((aq_math::fast_pow2f_scalar(-1.0) - 0.5).abs() < 1e-6);
+        assert!((aq_math::fast_pow2f_scalar(10.0) - 1024.0).abs() < 1e-3); // Allow larger tolerance for larger numbers
     }
 
     // Test for downsample_to_blocks

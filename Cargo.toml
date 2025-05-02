@@ -31,12 +31,17 @@ multiversion = { version = "0.8", optional = false }
 lazy_static = "1.4.0"
 serde_repr = "0.1.10"
 serde = { version = "1.0", features = ["derive"] }
+wide =   "0.7.32"
+bytemuck = "1.13.1" 
 
 [dev-dependencies]
 jpeg-decoder = { version = "0.3", default-features = false }
 approx = "0.5"
 png = "0.17"
 serde_json = "1.0"
+dssim = "3.3.0" # Or a compatible version
+imgref = "1.10.0" # Add imgref dependency
+glob = "0.3" # Added for finding test files
 
 once_cell = { version = "1.17" }
 

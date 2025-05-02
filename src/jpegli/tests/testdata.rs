@@ -10,7 +10,7 @@ macro_rules! load_test_data {
         Lazy::new(|| {
             let json_str = include_str!($json_path);
             from_str::<Vec<$struct_type>>(json_str)
-                .unwrap_or_else(|e| panic!("Failed to parse {}: {}\nContent: {}\n\nRun reference_dct/generate_test_data.py to regenerate.", $json_path, e, json_str))
+                .unwrap_or_else(|e| panic!("Failed to parse {}: {}\nRun reference_dct/generate_test_data.py to regenerate.", $json_path, e))
         })
     };
 }

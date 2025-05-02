@@ -31,7 +31,7 @@ pub(crate) const DCTSIZE2: usize = 64;
 
 /// Represents JPEG color spaces relevant to quantization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum JpegliColorSpace {
+pub enum JpegliColorSpace {
     RGB,
     YCbCr,
     GRAYSCALE,

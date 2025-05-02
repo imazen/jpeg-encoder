@@ -3,20 +3,30 @@
 #[cfg(test)]
 mod adaptive_quantization_tests {
     use crate::jpegli::adaptive_quantization::*;
-    use super::structs::{ComputeAdaptiveQuantFieldTest, ComputePreErosionTest, FuzzyErosionTest, PerBlockModulationsTest};
-    use super::testdata::*;
-    use super::test_utils::assert_buffer_eq;
-    use crate::assert_float_relative_eq;
+    use crate::jpegli::tests::structs::*;
+    use crate::jpegli::tests::testdata::*;
+    use crate::jpegli::tests::test_utils::*;
     use alloc::vec;
     use alloc::vec::Vec;
+    use std::fmt::Write;
 
     // --- Helper Functions (if needed, or use from test_utils) ---
 
     /// Reconstructs a planar buffer from a slice description for testing.
     fn reconstruct_buffer_f32(slice: &RustRowBufferSliceF32, full_height: usize, full_width: usize) -> Vec<f32> {
         // Determine buffer size based on slice stride and full height
-        let buffer_size = slice.stride * full_height;
+        // Adjust buffer size calculation to handle potential 0 height/width gracefully
+        let buffer_size = if full_height > 0 && full_width > 0 {
+             full_width * full_height
+        } else {
+            0
+        };
         let mut buffer = vec![0.0f32; buffer_size]; // Initialize with default
+
+        // Skip if buffer size is 0
+        if buffer_size == 0 {
+            return buffer;
+        }
 
         // Check if slice data matches expected dimensions based on num_rows/num_cols
         if slice.data.len() != slice.num_rows {
@@ -30,22 +40,28 @@ mod adaptive_quantization_tests {
 
         // Copy data from the slice into the correct position in the full buffer
         for r_idx in 0..slice.num_rows {
+            // Ensure start_row + r_idx doesn't underflow or exceed bounds
             let buffer_row = (slice.start_row + r_idx as isize) as usize;
             if buffer_row >= full_height { continue; } // Skip rows outside the logical buffer height
 
-            let buffer_row_start = buffer_row * slice.stride;
+            // Use actual width (full_width) for row start calculation
+            let buffer_row_start = buffer_row * full_width;
             let slice_row = &slice.data[r_idx];
 
             for c_idx in 0..slice.num_cols {
-                let buffer_col = (slice.start_col + c_idx as isize) as usize;
-                if buffer_col >= full_width + (slice.start_col.abs() as usize) { continue; } // Adjust width check for negative start_col
+                 // Ensure start_col + c_idx doesn't underflow
+                 let buffer_col = (slice.start_col + c_idx as isize) as usize;
+                 // Check against full_width plus potential negative start offset
+                 let effective_width = full_width + slice.start_col.wrapping_abs() as usize;
+                if buffer_col >= effective_width { continue; }
 
-                let buffer_idx = buffer_row_start + buffer_col;
+                // Index calculation should use full_width as stride
+                let buffer_idx = buffer_row * full_width + buffer_col;
                 if buffer_idx < buffer.len() { // Ensure index is within bounds
                    buffer[buffer_idx] = slice_row[c_idx];
                 } else {
                    // This might indicate an issue with stride, dimensions, or start_col/start_row
-                   eprintln!("Warning: Calculated index {} out of bounds for buffer size {}", buffer_idx, buffer.len());
+                   eprintln!("Warning: Calculated index {} out of bounds for buffer size {}. Slice info: {:?}, Full H={}, Full W={}", buffer_idx, buffer.len(), slice, full_height, full_width);
                 }
             }
         }
@@ -55,52 +71,63 @@ mod adaptive_quantization_tests {
     // --- Test Functions ---
 
     #[test]
+   // Fails due to value mismatch vs C++ reference data (scalar vs SIMD?)
     fn test_compute_pre_erosion() {
+        let mut any_failures = false;
+        let mut failure_details = String::new();
+
         for test_case in COMPUTE_PRE_EROSION_TESTS.iter() {
             // Extract config
             let width = test_case.config_xsize;
-            // Height needs to be deduced or provided. Assume input slice covers needed region + borders.
-            // Let's estimate height from the input slice dimensions, assuming it includes context.
-            let est_input_height = test_case.input_luma_slice.data.len();
-            let input_luma_buffer = reconstruct_buffer_f32(&test_case.input_luma_slice, est_input_height, width);
+            // Height is derived from the input slice which includes context
+            let est_input_height = test_case.input_buffer_y_slice.num_rows;
+            let input_luma_buffer = reconstruct_buffer_f32(&test_case.input_buffer_y_slice, est_input_height, width);
 
+            // Output dimensions are based on input pixel width and expected slice height
             let pre_erosion_w = (width + 3) / 4;
-            let pre_erosion_h = (test_case.config_ysize_blocks + 3) / 4; // Use block height for output size
+            let pre_erosion_h = test_case.expected_pre_erosion_slice.num_rows;
             let mut actual_pre_erosion = Vec::new(); // Will be resized inside
 
             // Call the Rust function
-            // Note: Rust compute_pre_erosion_scalar takes scaled input [0, 1]
-            // The C++ instrumentation likely captured the raw float input buffer before scaling.
-            // Assuming the test data `input_luma_slice` contains *already scaled* data [0, 1] for simplicity.
+            // Assuming input_buffer_y_slice contains *already scaled* data [0, 1]
             compute_pre_erosion_scalar(
                 &input_luma_buffer,
                 width,
-                est_input_height, // Use estimated height of the input region provided
+                est_input_height, // Use the height of the provided input slice region
                 &mut actual_pre_erosion,
             );
 
             // Reconstruct expected buffer slice
-            let expected_pre_erosion_buffer = reconstruct_buffer_f32(
-                &test_case.expected_pre_erosion_slice,
-                pre_erosion_h, // Use expected output height
-                pre_erosion_w,
+            // Flatten the expected slice data directly
+            let expected_pre_erosion_buffer: Vec<f32> = test_case.expected_pre_erosion_slice.data.iter().flatten().cloned().collect();
+
+            // Compare the relevant slice using the new helper
+            let description = format!("ComputePreErosion mismatch (xsize={}, y0={}, ylen={}) for {}",
+                         width, test_case.config_y0, test_case.config_ylen, test_case.source_file);
+
+            let result = compare_buffer_slice(
+                &actual_pre_erosion, pre_erosion_w, // Actual buffer + stride
+                &test_case.expected_pre_erosion_slice, // Use original slice info
+                &expected_pre_erosion_buffer, // Expected buffer (flattened)
+                1e-5, // Tolerance for float comparison
+                &description,
             );
 
-            // Compare the relevant slice
-            // The expected slice tells us which part of the buffer to compare
-            let exp_slice = &test_case.expected_pre_erosion_slice;
-            assert_buffer_eq(
-                &actual_pre_erosion, pre_erosion_w, // Actual buffer + width
-                exp_slice, // Expected slice info
-                &expected_pre_erosion_buffer, // Expected buffer (reconstructed)
-                1e-5, // Tolerance for float comparison
-                &format!("ComputePreErosion mismatch (xsize={}, ysize_blocks={})", width, test_case.config_ysize_blocks),
-            );
+            if !result.is_success() {
+                any_failures = true;
+                write!(failure_details, "{}", result.failure_summary()).unwrap();
+                writeln!(failure_details).unwrap();
+            }
         }
+        assert!(!any_failures, "ComputePreErosion tests failed:\n{}", failure_details);
     }
 
     #[test]
+   // Fails due to value mismatch vs C++ reference data (scalar vs SIMD?)
     fn test_fuzzy_erosion() {
+        let mut any_failures = false;
+        let mut failure_details = String::new();
+
         for test_case in FUZZY_EROSION_TESTS.iter() {
             // Extract config and input state
             let pre_erosion_w = test_case.input_pre_erosion_slice.num_cols; // Width from input slice
@@ -125,87 +152,109 @@ mod adaptive_quantization_tests {
             );
 
             // Reconstruct expected output
-            let expected_aq_map = reconstruct_buffer_f32(&test_case.expected_quant_field_slice, block_h, block_w);
+            // Flatten the expected slice data directly
+            let expected_aq_map: Vec<f32> = test_case.expected_quant_field_slice.data.iter().flatten().cloned().collect();
 
             // Compare the relevant slice
-            assert_buffer_eq(
+            let description = format!("FuzzyErosion mismatch (yb0={}, yblen={}) for {}",
+                         test_case.config_yb0, test_case.config_yblen, test_case.source_file);
+            let result = compare_buffer_slice(
                 &actual_aq_map, block_w,
-                &test_case.expected_quant_field_slice,
+                &test_case.expected_quant_field_slice, // Use original slice info
                 &expected_aq_map,
                 1e-5,
-                &format!("FuzzyErosion mismatch (yb0={}, yblen={})", test_case.config_yb0, test_case.config_yblen),
+                &description,
             );
+            if !result.is_success() {
+                any_failures = true;
+                write!(failure_details, "{}", result.failure_summary()).unwrap();
+                writeln!(failure_details).unwrap();
+            }
         }
+        assert!(!any_failures, "FuzzyErosion tests failed:\n{}", failure_details);
     }
 
     #[test]
+   // Fails due to value mismatch vs C++ reference data (scalar vs SIMD?)
     fn test_per_block_modulations() {
+        let mut any_failures = false;
+        let mut failure_details = String::new();
+
         for test_case in PER_BLOCK_MODULATIONS_TESTS.iter() {
             // Extract config and input state
-            let block_w = test_case.config_xsize_blocks;
-            let block_h = test_case.input_quant_field_slice.num_rows; // Height from input AQ slice
+            let block_w = test_case.input_quant_field_slice_before.num_cols;
+            let block_h = test_case.input_quant_field_slice_before.num_rows; // Height from input AQ slice
             // We need pixel-level width/height for input_luma_slice reconstruction
-            let pixel_width = test_case.input_luma_slice.num_cols;
-            let pixel_height = test_case.input_luma_slice.num_rows;
+            let pixel_width = test_case.input_buffer_y_slice.num_cols;
+            let pixel_height = test_case.input_buffer_y_slice.num_rows;
 
-            let input_luma = reconstruct_buffer_f32(&test_case.input_luma_slice, pixel_height, pixel_width);
-            let input_quant_field = reconstruct_buffer_f32(&test_case.input_quant_field_slice, block_h, block_w);
+            let input_luma = reconstruct_buffer_f32(&test_case.input_buffer_y_slice, pixel_height, pixel_width);
+            let input_quant_field_before = reconstruct_buffer_f32(&test_case.input_quant_field_slice_before, block_h, block_w);
 
-            // Create mutable aq_map, initialized with input_quant_field data
-            let mut actual_aq_map = input_quant_field.clone();
+            // Create mutable aq_map, initialized with input_quant_field_before data
+            let mut actual_aq_map = input_quant_field_before.clone();
 
-            // Call the Rust function (note: C++ seems to lack distance input here)
-            // The Rust function `per_block_modulations_scalar` requires distance, but the C++
-            // equivalent called by ComputeAdaptiveQuantField does not seem to use it directly,
-            // and the JSON data doesn't provide it here. Pass a dummy value (e.g., 1.0).
-            // Also need y_quant_01, which is also missing from this specific JSON. Let's estimate or use default.
-            // TODO: This highlights a potential discrepancy between Rust signature and C++ usage pattern/instrumentation.
-            // For now, use placeholders. A better approach might be needed if these matter.
-            let dummy_distance = 1.0;
-            let dummy_y_quant_01 = 8.0; // Common default-ish value
+            // Call the Rust function
+            let dummy_distance = 1.0; // Placeholder, as C++ version doesn't seem to use it directly here.
+            // Use y_quant_01 from the test case
+            let y_quant_01 = test_case.config_y_quant_01;
 
             per_block_modulations_scalar(
-                &input_quant_field, // ymap input is the AQ field before modulation
+                &input_quant_field_before, // ymap input is the AQ field before modulation
                 &input_luma, // Original scaled pixel data
                 block_w,
                 block_h,
                 pixel_width,
                 pixel_height,
                 dummy_distance,
-                dummy_y_quant_01,
+                y_quant_01,
                 &mut actual_aq_map, // Output AQ map
             );
 
             // Reconstruct expected output
-            let expected_aq_map = reconstruct_buffer_f32(&test_case.expected_quant_field_slice, block_h, block_w);
+            let expected_aq_map = reconstruct_buffer_f32(&test_case.expected_quant_field_slice_after, block_h, block_w);
 
             // Compare the relevant slice
-            assert_buffer_eq(
+            let description = format!("PerBlockModulations mismatch (yb0={}, yblen={})", // No source_file in this struct
+                         test_case.config_yb0, test_case.config_yblen);
+            let result = compare_buffer_slice(
                 &actual_aq_map, block_w,
-                &test_case.expected_quant_field_slice,
+                &test_case.expected_quant_field_slice_after, // Use the 'after' slice for comparison
                 &expected_aq_map,
                 1e-5, // Use slightly larger tolerance due to potential float issues and placeholder inputs
-                &format!("PerBlockModulations mismatch (xsize_blocks={}, yb={}, yblen={})", block_w, test_case.input_yb, test_case.input_yblen),
+                &description,
             );
+            if !result.is_success() {
+                any_failures = true;
+                write!(failure_details, "{}", result.failure_summary()).unwrap();
+                writeln!(failure_details).unwrap();
+            }
         }
+        assert!(!any_failures, "PerBlockModulations tests failed:\n{}", failure_details);
     }
 
-
     #[test]
+   // Ignoring because test data slice doesn't match function expecting full image AND/OR underlying functions have mismatches
     fn test_compute_adaptive_quant_field() {
+        let mut any_failures = false;
+        let mut failure_details = String::new();
+
         for test_case in COMPUTE_ADAPTIVE_QUANT_FIELD_TESTS.iter() {
             // Extract config and input state
             let width = test_case.config_y_comp_width_in_blocks * 8; // Estimate pixel width
-             // Estimate pixel height from input slice (needs context)
-            let height = test_case.input_luma_slice.num_rows;
-            let input_luma_buffer = reconstruct_buffer_f32(&test_case.input_luma_slice, height, width);
+             // Height is derived from the input slice which includes context
+            let height = test_case.input_buffer_y_slice.num_rows;
+            let input_luma_buffer = reconstruct_buffer_f32(
+                &test_case.input_buffer_y_slice,
+                height, // Use slice height for reconstruction
+                width // Use calculated pixel width
+            );
 
             // Call the Rust function
-            // Needs distance, which isn't in this specific JSON. Use a placeholder.
-             let dummy_distance = 1.0;
+             let dummy_distance = 1.0; // Placeholder
             let actual_aq_field = compute_adaptive_quant_field(
-                width as u16,
-                height as u16, // Pass estimated height
+                width as u16, // Pass actual pixel width
+                (test_case.config_y_comp_height_in_blocks * 8) as u16, // Pass total image height in pixels
                 &input_luma_buffer,
                 dummy_distance, // Use placeholder distance
                 test_case.config_y_quant_01,
@@ -213,17 +262,43 @@ mod adaptive_quantization_tests {
 
             // Reconstruct expected output
             let block_w = test_case.config_y_comp_width_in_blocks;
-            let block_h = test_case.config_y_comp_height_in_blocks;
-            let expected_aq_field = reconstruct_buffer_f32(&test_case.expected_quant_field_slice, block_h, block_w);
+            let block_h = test_case.expected_quant_field_slice.num_rows; // Height from expected slice
+            let expected_aq_field: Vec<f32> = test_case.expected_quant_field_slice.data.iter().flatten().cloned().collect();
 
             // Compare the relevant slice
-            assert_buffer_eq(
-                &actual_aq_field, block_w,
-                &test_case.expected_quant_field_slice,
-                &expected_aq_field,
+            let description = format!(
+                    "ComputeAdaptiveQuantField mismatch for {}",
+                    test_case.source_file
+                );
+
+             // Check if actual_aq_field is empty (tiny image case)
+             if actual_aq_field.is_empty() {
+                // If expected is also empty (or represents 0 blocks), it might be a PASS
+                if test_case.expected_quant_field_slice.num_rows == 0 || test_case.expected_quant_field_slice.num_cols == 0 {
+                    // Consider this a pass for tiny images where AQ is skipped
+                    continue; 
+                } else {
+                    any_failures = true;
+                    write!(failure_details, "FAIL: {} - Actual AQ field was empty, but expected data exists.", description).unwrap();
+                    writeln!(failure_details).unwrap();
+                    continue; 
+                }
+            }
+
+            let result = compare_buffer_slice(
+                &actual_aq_field,
+                block_w, // Stride of the actual aq_field (width in blocks)
+                &test_case.expected_quant_field_slice, // Description of the slice to compare
+                &expected_aq_field, // Reconstructed expected data for the slice
                 1e-4, // Increased tolerance due to potential float and placeholder issues
-                 &format!("ComputeAdaptiveQuantField mismatch (y0={}, ylen={})", test_case.input_y0, test_case.input_ylen),
+                 &description,
             );
+            if !result.is_success() {
+                any_failures = true;
+                write!(failure_details, "{}", result.failure_summary()).unwrap();
+                writeln!(failure_details).unwrap();
+            }
         }
+         assert!(!any_failures, "ComputeAdaptiveQuantField tests failed:\n{}", failure_details);
     }
 } 

@@ -164,12 +164,30 @@ This describes the current state of the source files based on recent analysis, w
 
 *   **`src/jpegli/mod.rs`:**
     *   Root of the Jpegli-specific module (conditional on `jpegli` feature).
-    *   Declares submodules: `adaptive_quantization`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`.
+    *   Declares submodules: `adaptive_quant_math`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`.
 
-*   **`src/jpegli/adaptive_quantization.rs`:**
-    *   Contains the scalar Rust implementation of Jpegli's adaptive quantization algorithm.
-    *   Key function: `compute_adaptive_quant_field`, which takes scaled Y channel data and distance, and produces the per-block quantization multiplier field.
-    *   Includes helper functions mirroring Jpegli stages (`compute_pre_erosion_scalar`, `fuzzy_erosion_scalar`, `compute_mask_scalar`, etc.) and image processing utilities (`gaussian_blur_scalar`, `downsample_to_blocks`).
+*   **`src/jpegli/adaptive_quant_math.rs`:**
+    *   Contains SIMD (using `wide`) and scalar mathematical helper functions ported from C++ `adaptive_quantization.cc`.
+    *   Intended to be used by the main adaptive quantization implementation (e.g., `adaptive_quant_v2.rs`).
+    *   Key public (`pub(crate)`) functions and macros:
+        *   `masking_sqrt(v: f32x8) -> f32x8`: SIMD masking sqrt calculation.
+        *   `eval_rational_polynomial!(x, p, q)`: Macro to evaluate rational polynomials (SIMD).
+        *   `fast_log2f(x: f32x8) -> f32x8`: SIMD `log2(x)` approximation.
+        *   `fast_log2f_scalar(x: f32) -> f32`: Scalar `log2(x)` approximation.
+        *   `fast_pow2f_scalar(x: f32) -> f32`: Scalar `2^x` approximation.
+        *   `fast_pow2f(x: f32x8) -> f32x8`: SIMD `2^x` approximation.
+        *   `ratio_of_derivatives_of_cubic_root_to_simple_gamma<const INVERT: bool>(v: f32x8) -> f32x8`: SIMD ratio calculation.
+        *   `compute_mask(out_val: f32x8) -> f32x8`: SIMD compute mask calculation.
+        *   `sort4(min0: &mut f32x8, ...)`: SIMD helper to sort 4 vectors.
+        *   `update_min4(v: f32x8, min0: &mut f32x8, ...)`: SIMD helper to update 4 minimum vectors.
+        *   `fast_reciprocal_nr(x: f32x8) -> f32x8`: SIMD fast reciprocal (Newton-Raphson).
+        *   `compute_hf_metric_8x8(rows: &[&[f32]], x_start: usize) -> f32`: Computes HF metric sum for an 8x8 block using SIMD.
+        *   `compute_gamma_sum_8x8(rows: &[&[f32]], x_start: usize) -> f32`: Computes gamma-related sum for an 8x8 block using SIMD.
+        *   `compute_diff_buffer_row(...)`: Computes one row of the pre-erosion difference buffer using SIMD.
+        *   `compute_fuzzy_erosion_row(...)`: Computes one row of the fuzzy erosion temporary buffer using SIMD.
+        *   `scalar_ratio_of_derivatives<const INVERT: bool>(v_scalar: f32) -> f32`: Scalar version of ratio calculation.
+        *   `compute_mask_scalar(out_val: f32) -> f32`: Scalar version of mask computation.
+        *   `scalar_masking_sqrt(v: f32) -> f32`: Scalar version of masking sqrt.
 
 *   **`src/jpegli/fdct_jpegli.rs`:**
     *   Contains the scalar Rust implementation of Jpegli's floating-point FDCT (`forward_dct_float`).

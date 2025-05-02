@@ -106,19 +106,29 @@ pub struct InitQuantizerTest {
     pub expected_zero_bias_offset: Vec<Vec<f32>>,
 }
 
+// ss << "{";
+// ss << "\"test_type\": \"ComputePreErosionTest\", ";
+// ss << "\"input_buffer_y_slice\": " << format_json_rowbufferslice(input_slice) << ", ";
+// ss << "\"config_xsize\": " << xsize << ", ";
+// ss << "\"config_y0\": " << y0 << ", ";
+// ss << "\"config_ylen\": " << ylen << ", ";
+// ss << "\"config_border\": " << border << ", ";
+// ss << "\"expected_pre_erosion_slice\": " << format_json_rowbufferslice(output_slice);
+// ss << "}";
+
 #[derive(Debug, PartialEq, Clone, Deserialize)]
 pub struct ComputePreErosionTest {
     // Config/Parameters
     pub config_xsize: usize, // Image width
-    pub config_ysize_blocks: usize, // Image height in blocks
-    pub input_y0: usize, // Start row index for processing
-    pub input_ylen: usize, // Number of rows processed
+    pub config_y0: usize, // Start row index for processing
+    pub config_ylen: usize, // Number of rows processed
+    pub config_border: usize, // Border size
 
     pub source_file: String,
     pub command_params: Vec<String>,
 
     // Input State (Slice of Y input buffer with required context/borders)
-    pub input_luma_slice: RustRowBufferSliceF32,
+    pub input_buffer_y_slice: RustRowBufferSliceF32,
 
     // Expected Output State (Slice of the pre_erosion buffer)
     pub expected_pre_erosion_slice: RustRowBufferSliceF32,
@@ -140,36 +150,44 @@ pub struct FuzzyErosionTest {
     pub expected_quant_field_slice: RustRowBufferSliceF32,
 }
 
+
+
 #[derive(Debug, PartialEq, Clone, Deserialize)]
 pub struct PerBlockModulationsTest {
     // Config/Parameters
-    // Note: config_y_quant_01 seems to be derived internally, not needed as direct config
-    pub config_xsize_blocks: usize, // Y component width in blocks
-    pub input_yb: usize, // Start block row
-    pub input_yblen: usize, // Number of block rows
-
-    pub source_file: String,
-    pub command_params: Vec<String>,
-
-    // Input State
-    pub input_luma_slice: RustRowBufferSliceF32,
-    pub input_quant_field_slice: RustRowBufferSliceF32,
-
-    // Expected Output State
-    pub expected_quant_field_slice: RustRowBufferSliceF32,
+    pub config_y_quant_01: f32,
+    pub config_yb0: usize,
+    pub config_yblen: usize,
+    pub input_buffer_y_slice: RustRowBufferSliceF32,
+    pub input_quant_field_slice_before: RustRowBufferSliceF32,
+    pub expected_quant_field_slice_after: RustRowBufferSliceF32,
 }
+
+// ss << "{";
+// ss << "\"test_type\": \"ComputeAdaptiveQuantFieldTest\", ";
+// ss << "\"config_use_adaptive_quantization\": " << format_json_bool(config_use_adaptive_quantization) << ", ";
+// ss << "\"config_y_channel_index\": " << config_y_channel_index << ", ";
+// ss << "\"config_y_quant_01\": " << format_json_float(config_y_quant_01) << ", ";
+// ss << "\"config_next_iMCU_row\": " << config_next_iMCU_row << ", ";
+// ss << "\"config_total_iMCU_rows\": " << config_total_iMCU_rows << ", ";
+// ss << "\"config_max_v_samp_factor\": " << config_max_v_samp_factor << ", ";
+// ss << "\"config_y_comp_width_in_blocks\": " << config_y_comp_width_in_blocks << ", ";
+// ss << "\"config_y_comp_height_in_blocks\": " << config_y_comp_height_in_blocks << ", ";
+// ss << "\"input_buffer_y_slice\": " << format_json_rowbufferslice(input_slice) << ", ";
+// ss << "\"expected_quant_field_slice\": " << format_json_rowbufferslice(output_aq_slice);
+// ss << "}";
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
 pub struct ComputeAdaptiveQuantFieldTest {
      // ----- Inputs -----
      // Config/Parameters from cinfo/master
-    // pub config_use_adaptive_quantization: bool, // Should be true
-    // pub config_y_channel_index: usize, // Usually 0, derived
-    // pub config_jpeg_color_space: JpegColorSpace, // Needed? Maybe not directly
+    pub config_use_adaptive_quantization: bool, // Should be true
+    pub config_y_channel_index: usize, // Usually 0, derived
+    pub config_jpeg_color_space: Option<JpegColorSpace>, // Make Optional
     pub config_y_quant_01: f32, // Needed for final adjustment
-    // pub config_next_iMCU_row: usize, // Runtime state
-    // pub config_total_iMCU_rows: usize, // Derived
-    // pub config_max_v_samp_factor: i32, // Derived
+    pub config_next_iMCU_row: usize, // Runtime state
+    pub config_total_iMCU_rows: usize, // Derived
+    pub config_max_v_samp_factor: i32, // Derived
     pub config_y_comp_width_in_blocks: usize,
     pub config_y_comp_height_in_blocks: usize,
 
@@ -177,12 +195,7 @@ pub struct ComputeAdaptiveQuantFieldTest {
     pub command_params: Vec<String>,
 
     // Processing parameters for this specific call
-    pub input_y0: usize, // Start row index
-    pub input_ylen: usize, // Number of rows processed
-
-    // Input State: Slice of Y input buffer including context rows needed for filters
-    pub input_luma_slice: RustRowBufferSliceF32,
-
+    pub input_buffer_y_slice: RustRowBufferSliceF32,
     // ----- Outputs -----
     // Expected Output State: Final relevant slice of quant_field after all steps + final adjustment
     pub expected_quant_field_slice: RustRowBufferSliceF32,

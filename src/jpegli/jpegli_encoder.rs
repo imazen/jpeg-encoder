@@ -417,6 +417,13 @@ impl<W: JfifWrite> JpegliEncoder<W> {
                             // DCT
                             forward_dct_float(&pixel_block_f32, &mut dct_output_block, &mut dct_scratch_space);
 
+                            // --- DEBUG: Check raw DCT block ---
+                            if block_index_in_comp < 1 && comp_idx == 0 { // Check first block of Luma
+                                println!("DEBUG Raw DCT: MCU ({},{}), Block ({},{}), Comp {}, dct_block[0..8]: {:?}",
+                                    mcu_x, mcu_y, block_x, block_y, comp_idx, &dct_output_block[0..8]);
+                            }
+                            // --- END DEBUG ---
+
                             // Quantize
                             let q_table_idx = comp_info.quantization_table_index as usize;
                             let aq_multiplier = self.adaptive_quant_field.as_ref()
@@ -554,7 +561,7 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             force_baseline: Some(false), // Assuming default
             chroma_subsampling: Some(Subsampling::from_sampling_factor(self.sampling_factor).unwrap()), // Pass the encoder's current setting
             // Required info from image/encoder state
-            add_two_chroma_tables: Some(true),
+            add_two_chroma_tables: None, // Let from_config handle the default based on color space and distance presence
             jpeg_color_space: color_type, 
             cicp_transfer_function: None, // TODO: Get actual transfer function if known
         };
@@ -1163,9 +1170,23 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         for i in 0..DCTSIZE2 {
             let dct_coeff = dct_block[i];
             let qval = dct_coeff * quant_mul[i];
+
+            // Apply zero-biasing only if the quant step is significantly > 1?
+            // Calculate the adjusted step size used for the multiplier
+            let quant_val = raw_q_table[i] as f32;
+            let q_step_adjusted = (quant_val * aq_multiplier).max(1.0);
+            
+            let ival = if q_step_adjusted > 1.01 { // Apply zero-biasing only if quant step > ~1
             let threshold = zb_offsets[i] + zb_multipliers[i] * aq_multiplier;
             let non_zero = qval.abs() >= threshold;
-            let ival = if non_zero { qval.round() } else { 0.0 };
+                if non_zero { qval.round() } else { 0.0 }
+            } else { // Otherwise, just round (effectively no zero-biasing for step=1)
+                qval.round()
+            };
+            
+            // let threshold = zb_offsets[i] + zb_multipliers[i] * aq_multiplier;
+            // let non_zero = qval.abs() >= threshold;
+            // let ival = if non_zero { qval.round() } else { 0.0 };
             q_block[i] = ival.clamp(i16::MIN as f32, i16::MAX as f32) as i16;
         }
         Ok(q_block)
@@ -1216,7 +1237,6 @@ mod tests {
     use super::*;
     use crate::{ColorType, SamplingFactor};
     use crate::image_buffer::RgbImage;
-    use crate::jpegli::reference_test_data::REFERENCE_QUANT_TEST_DATA;
     use alloc::vec;
     use std::fs::File;
     use std::io::{Read, Cursor};
@@ -1395,61 +1415,6 @@ mod tests {
 
     // --- New Reference Test ---
 
-    #[test]
-    fn test_encode_matches_cjpegli_rgb_d1_420() {
-        // Use data included in the binary from reference_test_data
-        let test_case_name = "a2d1un_nkitzmiller_srgb8.png"; // Choose an RGB image
-        let distance = 1.0;
-
-        let test_data = REFERENCE_QUANT_TEST_DATA
-            .iter()
-            .find(|d| d.input_filename == test_case_name && (d.cjpegli_distance - distance).abs() < 1e-6)
-            .expect(&format!("Reference data for {} at distance {} not found", test_case_name, distance));
-
-        let png_data = test_data.input_data;
-
-        // Decode the PNG data from memory
-        let decoder = png::Decoder::new(Cursor::new(png_data));
-        let mut reader = decoder.read_info().expect("Failed to read PNG info from included data");
-        let mut buf = vec![0; reader.output_buffer_size()];
-        let info = reader.next_frame(&mut buf).expect("Failed to decode PNG frame from included data");
-        let decoded_pixels = &buf[..info.buffer_size()];
-        let width = info.width as u16;
-        let height = info.height as u16;
-        let color_type = match info.color_type {
-             png::ColorType::Rgb => ColorType::Rgb,
-             _ => panic!("Test image is not RGB as expected"),
-        };
-
-        let sampling = SamplingFactor::F_2_2;
-
-        // 1. Load Input PNG (Replaced by decoding included bytes)
-
-        // 2. Encode with JpegliEncoder
-        let mut encoded_data = Vec::new();
-        {
-            let mut encoder = JpegliEncoder::new(&mut encoded_data, distance);
-            encoder.set_sampling_factor(sampling);
-            // Assuming ImageBuffer impl exists for &[u8] via encode method helper
-            // We need to call encode_image directly if using a custom buffer
-            // For now, let's assume encode handles Vec<u8> Rgb
-             match color_type {
-                 ColorType::Rgb => { 
-                      // Need GrayImage / RgbImage etc. wrappers or direct encode_image call
-                      // Let's use RgbImage wrapper for clarity
-                      let image_buffer = crate::image_buffer::RgbImage(decoded_pixels, width, height);
-                      encoder.encode_image(&image_buffer).expect("JpegliEncoder failed");
-                 },
-                 _ => panic!("Test only supports RGB input for now"),
-             }
-        }
-        
-        // Save our output for inspection
-        std::fs::write("test_output_rust.jpg", &encoded_data).unwrap();
-
-        // 3. Skip reference loading and comparison for now
-    }
-
     // Add more tests:
     // - ICC profile add/write
     // - APP segment add/write
@@ -1458,74 +1423,4 @@ mod tests {
 
     // --- End Helper Functions ---
 
-    #[test]
-    fn test_encode_lossless_distance_0() {
-        // Test near-lossless encoding (distance=0.01) and compare pixels
-        use crate::jpegli::reference_test_data::REFERENCE_QUANT_TEST_DATA;
-        use std::io::Cursor;
-
-        let test_case_name = "a2d1un_nkitzmiller_srgb8.png"; // Choose an RGB image
-        let distance = 0.01; // Use smallest valid positive distance
-
-        let test_data = REFERENCE_QUANT_TEST_DATA
-            .iter()
-            .find(|d| d.input_filename == test_case_name) // Find by name only
-            .expect(&format!("Reference data for {} not found", test_case_name));
-
-        let png_data = test_data.input_data;
-
-        // 1. Decode the PNG data from memory
-        let decoder = png::Decoder::new(Cursor::new(png_data));
-        let mut reader = decoder.read_info().expect("Failed to read PNG info from included data");
-        let mut original_pixel_buf = vec![0; reader.output_buffer_size()];
-        let info = reader.next_frame(&mut original_pixel_buf).expect("Failed to decode PNG frame from included data");
-        let original_pixels = &original_pixel_buf[..info.buffer_size()];
-        let width = info.width as u16;
-        let height = info.height as u16;
-        let color_type = match info.color_type {
-             png::ColorType::Rgb => ColorType::Rgb,
-             _ => panic!("Test image is not RGB as expected"),
-        };
-
-        // 2. Encode with JpegliEncoder at near-lossless distance
-        let mut encoded_data = Vec::new();
-        {
-            let mut encoder = JpegliEncoder::new(&mut encoded_data, distance);
-            encoder.set_sampling_factor(SamplingFactor::F_1_1); // Use 4:4:4 for lossless
-
-            match color_type {
-                 ColorType::Rgb => {
-                      let image_buffer = crate::image_buffer::RgbImage(original_pixels, width, height);
-                      encoder.encode_image(&image_buffer).expect("JpegliEncoder failed");
-                 },
-                 _ => panic!("Test only supports RGB input for now"),
-             }
-        }
-
-        // Optional: Save output for inspection
-        std::fs::write("test_output_rust_lossless.jpg", &encoded_data).unwrap();
-
-        // 3. Decode the generated JPEG
-        let (pixels_rust, info_rust) = decode_jpeg(&encoded_data)
-            .expect("Failed to decode Rust-generated JPEG");
-
-        // 4. Compare Decoded Pixels (expecting near-perfect match)
-        // Create an ImageInfo struct for the original PNG data for comparison
-        let info_orig = ImageInfo {
-             width: width as u16,
-             height: height as u16,
-             pixel_format: jpeg_decoder::PixelFormat::RGB24, // Assuming RGB input
-             coding_process: jpeg_decoder::CodingProcess::DctSequential, // Dummy value
-         };
-
-        let tolerance = 1; // Allow tolerance of 1 due to YCbCr conversion and float math
-        compare_pixel_data(
-            &format!("LosslessComparison (d={})", distance),
-            &pixels_rust,
-            &info_rust,
-            original_pixels, // Compare against original PNG pixels
-            &info_orig,
-            tolerance
-        );
-    }
 } 

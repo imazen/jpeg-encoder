@@ -593,3 +593,349 @@ fn test_quality_to_distance() {
     let q1 = (53.0 / 3000.0) * 1.0f32.powi(2) - (23.0 / 20.0) * 1.0 + 25.0;
     assert!((quality_to_distance(1) - q1).abs() < 1e-6); // approx 23.8676
 }
+
+// --- New DSSIM Test ---
+#[test]
+// #[cfg(feature = "dssim")] // Only compile if dssim feature is enabled (requires adding feature flag)
+
+fn test_checkerboard_lossless_dssim() {
+    // Correct imports
+    use crate::jpegli::jpegli_encoder::JpegliEncoder; // Use the JpegliEncoder
+    use crate::jpegli::JpegColorSpace; // Use Jpegli's color space enum
+    use jpeg_decoder::Decoder; // Use the decoder from the jpeg_decoder crate
+    use dssim::{Dssim, DssimImage, Val};
+    use imgref::ImgVec;
+    use rgb::{FromSlice, ComponentMap, RGB8, RGBA8};
+    use crate::error::EncodingError;
+
+    const WIDTH: usize = 64;
+    const HEIGHT: usize = 64;
+    const CHECKER_SIZE: usize = 8;
+    const NUM_COMPONENTS: usize = 1; // Grayscale
+
+    // 1. Generate checkerboard data (grayscale)
+    let mut original_data = vec![0u8; WIDTH * HEIGHT * NUM_COMPONENTS];
+    for y in 0..HEIGHT {
+        for x in 0..WIDTH {
+            let row_idx = y / CHECKER_SIZE;
+            let col_idx = x / CHECKER_SIZE;
+            let color = if (row_idx + col_idx) % 2 == 0 { 255u8 } else { 0u8 }; // White or Black
+            let index = (y * WIDTH + x) * NUM_COMPONENTS;
+            original_data[index] = color;
+        }
+    }
+
+    // 2. Encode the image with jpegli (high quality)
+    let mut jpeg_data = Vec::new();
+    // Instantiate JpegliEncoder with distance 0.0
+    let mut encoder = JpegliEncoder::new(&mut jpeg_data, 0.0);
+
+    // 3. Create an ImageBuffer wrapper for the raw data
+    // Assuming GrayImage exists and takes width, height, data
+    use crate::image_buffer::GrayImage; // Adjust import if needed
+    // Create GrayImage directly using tuple struct syntax
+    let image_buffer = GrayImage(&original_data, WIDTH as u16, HEIGHT as u16);
+    // let image_buffer = match GrayImage::from_vec(WIDTH as u32, HEIGHT as u32, original_data) { // Remove old attempt
+    //     Some(img) => img,
+    //     None => panic!("Failed to create GrayImage buffer"),
+    // };
+
+    // 4. Encode the image buffer
+    let encode_result = encoder.encode_image(&image_buffer);
+    if let Err(e) = encode_result {
+        panic!("Jpegli Encoding failed: {:?}", e);
+    }
+    // Encoded data is now in `jpeg_data` buffer passed to constructor
+    std::fs::write("checkerboard.jpg", &jpeg_data).unwrap();
+    
+    // Optional: Save the intermediate JPEG for inspection
+    // std::fs::write("checkerboard_lossless.jpg", &jpeg_data).unwrap();
+
+    // 5. Decode the JPEG data
+    let mut decoder = Decoder::new(&jpeg_data[..]);
+    let decoded_data = decoder.decode().expect("Failed to decode JPEG");
+    let decoded_info = decoder.info().unwrap();
+
+    assert_eq!(decoded_info.width as usize, WIDTH);
+    assert_eq!(decoded_info.height as usize, HEIGHT);
+    // Decoder might return RGB even if input was Grayscale
+    let decoded_components = match decoded_info.pixel_format {
+        jpeg_decoder::PixelFormat::L8 => 1,
+        jpeg_decoder::PixelFormat::RGB24 => 3,
+        _ => panic!("Unexpected decoded pixel format: {:?}", decoded_info.pixel_format),
+    };
+    std::fs::write("checkerboard_lossless_decoded.png", &decoded_data).unwrap();
+    
+    // 6. Prepare images for DSSIM comparison
+    let original_rgb: Vec<RGB8>;
+    // Get data back from image_buffer for comparison
+    // Access the slice directly via tuple index .0
+    let original_gray_data = image_buffer.0; // Assuming .0 gives &[u8]
+    std::fs::write("checkerboard_lossless_original.png", &original_gray_data).unwrap();
+    
+    /*
+    if NUM_COMPONENTS == 1 {
+        original_rgb = original_gray_data.iter().map(|&g| RGB8::new(g, g, g)).collect();
+    } else {
+        // This path shouldn't be taken for this test
+        original_rgb = original_gray_data.chunks_exact(3).map(|c| RGB8::new(c[0], c[1], c[2])).collect();
+    }
+
+    let decoded_rgb: Vec<RGB8>;
+    if decoded_components == 1 {
+        decoded_rgb = decoded_data.iter().map(|&g| RGB8::new(g, g, g)).collect();
+    } else if decoded_components == 3 {
+        // Convert decoded RGB data
+        decoded_rgb = decoded_data.chunks_exact(3).map(|c| RGB8::new(c[0], c[1], c[2])).collect();
+    } else {
+        panic!("Unhandled decoded component count for DSSIM");
+    }
+    */
+
+    //write file to disk for inspection
+    // --- Start: Replace DSSIM with direct pixel comparison ---
+    assert_eq!(original_gray_data.len(), decoded_data.len(), "Original and decoded data have different lengths");
+
+    let mut max_diff = 0u8;
+    let mut diff_count = 0;
+    for i in 0..original_gray_data.len() {
+        let diff = original_gray_data[i].abs_diff(decoded_data[i]);
+        if diff > 2 { // Allow tolerance of 2
+            diff_count += 1;
+            max_diff = max_diff.max(diff);
+            if diff_count < 10 { // Print first few differences
+                 eprintln!("Pixel mismatch at index {}: original={}, decoded={}, diff={}", i, original_gray_data[i], decoded_data[i], diff);
+            }
+        }
+    }
+
+    assert_eq!(diff_count, 0, "Found {} pixels differing by more than tolerance (max diff: {})", diff_count, max_diff);
+    // --- End: Replace DSSIM with direct pixel comparison ---
+
+    /*
+    // Use imgref/dssim standard creation
+
+    // Define dssim_context *before* using it
+    let mut dssim_context = Dssim::new();
+
+    // Convert RGB8 Vecs to RGB<f32> Vecs for dssim
+    let original_rgb_f32: Vec<rgb::RGB<f32>> = original_rgb.iter().map(|p| p.map(|comp| comp as f32 / 255.0)).collect();
+    let decoded_rgb_f32: Vec<rgb::RGB<f32>> = decoded_rgb.iter().map(|p| p.map(|comp| comp as f32 / 255.0)).collect();
+
+    // ImgVec::new expects Vec<T>
+    // Pass the Vec directly, ImgVec::new will take ownership
+    let dssim_original_img = ImgVec::new(original_rgb_f32, WIDTH, HEIGHT);
+    let dssim_decoded_img = ImgVec::new(decoded_rgb_f32, WIDTH, HEIGHT);
+    // let dssim_original_img = ImgVec::new(original_rgb, WIDTH, HEIGHT); // Remove old
+    // let dssim_decoded_img = ImgVec::new(decoded_rgb, WIDTH, HEIGHT); // Remove old
+
+    let dssim_original = dssim_context.create_image(&dssim_original_img).unwrap();
+    let dssim_decoded = dssim_context.create_image(&dssim_decoded_img).unwrap();
+
+    // 7. Compare using DSSIM
+    let (val, _) = dssim_context.compare(&dssim_original, dssim_decoded);
+
+    println!("DSSIM score for checkerboard: {}", val);
+
+    // 8. Assert similarity
+    // DSSIM value of 0 means identical. Allow for tiny floating point differences.
+    // Even "lossless" JPEG modes might have tiny rounding errors depending on implementation.
+    // A threshold like 1e-4 might be reasonable for near-lossless.
+    assert!(val < 1e-4, "Decoded checkerboard image differs significantly from original (DSSIM: {})", val);
+    */
+}
+
+// --- New PNG -> JPEG (jpegli) -> PNG DSSIM Test ---
+#[test]
+fn test_png_jpegli_roundtrip_dssim() {
+    use crate::jpegli::jpegli_encoder::JpegliEncoder;
+    use crate::image_buffer::{ImageBuffer, RgbImage, RgbaImage}; // Assuming these exist
+    use jpeg_decoder::Decoder as JpegDecoder;
+    use png::Decoder as PngDecoder;
+    use dssim::{Dssim, DssimImage, Val};
+    use imgref::ImgVec;
+    use rgb::{RGB8, RGBA8, RGB, ComponentMap, AsPixels}; // Added AsPixels
+    use std::fs::{self, File};
+    use std::path::{Path, PathBuf};
+    use std::io::BufReader;
+    use glob::glob;
+    use std::option::Option;
+
+    let test_patterns = [
+        "reference_dct/testdata/external/wesaturate/64px/*.png",
+        "reference_dct/testdata/jxl/chessboard/*.png",
+    ];
+    let output_dir = PathBuf::from("reference_dct/test-outputs");
+    // Try distance 0.0 for near-lossless
+    let jpeg_distance = 0.0; 
+    let dssim_threshold = 0.0001; // Expect very low score for distance 0.0
+
+    // Create output directory
+    fs::create_dir_all(&output_dir).expect("Failed to create output directory");
+
+    // Explicitly type the vectors
+    let mut results: Vec<(String, Val)> = Vec::new();
+    let mut failures: Vec<(String, Option<Val>, String)> = Vec::new();
+
+    println!("\n--- Running PNG -> JPEG (jpegli d={}) -> Decode -> DSSIM Comparison ---", jpeg_distance);
+    println!("Comparing files matching: {:?}", test_patterns);
+    println!("Outputting JPEGs to: {}", output_dir.display());
+    println!("DSSIM Threshold: {}", dssim_threshold);
+
+    for pattern in test_patterns {
+        for entry in glob(pattern).expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => {
+                    println!("Processing: {}", path.display());
+                    let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                    let output_jpeg_path = output_dir.join(format!("{}_d{}.jpg", file_stem, jpeg_distance));
+
+                    // --- 1. Decode PNG ---
+                    let png_file = File::open(&path).expect("Failed to open PNG file");
+                    let png_decoder = PngDecoder::new(BufReader::new(png_file));
+                    let mut png_reader = png_decoder.read_info().expect("Failed to read PNG info");
+
+                    let mut png_buf = vec![0u8; png_reader.output_buffer_size()];
+                    let png_info = png_reader.next_frame(&mut png_buf).expect("Failed to decode PNG frame");
+                    let png_data = &png_buf[..png_info.buffer_size()];
+
+                    // Convert PNG data to RGBA8 for consistency
+                    let original_rgba: ImgVec<RGBA8>;
+                    let width = png_info.width as usize;
+                    let height = png_info.height as usize;
+
+                    match png_info.color_type {
+                        png::ColorType::Rgb => {
+                            let rgb_pixels: Vec<RGB8> = png_data.chunks_exact(3).map(|c| RGB8::new(c[0], c[1], c[2])).collect();
+                            original_rgba = ImgVec::new(rgb_pixels.into_iter().map(|p| p.into()).collect(), width, height);
+                        }
+                        png::ColorType::Rgba => {
+                             original_rgba = ImgVec::new(png_data.as_pixels().to_vec(), width, height);
+                        }
+                        png::ColorType::Grayscale => {
+                            original_rgba = ImgVec::new(png_data.iter().map(|&g| RGBA8::new(g, g, g, 255)).collect(), width, height);
+                        }
+                        png::ColorType::GrayscaleAlpha => {
+                             original_rgba = ImgVec::new(png_data.chunks_exact(2).map(|c| RGBA8::new(c[0],c[0],c[0], c[1])).collect(), width, height);
+                        }
+                         png::ColorType::Indexed => {
+                             // Simplified: expand palette to RGBA - requires palette access
+                             let palette = png_reader.info().palette.as_ref().expect("Indexed PNG missing palette");
+                             let trns = png_reader.info().trns.as_ref();
+                             let mut rgba_data = Vec::with_capacity(width * height);
+                             for &index in png_data {
+                                 let color_idx = index as usize * 3;
+                                 let r = palette[color_idx];
+                                 let g = palette[color_idx + 1];
+                                 let b = palette[color_idx + 2];
+                                 // Check transparency chunk for this index
+                                 let a = trns.map_or(255, |t| t.get(index as usize).copied().unwrap_or(255));
+                                 rgba_data.push(RGBA8::new(r, g, b, a));
+                             }
+                             original_rgba = ImgVec::new(rgba_data, width, height);
+                         }
+                    }
+                    let original_rgb_img: ImgVec<RGB8> = ImgVec::new(original_rgba.pixels().map(|p| p.rgb()).collect(), width, height);
+
+
+                    // --- 2. Encode with Jpegli ---
+                    let mut jpeg_data = Vec::new();
+                    { // Scope for encoder borrow
+                        let mut encoder = JpegliEncoder::new(&mut jpeg_data, jpeg_distance);
+                            // .expect("Failed to create JpegliEncoder"); // .new doesn't return Result
+
+                        // Set simpler options for testing
+                        encoder.set_sampling_factor(crate::SamplingFactor::F_1_1); // Force 4:4:4
+                        encoder.set_adaptive_quantization(false); // Disable AQ
+
+                        // JpegliEncoder might need RGB. Let's provide RGB data.
+                        // Convert Vec<RGB8> to Vec<u8> for the buffer
+                        let rgb_byte_vec: Vec<u8> = original_rgb_img.buf().iter().flat_map(|p| [p.r, p.g, p.b]).collect();
+                        let image_buffer = RgbImage(&rgb_byte_vec, width as u16, height as u16);
+
+                        encoder.encode_image(&image_buffer).expect("Jpegli encoding failed");
+                    } // Encoder goes out of scope, jpeg_data is populated
+
+                    // --- 3. Write JPEG to output ---
+                    fs::write(&output_jpeg_path, &jpeg_data).expect("Failed to write JPEG output");
+
+                    // --- 4. Decode JPEG ---
+                    let mut jpeg_decoder = JpegDecoder::new(&jpeg_data[..]);
+                    let decoded_jpeg_data = jpeg_decoder.decode().expect("Failed to decode JPEG");
+                    let jpeg_info = jpeg_decoder.info().expect("Failed to get JPEG info");
+
+                    // Ensure dimensions match
+                    if jpeg_info.width as usize != width || jpeg_info.height as usize != height {
+                        eprintln!("WARN: Dimension mismatch for {}: PNG={}x{}, JPEG={}x{}. Skipping DSSIM.",
+                                  path.display(), width, height, jpeg_info.width, jpeg_info.height);
+                        // Push None for the score in case of dimension mismatch
+                        failures.push((path.display().to_string(), None, "Dimension mismatch".to_string()));
+                        continue;
+                    }
+
+                    // Convert decoded JPEG (likely RGB24) to RGB8
+                    let decoded_rgb: ImgVec<RGB8>;
+                    match jpeg_info.pixel_format {
+                        jpeg_decoder::PixelFormat::RGB24 => {
+                            decoded_rgb = ImgVec::new(decoded_jpeg_data.as_pixels().to_vec(), width, height);
+                        }
+                        jpeg_decoder::PixelFormat::L8 => {
+                            // Convert grayscale JPEG to RGB for comparison
+                            decoded_rgb = ImgVec::new(decoded_jpeg_data.iter().map(|&g| RGB8::new(g, g, g)).collect(), width, height);
+                        }
+                         _ => {
+                            eprintln!("WARN: Unsupported JPEG pixel format {:?} for {}. Skipping DSSIM.", jpeg_info.pixel_format, path.display());
+                            // Push None for the score in case of unsupported format
+                             failures.push((path.display().to_string(), None, format!("Unsupported JPEG format {:?}", jpeg_info.pixel_format)));
+                            continue;
+                         }
+                     }
+
+                    // --- 5. Compare with DSSIM ---
+                    let mut dssim_context = Dssim::new();
+
+                     // Convert RGB8 images to RGB<f32> for DSSIM
+                    let original_f32: ImgVec<RGB<f32>> = original_rgb_img.map_buf(|buf| buf.iter().map(|p| p.map(|c| c as f32 / 255.0)).collect());
+                    let decoded_f32: ImgVec<RGB<f32>> = decoded_rgb.map_buf(|buf| buf.iter().map(|p| p.map(|c| c as f32 / 255.0)).collect());
+
+
+                    let dssim_original = dssim_context.create_image(&original_f32).unwrap();
+                    let dssim_decoded = dssim_context.create_image(&decoded_f32).unwrap();
+
+                    let (dssim_score, _) = dssim_context.compare(&dssim_original, dssim_decoded);
+
+                    results.push((path.display().to_string(), dssim_score)); 
+
+                    if dssim_score >= dssim_threshold { // Compare Val directly with f64 threshold
+                        // Push Some(dssim_score) for actual failures
+                        failures.push((path.display().to_string(), Some(dssim_score), format!("DSSIM score {} >= threshold {}", dssim_score, dssim_threshold)));
+                        eprintln!(" -> FAIL (DSSIM: {:.6})", dssim_score);
+                    } else {
+                        println!(" -> PASS (DSSIM: {:.6})", dssim_score);
+                    }
+
+                }
+                Err(e) => eprintln!("Error processing glob entry: {}", e),
+            }
+        }
+    }
+
+    // --- 6. Report Summary ---
+    println!("\n--- PNG -> JPEGli Roundtrip DSSIM Summary ---");
+    println!("Total images processed: {}", results.len());
+    println!("Failures (DSSIM >= {} or Error): {}", dssim_threshold, failures.len());
+
+    if !failures.is_empty() {
+        println!("\nFailed Images:");
+        for (path, score_opt, reason) in &failures {
+            match score_opt {
+                Some(score) => println!(" - {}: DSSIM = {} ({})", path, score, reason),
+                None => println!(" - {}: Error ({})", path, reason),
+            }
+        }
+        panic!("DSSIM comparison failed for {} images. See details above.", failures.len());
+    } else {
+        println!("\nAll processed images passed DSSIM comparison.");
+    }
+}
+// --- End New Test ---

@@ -1,6 +1,9 @@
+#![allow(dead_code)]
+
 use alloc::vec::Vec;
 
 pub(crate) mod adaptive_quantization;
+pub(crate) mod adaptive_quant_math;
 
 pub(crate) mod quant_constants;
 pub mod cms;
@@ -15,8 +18,6 @@ pub use jpegli_encoder::JpegliEncoder;
 
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
-
-mod reference_test_data;
 
 #[cfg(test)]
 mod reference_tests;
@@ -485,3 +486,6 @@ impl JpegColorSpace {
         }
     }
 }
+
+// Public API types re-exported (adjust visibility as needed)
+pub use quant::JpegliColorSpace;

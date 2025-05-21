@@ -166,9 +166,10 @@ This describes the current state of the source files based on recent analysis, w
     *   Root of the Jpegli-specific module (conditional on `jpegli` feature).
     *   Declares submodules: `adaptive_quant_math`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`.
 
+*   **`src/jpegli/adaptive_quantization.rs`:** (DELETED - Logic moved to `adaptive_quant.rs`)
 *   **`src/jpegli/adaptive_quant_math.rs`:**
     *   Contains SIMD (using `wide`) and scalar mathematical helper functions ported from C++ `adaptive_quantization.cc`.
-    *   Intended to be used by the main adaptive quantization implementation (e.g., `adaptive_quant_v2.rs`).
+    *   Intended to be used by the main adaptive quantization implementation (e.g., `adaptive_quant.rs`).
     *   Key public (`pub(crate)`) functions and macros:
         *   `masking_sqrt(v: f32x8) -> f32x8`: SIMD masking sqrt calculation.
         *   `eval_rational_polynomial!(x, p, q)`: Macro to evaluate rational polynomials (SIMD).
@@ -188,6 +189,12 @@ This describes the current state of the source files based on recent analysis, w
         *   `scalar_ratio_of_derivatives<const INVERT: bool>(v_scalar: f32) -> f32`: Scalar version of ratio calculation.
         *   `compute_mask_scalar(out_val: f32) -> f32`: Scalar version of mask computation.
         *   `scalar_masking_sqrt(v: f32) -> f32`: Scalar version of masking sqrt.
+*   **`src/jpegli/adaptive_quant.rs`:**
+    *   Port of the main adaptive quantization logic from C++ `adaptive_quantization.cc`.
+    *   Uses helper functions from `adaptive_quant_math.rs`.
+    *   Requires actual `RowBuffer` and `JpegCompressor` types for full functionality.
+    *   Key public functions:
+        *   `compute_adaptive_quant_field(cinfo: &mut JpegCompressor)`: Computes the AQ field for one iMCU row.
 
 *   **`src/jpegli/fdct_jpegli.rs`:**
     *   Contains the scalar Rust implementation of Jpegli's floating-point FDCT (`forward_dct_float`).

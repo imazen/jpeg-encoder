@@ -1,21 +1,14 @@
-use alloc::vec;
 use alloc::vec::Vec;
 //use core::num::NonZeroU16; // Likely not needed directly here anymore
 use std::f32;
 //use std::fmt::Write; // Not needed for core quant logic
-use lazy_static::lazy_static; // Keep for standard tables
 
 // Import constants from the dedicated module
 use crate::jpegli::quant_constants::*;
 // Use path relative to src/lib.rs for ffi types if defined there or re-exported
 // use crate::{MAX_COMPONENTS}; // Assuming MAX_COMPONENTS is at crate root
-use crate::error::EncodingError;
-use crate::JpegColorType; // Import JpegColorType from crate root
-use crate::SamplingFactor;
+use crate::jpegli::structs::{JpegColorSpace, JpegliComponentInfo, Subsampling, SimplifiedTransferCharacteristics, JpegliQuantConfigOptions};
 
-use super::JpegColorSpace;
-use super::SimplifiedTransferCharacteristics;
-use super::Subsampling;
 // Remove unresolved imports
 // use crate::{ffi, MAX_COMPONENTS};
 
@@ -26,51 +19,6 @@ use super::Subsampling;
 // --- Locally Defined Constants (replacing FFI) ---
 pub(crate) const MAX_COMPONENTS: usize = 4;
 pub(crate) const DCTSIZE2: usize = 64;
-
-// --- Rust Replacements for FFI Types ---
-
-/// Represents JPEG color spaces relevant to quantization.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JpegliColorSpace {
-    RGB,
-    YCbCr,
-    GRAYSCALE,
-    Unknown,
-    // Add CMYK, YCCK if needed by other logic later
-}
-
-impl JpegliColorSpace {
-    pub fn get_num_components(&self) -> usize {
-        match self {
-            JpegliColorSpace::RGB => 3,
-            JpegliColorSpace::YCbCr => 3,
-            JpegliColorSpace::GRAYSCALE => 1,
-            JpegliColorSpace::Unknown => 0,
-        }
-    }
-}
-
-/// Parameters for a single component relevant to quantization.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct JpegliComponentParams {
-    pub h_samp_factor: u8,
-    pub v_samp_factor: u8,
-    pub quant_tbl_no: u8,
-}
-
-// Helper to convert JpegColorType to JpegliColorSpace
-pub(crate) fn jpeg_color_space_to_jpegli_space(color_type: JpegColorType) -> JpegliColorSpace {
-    match color_type {
-        JpegColorType::Luma => JpegliColorSpace::GRAYSCALE,
-        JpegColorType::Ycbcr => JpegliColorSpace::YCbCr,
-        // Revert Rgb mapping for now
-        // JpegColorType::Rgb => JpegliColorSpace::YCbCr, 
-        JpegColorType::Cmyk | JpegColorType::Ycck => JpegliColorSpace::Unknown,
-        _ => JpegliColorSpace::Unknown, // Default or handle other cases like Rgb
-    }
-}
-
-// --- End Rust Replacements ---
 
 // Enum mirroring C++ QuantPass
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -204,8 +152,7 @@ pub(crate) fn compute_quant_table_values(
 pub(crate) fn quant_vals_to_distance(
     raw_quant_tables: &[Option<[u16; 64]>; 4],
     num_components: usize,
-    comp_info: &[JpegliComponentParams], // Use Rust struct
-    jpeg_color_space: JpegColorSpace, // Use Rust enum
+    comp_info: &[JpegliComponentInfo], // Use Rust struct
     cicp_transfer_function: u8,
     force_baseline: bool,
 ) -> f32 {
@@ -224,7 +171,7 @@ pub(crate) fn quant_vals_to_distance(
     let mut dist_max = K_DIST_MAX;
 
     for c in 0..num_components {
-        let quant_idx = comp_info[c].quant_tbl_no as usize;
+        let quant_idx = comp_info[c].quantization_table_index as usize;
         if quant_idx >= 4 || raw_quant_tables[quant_idx].is_none() {
              // Error or default? C++ doesn't check here, assumes valid tables.
              // Returning a default or large distance might be safer.
@@ -288,7 +235,7 @@ pub(crate) fn quant_vals_to_distance(
 /// Corresponds to C++ SetQuantMatrices.
 /// Accepts validated JpegliQuantParams.
 pub(crate) fn set_quant_matrices(
-    // Accept the params struct (mutable because it might update quant_tbl_no)
+    // Accept the params struct (mutable because it might update quantization_table_index)
     params: &mut JpegliQuantParams,
 ) -> Result<[Option<[u16; 64]>; 4], &'static str> {
     let mut computed_tables: [Option<[u16; 64]>; 4] = [None; 4];
@@ -321,7 +268,7 @@ pub(crate) fn set_quant_matrices(
         
         if params.add_two_chroma_tables && params.num_components >= 3 {
              if params.comp_params.len() < 3 { return Err("Not enough components for add_two_chroma_tables"); }
-            params.comp_params[2].quant_tbl_no = 2; // Assign distinct table index
+            params.comp_params[2].quantization_table_index = 2; // Assign distinct table index
             num_base_tables = 3;
             base_quant_matrix_slices[0] = &BASE_QUANT_MATRIX_YCBCR[0..64];
             base_quant_matrix_slices[1] = &BASE_QUANT_MATRIX_YCBCR[64..128]; // Cb
@@ -393,7 +340,7 @@ pub(crate) fn init_quantizer(
     // --- Compute quant_mul --- 
     for c in 0..params.num_components {
         if c >= MAX_COMPONENTS { break; } // Prevent out-of-bounds access
-        let quant_idx = params.comp_params[c].quant_tbl_no as usize;
+        let quant_idx = params.comp_params[c].quantization_table_index as usize;
         if quant_idx >= 4 || raw_quant_tables[quant_idx].is_none() {
             return Err("Missing or invalid quantization table index for component");
         }
@@ -407,8 +354,12 @@ pub(crate) fn init_quantizer(
                 QuantPass::NoSearch => {
                     quant_mul[c][k] = 8.0 / val as f32;
                 }
-                 // TODO: Implement other passes if needed
-                _ => return Err("Search passes not implemented yet"),
+                QuantPass::SearchFirstPass => {
+                    quant_mul[c][k] = 128.0;
+                }
+                QuantPass::SearchSecondPass => {
+                    quant_mul[c][ZIGZAG[k as usize] as usize] = 1.0 / (16f32 * val as f32);
+                }
             }
         }
     }
@@ -432,7 +383,6 @@ pub(crate) fn init_quantizer(
                  raw_quant_tables,
                  params.num_components,
                  &params.comp_params,
-                 params.jpeg_color_space,
                  params.cicp_transfer_function,
                  params.force_baseline,
              );
@@ -491,20 +441,22 @@ pub(crate) struct JpegliQuantizerState {
     pub zero_bias_offsets: [[f32; DCTSIZE2]; MAX_COMPONENTS],
     pub zero_bias_multipliers: [[f32; DCTSIZE2]; MAX_COMPONENTS],
     // Might add quant_mul later if needed externally
+    pub params: JpegliQuantParams,
+    pub quant_mul: [[f32; DCTSIZE2]; MAX_COMPONENTS],
 }
 
 impl JpegliQuantizerState {
     /// Creates a new quantizer state using validated parameters.
     pub(crate) fn new(
-        params: &mut JpegliQuantParams, 
+        mut params: JpegliQuantParams, 
         pass: QuantPass,
     ) -> Result<Self, &'static str> {
         
-        let computed_raw_tables = set_quant_matrices(params)?;
+        let computed_raw_tables = set_quant_matrices(&mut params)?;
 
-        let (_quant_mul, zb_mul, zb_offset) = init_quantizer(
+        let (quant_mul, zb_mul, zb_offset) = init_quantizer(
             &computed_raw_tables, 
-            params, // Pass the validated params struct
+            &params, // Pass the validated params struct
             pass
         )?;
 
@@ -512,6 +464,8 @@ impl JpegliQuantizerState {
             raw_quant_tables: computed_raw_tables,
             zero_bias_offsets: zb_offset,
             zero_bias_multipliers: zb_mul,
+            params: params,
+            quant_mul: quant_mul,
         })
     }
 }
@@ -525,7 +479,7 @@ pub(crate) struct JpegliQuantParams {
     pub xyb_mode: bool,
     pub use_std_tables: bool,
     pub num_components: usize,
-    pub comp_params: Vec<JpegliComponentParams>,
+    pub comp_params: Vec<JpegliComponentInfo>,
     pub jpeg_color_space: JpegColorSpace,
     pub cicp_transfer_function: u8,
     pub force_baseline: bool,
@@ -571,17 +525,17 @@ impl JpegliQuantParams {
          let num_components = config.jpeg_color_space.get_num_components();
         // 4. Generate Initial Component Params
         let (max_h_samp, max_v_samp) = subsampling.to_h_v_samp_factor();
-        let mut comp_params: Vec<JpegliComponentParams> = Vec::with_capacity(num_components);
+        let mut comp_params: Vec<JpegliComponentInfo> = Vec::with_capacity(num_components);
         match config.jpeg_color_space {
             JpegColorSpace::Grayscale => {
                 if num_components != 1 { return Err("Grayscale requires 1 component"); }
-                comp_params.push(JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 0 });
+                comp_params.push(JpegliComponentInfo { h_samp_factor: 1, v_samp_factor: 1, quantization_table_index: 0 });
             }
             JpegColorSpace::YCbCr => { // Handle Ycbcr explicitly
                 if num_components != 3 { return Err("YCbCr requires 3 components"); }
-                comp_params.push(JpegliComponentParams { h_samp_factor: max_h_samp, v_samp_factor: max_v_samp, quant_tbl_no: 0 }); // Y
-                comp_params.push(JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 1 }); // Cb
-                comp_params.push(JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 1 }); // Cr
+                comp_params.push(JpegliComponentInfo { h_samp_factor: max_h_samp, v_samp_factor: max_v_samp, quantization_table_index: 0 }); // Y
+                comp_params.push(JpegliComponentInfo { h_samp_factor: 1, v_samp_factor: 1, quantization_table_index: 1 }); // Cb
+                comp_params.push(JpegliComponentInfo { h_samp_factor: 1, v_samp_factor: 1, quantization_table_index: 1 }); // Cr
             }
              JpegColorSpace::Cmyk | JpegColorSpace::Ycck => {
                  return Err("CMYK/YCCK quantization setup not implemented yet");
@@ -589,9 +543,9 @@ impl JpegliQuantParams {
              // Handle other cases (like Rgb input, treat as YCbCr components)
              _ => {
                  if num_components != 3 { return Err("Assumed YCbCr (from RGB?) requires 3 components"); }
-                 comp_params.push(JpegliComponentParams { h_samp_factor: max_h_samp, v_samp_factor: max_v_samp, quant_tbl_no: 0 }); // Y
-                 comp_params.push(JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 1 }); // Cb
-                 comp_params.push(JpegliComponentParams { h_samp_factor: 1, v_samp_factor: 1, quant_tbl_no: 1 }); // Cr
+                 comp_params.push(JpegliComponentInfo { h_samp_factor: max_h_samp, v_samp_factor: max_v_samp, quantization_table_index: 0 }); // Y
+                 comp_params.push(JpegliComponentInfo { h_samp_factor: 1, v_samp_factor: 1, quantization_table_index: 1 }); // Cb
+                 comp_params.push(JpegliComponentInfo { h_samp_factor: 1, v_samp_factor: 1, quantization_table_index: 1 }); // Cr
             }
         }
 
@@ -618,7 +572,7 @@ impl JpegliQuantParams {
         xyb_mode: bool,
         use_std_tables: bool,
         num_components: usize,
-        comp_params: &[JpegliComponentParams], 
+        comp_params: &[JpegliComponentInfo], 
         jpeg_color_space: JpegColorSpace,
         cicp_transfer_function: u8,
         force_baseline: bool,
@@ -646,7 +600,7 @@ impl JpegliQuantParams {
              return Err("Adding two chroma tables is not supported for grayscale");
         }
         for comp in comp_params {
-             if comp.quant_tbl_no >= 4 { 
+             if comp.quantization_table_index >= 4 { 
                  return Err("Invalid quantization table index");
              }
         }
@@ -667,57 +621,3 @@ impl JpegliQuantParams {
         })
     }
 }
-
-// --- End Quantizer Input Parameters Struct ---
-
-// --- High-level Configuration Options (Now mostly optional) ---
-#[derive(Debug, Clone)]
-pub(crate) struct JpegliQuantConfigOptions {
-    // Quality/Distance (mutually exclusive)
-    pub quality: Option<u8>,
-    pub distance: Option<f32>,
-    // Flags mirroring cjpegli
-    pub xyb_mode: Option<bool>,
-    pub use_std_tables: Option<bool>,
-    pub use_adaptive_quantization: Option<bool>,
-    pub force_baseline: Option<bool>, 
-    pub chroma_subsampling: Option<Subsampling>,
-    pub jpeg_color_space: JpegColorSpace,
-    pub cicp_transfer_function: Option<SimplifiedTransferCharacteristics>,
-    pub add_two_chroma_tables: Option<bool>,
-}
-
-// Implement Default to provide cjpegli-like defaults
-impl Default for JpegliQuantConfigOptions {
-    fn default() -> Self {
-        Self {
-            quality: None, // Default quality (90) handled via distance default
-            distance: None, // Default distance (1.0) applied if both are None
-            xyb_mode: None,
-            use_std_tables: None,
-            use_adaptive_quantization: None,
-            force_baseline: None,
-            chroma_subsampling: None, // Default determined by distance later
-            jpeg_color_space: JpegColorSpace::YCbCr, // Placeholder, must be set
-            cicp_transfer_function: None, // Default to unknown/none
-            add_two_chroma_tables: None,
-        }
-    }
-}
-impl JpegliQuantConfigOptions {
-    pub fn new_distance(
-        distance: Option<f32>,
-        color_type: JpegColorSpace,
-        cicp_transfer_function: Option<SimplifiedTransferCharacteristics>) -> Self {
-            Self {
-                distance: distance,
-                jpeg_color_space: color_type,
-                cicp_transfer_function: cicp_transfer_function,
-                add_two_chroma_tables: Some(true),
-                ..Default::default()
-            }
-        
-    }
-}
-
-

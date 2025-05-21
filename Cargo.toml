@@ -33,7 +33,7 @@ serde_repr = "0.1.10"
 serde = { version = "1.0", features = ["derive"] }
 wide =   "0.7.32"
 bytemuck = "1.13.1" 
-
+target-features = "0.1"
 [dev-dependencies]
 jpeg-decoder = { version = "0.3", default-features = false }
 approx = "0.5"

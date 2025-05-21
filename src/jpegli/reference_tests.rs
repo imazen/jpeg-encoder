@@ -8,16 +8,16 @@ use alloc::vec;
 use std::collections::{HashMap, HashSet};
 use core::convert::TryInto; // Added for Vec to Array conversion
 
-use crate::jpegli::{SimplifiedTransferCharacteristics, Subsampling}; // Removed JpegColorType from here
+use crate::jpegli::structs::{SimplifiedTransferCharacteristics, Subsampling}; // Removed JpegColorType from here
 use crate::JpegColorType; // Added direct import
 
 // Import the new data source and struct
 // use super::reference_test_data::REFERENCE_QUANT_TEST_DATA; // Removed old import
 use super::tests::testdata::SET_QUANT_MATRICES_TESTS;
-use super::tests::structs::SetQuantMatricesTest;
+use super::tests::test_structs::SetQuantMatricesTest;
 
 // Removed unused JpegliEncoder import
-use crate::jpegli::quant::{self, quality_to_distance, JpegliColorSpace, JpegliQuantizerState, QuantPass, DCTSIZE2, JpegliQuantParams, JpegliQuantConfigOptions};
+use crate::jpegli::quant::{self, quality_to_distance, JpegliQuantizerState, QuantPass, DCTSIZE2, JpegliQuantParams};
 // Removed unused: compute_quant_table_values, JpegliComponentParams, MAX_COMPONENTS
 
 // Constants for table indices
@@ -446,7 +446,7 @@ fn compare_set_quant_matrices_with_reference() {
         let mut quant_params = quant_params_result.unwrap();
 
         let quantizer_state_result =
-         JpegliQuantizerState::new(&mut quant_params, QuantPass::NoSearch);
+         JpegliQuantizerState::new(quant_params, QuantPass::NoSearch);
         if quantizer_state_result.is_err() {
              writeln!(test_output, "Skipping {}: JpegliQuantizerState creation failed: {:?}", test_case_id, quantizer_state_result.err().unwrap()).unwrap();
              results.entry(test_case_id.clone()).or_default().insert(distance_str.clone(), [Some(u64::MAX); MAX_QUANT_TABLES]);
@@ -601,7 +601,7 @@ fn test_quality_to_distance() {
 fn test_checkerboard_lossless_dssim() {
     // Correct imports
     use crate::jpegli::jpegli_encoder::JpegliEncoder; // Use the JpegliEncoder
-    use crate::jpegli::JpegColorSpace; // Use Jpegli's color space enum
+    use crate::jpegli::structs::JpegColorSpace; // Use Jpegli's color space enum
     use jpeg_decoder::Decoder; // Use the decoder from the jpeg_decoder crate
     use dssim::{Dssim, DssimImage, Val};
     use imgref::ImgVec;

@@ -31,38 +31,38 @@ impl WideF32x8Ext for f32x8 {
 }
 
 // Constants from adaptive_quantization.cc
-const K_INPUT_SCALING: f32 = 1.0 / 255.0;
+pub(crate) const K_INPUT_SCALING: f32 = 1.0 / 255.0;
 
 // Constants for RatioOfDerivativesOfCubicRootToSimpleGamma
-const K_SG_MUL: f32 = 226.0480446705883;
-const K_SG_MUL2: f32 = 1.0 / 73.377132366608819;
-const K_INV_LOG2E: f32 = 0.6931471805599453; // 1.0 / log2(E)
-const K_SG_RET_MUL: f32 = K_SG_MUL2 * 18.6580932135 * K_INV_LOG2E;
-const K_SG_V_OFFSET: f32 = 7.14672470003;
-const K_GAMMA_EPSILON: f32 = 1e-2;
-const K_GAMMA_NUM_OFFSET: f32 = K_GAMMA_EPSILON / K_INPUT_SCALING / K_INPUT_SCALING;
-const K_GAMMA_NUM_MUL: f32 = K_SG_RET_MUL * 3.0 * K_SG_MUL;
-const K_GAMMA_V_OFFSET: f32 =
+pub(crate) const K_SG_MUL: f32 = 226.0480446705883;
+pub(crate) const K_SG_MUL2: f32 = 1.0 / 73.377132366608819;
+pub(crate) const K_INV_LOG2E: f32 = 0.6931471805599453; // 1.0 / log2(E)
+pub(crate) const K_SG_RET_MUL: f32 = K_SG_MUL2 * 18.6580932135 * K_INV_LOG2E;
+pub(crate) const K_SG_V_OFFSET: f32 = 7.14672470003;
+pub(crate) const K_GAMMA_EPSILON: f32 = 1e-2;
+pub(crate) const K_GAMMA_NUM_OFFSET: f32 = K_GAMMA_EPSILON / K_INPUT_SCALING / K_INPUT_SCALING;
+pub(crate) const K_GAMMA_NUM_MUL: f32 = K_SG_RET_MUL * 3.0 * K_SG_MUL;
+pub(crate) const K_GAMMA_V_OFFSET: f32 =
     (K_SG_V_OFFSET * K_INV_LOG2E + K_GAMMA_EPSILON) / K_INPUT_SCALING;
-const K_GAMMA_DEN_MUL: f32 =
+pub(crate) const K_GAMMA_DEN_MUL: f32 =
     K_INV_LOG2E * K_SG_MUL * K_INPUT_SCALING * K_INPUT_SCALING;
 
 // Constant for GammaModulation
-const K_GAMMA_MODULATION_BIAS: f32 = 0.16 / K_INPUT_SCALING;
-const K_GAMMA_MODULATION_SCALE: f32 = K_INPUT_SCALING / 64.0;
+pub(crate) const K_GAMMA_MODULATION_BIAS: f32 = 0.16 / K_INPUT_SCALING;
+pub(crate) const K_GAMMA_MODULATION_SCALE: f32 = K_INPUT_SCALING / 64.0;
 // ln(2) folded in
-const K_GAMMA_MODULATION_GAMMA: f32 = -0.15526878023684174 * K_INV_LOG2E;
+pub(crate) const K_GAMMA_MODULATION_GAMMA: f32 = -0.15526878023684174 * K_INV_LOG2E;
 
 // Constant for HfModulation
-const K_HF_MODULATION_SUM_COEFF: f32 = -2.0052193233688884 * K_INPUT_SCALING / 112.0;
+pub(crate) const K_HF_MODULATION_SUM_COEFF: f32 = -2.0052193233688884 * K_INPUT_SCALING / 112.0;
 
 // Constant for ComputePreErosion
-const K_MATCH_GAMMA_OFFSET: f32 = 0.019 / K_INPUT_SCALING;
-const K_PRE_EROSION_LIMIT: f32 = 0.2;
+pub(crate) const K_MATCH_GAMMA_OFFSET: f32 = 0.019 / K_INPUT_SCALING;
+pub(crate) const K_PRE_EROSION_LIMIT: f32 = 0.2;
 
 // Constants for MaskingSqrt
-const K_MASKING_SQRT_LOG_OFFSET: f32 = 28.0;
-const K_MASKING_SQRT_MUL: f32 = 211.50759899638012;
+pub(crate) const K_MASKING_SQRT_LOG_OFFSET: f32 = 28.0;
+pub(crate) const K_MASKING_SQRT_MUL: f32 = 211.50759899638012;
 
 /// Simulates `MaskingSqrt` from the C++ code.
 /// ```cpp

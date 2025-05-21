@@ -1,7 +1,9 @@
 use serde::Deserialize;
 use serde_repr::*;
+use crate::jpegli::structs::JpegColorSpace;
 
-use crate::{jpegli::JpegColorSpace, JpegColorType};
+use super::*;
+
 
 // Common types used across tests (assuming these exist or will be created in Rust)
 // TODO: Define these properly based on Rust implementation

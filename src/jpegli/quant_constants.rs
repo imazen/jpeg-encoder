@@ -16,6 +16,7 @@
 // kTransferFunctionHLG   -> TRANSFER_FUNCTION_HLG
 // kExponent             -> EXPONENT (Size: 64)
 // kDist0                -> DIST0
+// kJpegZigZagOrder     -> ZIGZAG (Size: 64)
 //
 // For arrays of size 192 (BASE_QUANT_MATRIX_XYB, BASE_QUANT_MATRIX_YCBCR,
 // ZERO_BIAS_MUL_YCBCR_LQ, ZERO_BIAS_MUL_YCBCR_HQ):
@@ -32,6 +33,15 @@
 // with the same quality setting. Fitted for quality 90 on jyrki31 corpus.
 pub(crate) const GLOBAL_SCALE_XYB: f32 = 1.43951668;
 pub(crate) const GLOBAL_SCALE_YCBCR: f32 = 1.73966010;
+
+/// Zig-zag sequence of quantized DCT coefficients
+///
+/// Figure A.6
+pub(crate) const ZIGZAG: [u8; 64] = [
+    0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
+    13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59,
+    52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
+];
 
 pub(crate) const BASE_QUANT_MATRIX_XYB: [f32; 192] = [
     // c = 0

@@ -1,7 +1,7 @@
 // Entry point for tests
 
 // Make structs and test data available to other test files
-pub mod structs;
+pub mod test_structs;
 pub mod test_utils;
 pub mod testdata;
 
@@ -18,7 +18,7 @@ mod top_level_jpegli_tests {
     // use super::testdata::*; // If needed
     use crate::jpegli::quant::*;
     use crate::jpegli::tests::testdata::SET_QUANT_MATRICES_TESTS;
-    use crate::jpegli::tests::structs::ComponentInfoMinimal;
+    use crate::jpegli::tests::test_structs::ComponentInfoMinimal;
 
     #[test]
     fn it_works_jpegli() {

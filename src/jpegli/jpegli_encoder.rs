@@ -2,7 +2,7 @@ use crate::error::EncodingError;
 use crate::writer::{JfifWrite, JfifWriter};
 use crate::marker::{Marker, SOFType};
 use crate::Density;
-use crate::jpegli::quant::{self, quality_to_distance, JpegliQuantizerState, JpegliColorSpace, JpegliComponentParams, QuantPass, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams, JpegliQuantConfigOptions};
+use crate::jpegli::quant::{self, quality_to_distance, DCTSIZE2, MAX_COMPONENTS, JpegliQuantParams};
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::{self, ImageBuffer};
 use crate::{ColorType, JpegColorType, SamplingFactor};
@@ -10,11 +10,17 @@ use alloc::vec;
 use alloc::vec::Vec;
 use alloc::format;
 use crate::jpegli::fdct_jpegli::forward_dct_float;
-use crate::jpegli::adaptive_quantization::compute_adaptive_quant_field;
+use crate::jpegli::adaptive_quant::compute_adaptive_quant_field;
 use crate::image_buffer::RgbImage; // Need RgbImage for buffer creation
-use super::{quant_constants::*, JpegColorSpace, SimplifiedTransferCharacteristics, Subsampling};
-use super::tf;
-use super::xyb;
+use crate::jpegli::structs::{JpegColorSpace, SimplifiedTransferCharacteristics, Subsampling};
+use crate::jpegli::quant_constants::*;
+use crate::jpegli::tf;
+use crate::jpegli::xyb;
+use crate::jpegli::structs::JpegliComponentInfo;
+use crate::jpegli::structs::JpegliQuantizerState;
+use crate::jpegli::structs::QuantPass;
+use crate::jpegli::structs::JpegliQuantConfigOptions;
+use crate::jpegli::structs::JpegliComponentParams;
 
 #[cfg(feature = "std")]
 use std::io::BufWriter;
@@ -22,23 +28,6 @@ use std::io::BufWriter;
 use std::fs::File;
 #[cfg(feature = "std")]
 use std::path::Path;
-
-/// Represents component information needed for Jpegli encoding.
-#[derive(Clone, Debug)]
-pub struct JpegliComponentInfo {
-    pub id: u8,
-    pub quantization_table_index: u8,
-    pub dc_huffman_table_index: u8,
-    pub ac_huffman_table_index: u8,
-    pub horizontal_sampling_factor: u8,
-    pub vertical_sampling_factor: u8,
-    // Dimensions in blocks, useful for processing
-    pub width_in_blocks: usize,
-    pub height_in_blocks: usize,
-    // Component dimensions in pixels
-    pub width: usize,
-    pub height: usize,
-}
 
 // --- Local Struct Definitions (assuming not public in crate::marker) ---
 // Minimal definitions needed for SOF construction
@@ -277,22 +266,6 @@ impl<W: JfifWrite> JpegliEncoder<W> {
 
     // --- Encoding Methods ---
 
-    /// Encode an image provided as raw pixel data.
-    ///
-    /// Data format and length must conform to specified width, height and color type.
-    pub fn encode(
-        self,
-        data: &[u8], // Or f32? Jpegli often works with floats internally
-        width: u16,
-        height: u16,
-        color_type: ColorType, // Need to map this to Jpegli's input requirements
-    ) -> Result<(), EncodingError> {
-        // TODO: Input validation (data length, dimensions)
-        // TODO: Create ImageBuffer based on ColorType (adapter might be needed for f32 pipeline)
-        // TODO: Call encode_image
-        // unimplemented!("encode method not yet implemented");
-        Ok(())
-    }
 
     /// Encode an image provided via the `ImageBuffer` trait.
     pub fn encode_image<I: ImageBuffer>(mut self, image: &I) -> Result<(), EncodingError> {
@@ -570,7 +543,8 @@ impl<W: JfifWrite> JpegliEncoder<W> {
         //    Need initial comp_params for validation inside from_config.
         //    Create a temporary one based *only* on num_components and default table indices.
         //    The real sampling factors will be set inside from_config based on `sampling_factor`.
-        let initial_comp_params_for_validation: Vec<JpegliComponentParams> = (0..num_components).map(|i| {
+        // TODO: What is this used for?
+        let _initial_comp_params_for_validation: Vec<JpegliComponentParams> = (0..num_components).map(|i| {
             let table_idx = if i == 0 { 0 } else { 1 }; // Default table assignment
             JpegliComponentParams { 
                 h_samp_factor: 1, // Placeholder, will be set by from_config
@@ -579,27 +553,28 @@ impl<W: JfifWrite> JpegliEncoder<W> {
             }
         }).collect();
 
-        let mut quant_params = JpegliQuantParams::from_config(&config_options)
+        let quant_params = JpegliQuantParams::from_config(&config_options)
             .map_err(|e| EncodingError::JpegliError(e.into()))?;
 
+        // Update self.components with potentially modified quant_tbl_no from params
+        for (idx, ci) in self.components.iter_mut().enumerate() {
+            if idx < quant_params.comp_params.len() {
+                ci.quantization_table_index = quant_params.comp_params[idx].quantization_table_index;
+                // Update sampling factors too, as they are now determined in from_config
+                ci.horizontal_sampling_factor = quant_params.comp_params[idx].horizontal_sampling_factor;
+                ci.vertical_sampling_factor = quant_params.comp_params[idx].vertical_sampling_factor;
+            }
+        }
         // 3. Create Quantizer State using the validated params
         let quant_state = JpegliQuantizerState::new(
-            &mut quant_params, // Pass the validated params struct
+            quant_params, // Pass the validated params struct
             QuantPass::NoSearch 
         ).map_err(|e| EncodingError::JpegliError(e.into()))?;
 
         // Store the created state
         self.quant_state = Some(quant_state);
 
-        // Update self.components with potentially modified quant_tbl_no from params
-        for (idx, ci) in self.components.iter_mut().enumerate() {
-             if idx < quant_params.comp_params.len() {
-                 ci.quantization_table_index = quant_params.comp_params[idx].quant_tbl_no;
-                 // Update sampling factors too, as they are now determined in from_config
-                 ci.horizontal_sampling_factor = quant_params.comp_params[idx].h_samp_factor;
-                 ci.vertical_sampling_factor = quant_params.comp_params[idx].v_samp_factor;
-             }
-        }
+
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-use crate::jpegli::tests::structs::*;
+use crate::jpegli::tests::test_structs::*;
 use once_cell::sync::Lazy;
 use serde_json::from_str;
 

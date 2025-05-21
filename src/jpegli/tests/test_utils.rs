@@ -1,7 +1,7 @@
 // Helper functions for tests
 
 use serde::{Deserialize, Deserializer};
-use crate::jpegli::tests::structs::RustRowBufferSliceF32; // Import the slice struct
+use crate::jpegli::tests::test_structs::RustRowBufferSliceF32; // Import the slice struct
 use alloc::string::{String, ToString}; // Add imports for String formatting
 use alloc::vec::Vec;                   // Keep Vec import
 use core::fmt::Write;                  // Add Write import

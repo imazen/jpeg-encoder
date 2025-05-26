@@ -14,7 +14,10 @@ use std::ops::*;
 // TODO: Add bytemuck dependency: cargo add bytemuck
 use bytemuck;
 use arrayref;
+use super::structs::RowBuffer;
 
+const K_PRE_EROSION_BORDER: usize = 1;
+const DCTSIZE: usize = 8; // Assuming DCTSIZE is 8x8
 // Extension trait for wide::f32x8
 trait WideF32x8Ext {
     fn reduce_max(self) -> f32;
@@ -697,6 +700,271 @@ pub(crate) fn compute_fuzzy_erosion_row(
         x += 1;
     }
 }
+
+
+
+
+/// Port of C++ `ComputePreErosion`.
+/// Computes image of local pixel differences, subsampled by 4.
+fn compute_pre_erosion<I, E>(
+    input: &mut I, // Assumes input has necessary padding/borders
+    xsize: usize,
+    y0: usize,
+    ylen: usize,
+    border: usize,
+    diff_buffer: &mut [f32], // Temporary buffer, size >= xsize
+    pre_erosion: &mut E,
+) where I: RowBuffer<f32>, E: RowBuffer<f32> {
+    assert!(diff_buffer.len() >= xsize, "Diff buffer too small");
+    let xsize_out = xsize / 4;
+    let y0_out = y0 / 4;
+
+    // Temporary storage for one row of diff_buffer results from previous iteration
+    let mut prev_diff_row = vec![0.0f32; xsize];
+
+    for iy in 0..ylen {
+        let y = y0 + iy;
+
+        // Need access to y-1, y, y+1. Ensure input RowBuffer has appropriate borders or handle logic.
+        // These slices need to be padded by `border` on left/right for compute_diff_buffer_row.
+        // Let's assume the RowBuffer itself handles padding internally or has border rows copied.
+        // The indices passed to compute_diff_buffer_row should be relative to the start of the *padded* data.
+
+        // Get padded rows for y-1, y, y+1. Need a robust way to handle this.
+        // Assuming get_padded_rows provides slices of length >= xsize + 2*border
+        let Some((row_t, row_m, row_b)) = input.get_padded_row_and_two_neighbors(y as isize) else {
+            eprintln!("Error getting padded rows for y={}", y);
+            continue; // Skip this row if padding fails
+        };
+        // Check if input rows have sufficient length including padding
+        let required_len = xsize + 2 * border;
+         if row_t.len() < required_len || row_m.len() < required_len || row_b.len() < required_len {
+            eprintln!("Error: Input rows for compute_pre_erosion lack sufficient padding at y={}", y);
+            continue;
+         }
+
+        let current_diff_buffer_slice = &mut diff_buffer[..xsize];
+        let prev_diff_buffer_slice = if (iy & 3) != 0 { Some(&prev_diff_row[..xsize]) } else { None };
+
+        // The `compute_diff_buffer_row` expects slices that represent the *padded* row data.
+        // Pass slices that start `border` elements before the logical start (x=0).
+        // The length should be `xsize + 2 * border`.
+        compute_diff_buffer_row(
+            row_t, // Pass the full padded slice
+            row_m,
+            row_b,
+            xsize, // Compute 'xsize' elements
+            current_diff_buffer_slice,
+            prev_diff_buffer_slice,
+        );
+
+        // Store the current result for the next iteration if needed
+        if (iy & 3) != 3 { // Store unless it's the last of the 4 rows
+            prev_diff_row[..xsize].copy_from_slice(current_diff_buffer_slice);
+        }
+
+        // If this is the 4th row (iy % 4 == 3), average and store in pre_erosion
+        if iy % 4 == 3 {
+            let y_out = y0_out + iy / 4;
+            let row_d_out = pre_erosion.get_window_row_mut(y_out).unwrap(); // Get mutable slice for output row
+
+            if row_d_out.len() < xsize_out {
+                 eprintln!("Error: pre_erosion row too short at y_out={}", y_out);
+                 continue;
+            }
+
+            for x_out in 0..xsize_out {
+                let x_in = x_out * 4;
+                // Sum the 4 values from the final diff_buffer for this output pixel
+                let sum = current_diff_buffer_slice[x_in]
+                        + current_diff_buffer_slice[x_in + 1]
+                        + current_diff_buffer_slice[x_in + 2]
+                        + current_diff_buffer_slice[x_in + 3];
+                row_d_out[x_out] = sum * 0.25;
+            }
+            pre_erosion.pad_row_width_old(y_out, xsize_out, border);
+        }
+    }
+}
+
+
+/// Port of C++ `FuzzyErosion`.
+/// Computes a linear combination of the 4 lowest values of the 3x3 neighborhood.
+/// Output (`aq_map`) is downsampled 2x relative to `pre_erosion`.
+fn fuzzy_erosion<E, T, M>(
+    pre_erosion: &mut E, // Assumes input has necessary padding/borders
+    yb0: usize, // Block row index
+    yblen: usize, // Number of block rows to process
+    tmp: &mut T,    // Temporary buffer, same size as pre_erosion
+    aq_map: &mut M, // Output buffer (quantization field)
+) where E: RowBuffer<f32>, T: RowBuffer<f32>, M: RowBuffer<f32> {
+    let xsize_blocks = aq_map.xsize();
+    let xsize = pre_erosion.xsize(); // Width of pre_erosion and tmp buffers
+
+    for iy in 0..(2 * yblen) {
+        let y = 2 * yb0 + iy; // Row index in pre_erosion/tmp coordinates
+
+        // Need pre_erosion rows y-1, y, y+1. Ensure pre_erosion has borders.
+        // Assuming get_padded_rows provides slices including borders.
+        let Some((rowt, rowm, rowb)) = pre_erosion.get_padded_row_and_two_neighbors(y as isize) else {
+             eprintln!("Error getting padded rows for fuzzy_erosion at y={}", y);
+             continue;
+        };
+
+        // Check padding
+        let required_len = xsize + 2 * K_PRE_EROSION_BORDER;
+        if rowt.len() < required_len || rowm.len() < required_len || rowb.len() < required_len {
+            eprintln!("Error: Input rows for fuzzy_erosion lack sufficient padding at y={}", y);
+            continue;
+        }
+
+        let tmp_row_out = tmp.row_mut_old(y as isize).unwrap();
+         if tmp_row_out.len() < xsize {
+             eprintln!("Error: tmp row too short at y={}", y);
+             continue;
+         }
+
+        // Compute one row of the temporary buffer
+        compute_fuzzy_erosion_row(
+            rowt, // Pass full padded slice
+            rowm,
+            rowb,
+            xsize, // Compute 'xsize' elements
+            tmp_row_out,
+        );
+
+        // If this is an odd row (iy % 2 == 1), combine two rows from tmp into aq_map
+        if iy % 2 == 1 {
+            let tmp_row0 = tmp.row_old((y - 1) as isize).unwrap(); // Row y-1 from tmp
+            let tmp_row1 = tmp.row_old(y as isize).unwrap();       // Row y from tmp (just computed)
+
+            let aq_map_y = yb0 + iy / 2;
+            let aq_out = aq_map.row_mut_old(aq_map_y as isize).unwrap();
+
+            if tmp_row0.len() < xsize || tmp_row1.len() < xsize {
+                 eprintln!("Error: tmp rows too short for averaging at y={}", y);
+                 continue;
+            }
+             if aq_out.len() < xsize_blocks {
+                 eprintln!("Error: aq_map row too short at aq_map_y={}", aq_map_y);
+                 continue;
+             }
+
+            for bx in 0..xsize_blocks {
+                let x = bx * 2; // Top-left corner in tmp coordinates
+                // Sum 4 values (2x2 block) from tmp buffer rows
+                let sum = tmp_row1[x] + tmp_row1[x + 1] + tmp_row0[x] + tmp_row0[x + 1];
+                // The C++ code does not multiply by 0.25 here, seems intentional.
+                aq_out[bx] = sum;
+            }
+        }
+    }
+}
+
+
+/// Port of C++ `PerBlockModulations`.
+/// Applies masking, HF, and gamma modulation block by block.
+fn per_block_modulations<I, M>(
+    y_quant_01: f32,
+    input: &mut I, // XYB input buffer, needs padding for neighbors
+    yb0: usize,
+    yblen: usize,
+    aq_map: &mut M, // Input/Output: Log-based AQ values initially, modulated values finally
+) where I: RowBuffer<f32>, M: RowBuffer<f32>  {
+    // Constants from C++ (matching adaptive_quant_math.rs)
+    const K_AC_QUANT: f32 = 0.841;
+    const K_DAMPEN_RAMP_START: f32 = 9.0;
+    const K_DAMPEN_RAMP_END: f32 = 65.0;
+
+    let base_level = 0.48 * K_AC_QUANT;
+    let mut dampen = 1.0;
+    if y_quant_01 >= K_DAMPEN_RAMP_START {
+        dampen = 1.0 - (y_quant_01 - K_DAMPEN_RAMP_START) / (K_DAMPEN_RAMP_END - K_DAMPEN_RAMP_START);
+        if dampen < 0.0 {
+            dampen = 0.0;
+        }
+    }
+    let mul = K_AC_QUANT * dampen;
+    let add = (1.0 - dampen) * base_level;
+
+    let xsize_blocks = aq_map.xsize();
+
+    for iy in 0..yblen {
+        let yb = yb0 + iy;
+        let y = yb * DCTSIZE; // Top-left pixel row index for the block
+        let row_out = aq_map.get_window_row_mut(yb).unwrap();
+
+         if row_out.len() < xsize_blocks {
+             eprintln!("Error: aq_map row too short at yb={}", yb);
+             continue;
+         }
+
+        for ix in 0..xsize_blocks {
+            let x = ix * DCTSIZE; // Top-left pixel col index for the block
+
+            // 1. Get initial log-based value from aq_map (output of FuzzyErosion)
+            let initial_aq_log_scalar = row_out[ix];
+
+            // 2. Apply ComputeMask modulation
+            let val1 = compute_mask_scalar(initial_aq_log_scalar);
+
+            // 3. Apply HfModulation
+            // Need 9 rows (y..y+8) and 9 columns (x..x+8) from input buffer
+            // Assuming get_padded_rows provides rows with sufficient padding/width
+             let Some(hf_input_rows_padded) = input.get_padded_row_and_neighbors(y as isize + 3, 4) else { // Center around y+3/4, get 9 rows total
+                eprintln!("Error getting padded rows for HF modulation at y={}", y);
+                continue;
+            };
+            // Check if slices are long enough for x..x+8 access
+            // compute_hf_metric_8x8 expects slices starting at the logical 'x'
+            let hf_input_rows_sliced: Vec<&[f32]> = hf_input_rows_padded.iter().map(|r| {
+                if r.len() >= x + DCTSIZE + 1 { // Need access up to x+8
+                    &r[x..]
+                } else {
+                     eprintln!("Warning: HF input row too short at y, x=({}, {})", y, x);
+                    &[] // Return empty slice on error
+                }
+            }).collect();
+
+             if hf_input_rows_sliced.iter().any(|s| s.is_empty()) { continue; }
+             if hf_input_rows_sliced.len() < 9 { continue; }
+
+            let hf_metric = compute_hf_metric_8x8(&hf_input_rows_sliced, 0); // Pass x_start=0 as slices already start at x
+            let val2 = val1 + K_HF_MODULATION_SUM_COEFF * hf_metric;
+
+            // 4. Apply GammaModulation
+            // Need 8 rows (y..y+7) and 8 columns (x..x+7) from input buffer
+            // Use the first 8 rows prepared for HF modulation
+            let gamma_input_rows_sliced: Vec<&[f32]> = hf_input_rows_sliced[..8].to_vec(); // Take first 8 rows
+
+             if gamma_input_rows_sliced.iter().any(|s| s.len() < DCTSIZE) {
+                  eprintln!("Warning: Gamma input row too short at y, x=({}, {})", y, x);
+                  continue;
+             }
+             if gamma_input_rows_sliced.len() < 8 { continue; }
+
+            let gamma_sum = compute_gamma_sum_8x8(&gamma_input_rows_sliced, 0); // Pass x_start=0
+            // Check for non-positive gamma_sum before log
+            let log_arg = gamma_sum * K_GAMMA_MODULATION_SCALE;
+            let gamma_term = if log_arg > 0.0 {
+                K_GAMMA_MODULATION_GAMMA * fast_log2f_scalar(log_arg)
+            } else {
+                // Handle non-positive log argument, maybe clamp or use a default?
+                // C++ FastLog2f might handle this implicitly. Let's assume 0 for now.
+                0.0
+            };
+            let val3 = val2 + gamma_term;
+
+            // 5. Convert back to multiplicative factor
+            // C++: FastPow2f(GetLane(out_val) * 1.442695041f) * mul + add;
+            // Assuming `val3` is log base 2, the direct conversion is:
+            let final_aq = fast_pow2f_scalar(val3) * mul + add;
+
+            row_out[ix] = final_aq;
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

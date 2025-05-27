@@ -1,9 +1,6 @@
 use serde::Deserialize;
-use serde_repr::*;
+
 use crate::jpegli::structs::JpegColorSpace;
-
-use super::*;
-
 
 // Common types used across tests (assuming these exist or will be created in Rust)
 // TODO: Define these properly based on Rust implementation
@@ -180,6 +177,7 @@ pub struct PerBlockModulationsTest {
 // ss << "}";
 
 #[derive(Debug, PartialEq, Clone, Deserialize)]
+#[allow(non_snake_case)]
 pub struct ComputeAdaptiveQuantFieldTest {
      // ----- Inputs -----
      // Config/Parameters from cinfo/master
@@ -187,8 +185,10 @@ pub struct ComputeAdaptiveQuantFieldTest {
     pub config_y_channel_index: usize, // Usually 0, derived
     pub config_jpeg_color_space: Option<JpegColorSpace>, // Make Optional
     pub config_y_quant_01: f32, // Needed for final adjustment
+
     pub config_next_iMCU_row: usize, // Runtime state
     pub config_total_iMCU_rows: usize, // Derived
+
     pub config_max_v_samp_factor: i32, // Derived
     pub config_y_comp_width_in_blocks: usize,
     pub config_y_comp_height_in_blocks: usize,

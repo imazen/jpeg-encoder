@@ -3,9 +3,7 @@
 #[cfg(test)]
 mod adaptive_quantization_tests {
     use crate::jpegli::adaptive_quant::*;
-    use crate::jpegli::adaptive_quantization::compute_pre_erosion_scalar;
-    use crate::jpegli::adaptive_quantization::fuzzy_erosion_scalar;
-    use crate::jpegli::adaptive_quantization::per_block_modulations_scalar;
+    use crate::jpegli::adaptive_quant_math::*;
     use crate::jpegli::tests::test_structs::*;
     use crate::jpegli::tests::testdata::*;
     use crate::jpegli::tests::test_utils::*;

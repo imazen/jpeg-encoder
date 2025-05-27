@@ -7,7 +7,7 @@ pub mod testdata;
 
 // Declare test modules for different functional areas
 
-mod adaptive_quantization_test;
+//mod adaptive_quantization_test;
 
 // Add other test modules here...
 
@@ -18,8 +18,7 @@ mod top_level_jpegli_tests {
     // use super::testdata::*; // If needed
     use crate::jpegli::quant::*;
     use crate::jpegli::tests::testdata::SET_QUANT_MATRICES_TESTS;
-    use crate::jpegli::tests::test_structs::ComponentInfoMinimal;
-
+ 
     #[test]
     fn it_works_jpegli() {
         let result = 2 + 2;

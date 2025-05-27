@@ -1,6 +1,5 @@
 // Ported from lib/extras/xyb_transform.cc and lib/cms/opsin_params.h
 
-use alloc::vec::Vec;
 use arrayref::array_ref;
 
 // --- Constants --- //

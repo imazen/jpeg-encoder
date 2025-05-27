@@ -13,7 +13,6 @@ use crate::jpegli::quant::JpegliQuantizerState;
 use super::config::ComputedConfigDimensions;
 use super::config::ComputedEncodeConfig;
 use super::structs::OwnedRowBuffer;
-use super::structs::RowBufferRef;
 use super::structs::RowBuffer;
 
 const K_PRE_EROSION_BORDER: usize = 1;
@@ -25,7 +24,7 @@ pub struct AdaptiveQuantState {
     pub fuzzy_erosion_tmp: OwnedRowBuffer<f32>,
     pub quant_field: OwnedRowBuffer<f32>,
     pub diff_buffer: Vec<f32>,
-    pub next_iMCU_row: usize,
+    pub next_i_mcu_row: usize,
 }
 
 
@@ -40,7 +39,7 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
     let y_channel = config.luma_component_index;
 
     let y_comp_config = config.comp_params[y_channel];
-    let y_comp_dims = dims.component_dimensions[y_channel];
+    let y_comp_dims = dims.components()[y_channel].size;
     let y_quant_table_index = y_comp_config.quantization_table_index;
     let raw_quant_tbl = quantizer.raw_quant_tables[y_quant_table_index as usize].expect("Quantization table not found for given index");
 
@@ -52,11 +51,11 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
 
     // Handle input buffer border copy
     // Need RowBuffer::copy_row to handle potentially overlapping regions correctly.
-    if state.next_iMCU_row == 0 {
+    if state.next_i_mcu_row == 0 {
         luma_plane_padded_input.pad_using_edges();
         //, K_PRE_EROSION_BORDER as usize
     }
-    if state.next_iMCU_row + 1 == dims.total_i_mcu_rows {
+    if state.next_i_mcu_row + 1 == dims.total_i_mcu_rows {
         let last_row = ysize_pixels - 1;
         luma_plane_padded_input.copy_row_window_relative(last_row as isize + 1, last_row as isize); // Copy last row to row below
         //, K_PRE_EROSION_BORDER as usize
@@ -67,7 +66,7 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
     let xsize = xsize_blocks * DCTSIZE; // Width in pixels
 
     // Calculate Y range for processing this iMCU row
-    let yb0 = state.next_iMCU_row * config.max_v_samp_factor as usize;
+    let yb0 = state.next_i_mcu_row * config.max_v_samp_factor as usize;
     let yblen = config.max_v_samp_factor as usize; // Number of block rows in this iMCU row
     let y0_pixels = yb0 * DCTSIZE as usize;
     let ylen_pixels = yblen as usize * DCTSIZE as usize;
@@ -86,7 +85,7 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
         y0_pre = y0_pixels.saturating_sub(4); // Start 4 rows earlier if possible
         ylen_pre += 4; // Extend length accordingly
     }
-    if state.next_iMCU_row + 1 == dims.total_i_mcu_rows {
+    if state.next_i_mcu_row + 1 == dims.total_i_mcu_rows {
         // Last iMCU row
         ylen_pre = ylen_pre.saturating_sub(4); // Reduce length by 4 at the end
     }
@@ -115,7 +114,7 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
     if y0_pre == 0 { // If we processed starting from row 0
         state.pre_erosion.copy_row_window_relative(-1, 0);
     }
-    if state.next_iMCU_row + 1 == dims.total_i_mcu_rows {
+    if state.next_i_mcu_row + 1 == dims.total_i_mcu_rows {
         // Assuming pre_erosion is subsampled 2x vertically compared to blocks? No, 4x.
         let last_row_pre = dims.ysize_blocks / 2 - 1; // Check this calculation based on pre_erosion size. Let's assume height is ysize_blocks / 2.
         state.pre_erosion.copy_row_window_relative(last_row_pre as isize + 1, last_row_pre as isize);
@@ -161,7 +160,7 @@ pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: 
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
     // TODO: Add tests for compute_pre_erosion, fuzzy_erosion, per_block_modulations, compute_adaptive_quant_field
     // These will require setting up mock RowBuffer and JpegCompressor state.
 

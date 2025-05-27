@@ -1,8 +1,5 @@
 use alloc::boxed::Box;
 use core::num::NonZeroU16;
-use alloc::vec;
-use alloc::vec::Vec;
-use std::f32;
 
 /// # Quantization table used for encoding
 ///

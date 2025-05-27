@@ -7,7 +7,7 @@
 
 use crate::huffman::HuffmanTable;
 use crate::error::EncodingError;
-use crate::JfifWrite;
+
 
 use super::structs::JpegliComponentSettings;
 

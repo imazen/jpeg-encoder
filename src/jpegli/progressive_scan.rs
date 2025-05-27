@@ -1,4 +1,4 @@
-use super::config::ComputedEncodeConfig;
+use super::config::{ ComponentInfo, ComputedEncodeConfig};
 
 /// Constants
 const DCTSIZE: usize = 8;
@@ -310,11 +310,11 @@ pub fn is_progressive_mode(scan_script: &[JpegScanInfo]) -> bool {
 
 /// Process compression parameters to set up scan configuration
 /// This corresponds to the scan processing part of ProcessCompressionParams in the C++ code
-pub fn process_compression_params_scans(
+pub fn create_scan_configuration(
     config: &ComputedEncodeConfig,
     image_width: usize,
     image_height: usize,
-    components: &[super::structs::JpegliComponentInfo],
+    components: &[ComponentInfo],
 ) -> Result<ScanConfiguration, String> {
     let mut scan_config = ScanConfiguration::new();
     
@@ -335,13 +335,18 @@ pub fn process_compression_params_scans(
     Ok(scan_config)
 }
 
+impl ScanConfiguration {
+    pub fn create(config: &ComputedEncodeConfig, image_width: usize, image_height: usize, components: &[ComponentInfo]) -> Result<Self, String> {
+        create_scan_configuration(config, image_width, image_height, components)
+    }
+}
 /// Set up scan token information for each scan
 fn setup_scan_token_info(
     scan_config: &mut ScanConfiguration,
     config: &ComputedEncodeConfig,
     image_width: usize,
     image_height: usize,
-    components: &[super::structs::JpegliComponentInfo],
+    components: &[ComponentInfo],
 ) -> Result<(), String> {
     let num_scans = scan_config.scan_script.len();
     
@@ -372,7 +377,7 @@ fn setup_scan_token_info(
             if comp_idx >= components.len() {
                 return Err(format!("Invalid component index {}", comp_idx));
             }
-            let comp = &components[comp_idx];
+            let comp = &components[comp_idx].size;
             sti.mcus_per_row = comp.width_in_blocks;
             sti.mcu_rows_in_scan = comp.height_in_blocks;
             sti.blocks_in_mcu = 1;
@@ -387,7 +392,7 @@ fn setup_scan_token_info(
                 if comp_idx >= components.len() {
                     return Err(format!("Invalid component index {}", comp_idx));
                 }
-                let comp = &components[comp_idx];
+                let comp = &components[comp_idx].config;
                 sti.blocks_in_mcu += comp.horizontal_sampling_factor as usize * comp.vertical_sampling_factor as usize;
             }
         }
@@ -421,10 +426,10 @@ fn setup_scan_token_info(
 
 #[cfg(test)]
 mod tests {
-    use crate::jpegli::{config::EncodeOptions};
+    use crate::jpegli::{config::{ComponentDimensions, EncodeOptions}, structs::JpegliComponentSettings};
 
     use super::*;
-    use crate::jpegli::structs::{JpegliComponentInfo};
+    
     
     fn create_test_config(progressive_level: u8) -> ComputedEncodeConfig {
         EncodeOptions{
@@ -433,45 +438,21 @@ mod tests {
         }.compute().unwrap()
     }
     
-    fn create_test_components() -> Vec<JpegliComponentInfo> {
-        vec![
-            JpegliComponentInfo {
-                id: 1,
-                quantization_table_index: 0,
-                dc_huffman_table_index: 0,
-                ac_huffman_table_index: 0,
-                horizontal_sampling_factor: 2,
-                vertical_sampling_factor: 2,
-                width_in_blocks: 40,
-                height_in_blocks: 30,
-                width: 320,
-                height: 240,
-            },
-            JpegliComponentInfo {
-                id: 2,
-                quantization_table_index: 1,
-                dc_huffman_table_index: 1,
-                ac_huffman_table_index: 1,
-                horizontal_sampling_factor: 1,
-                vertical_sampling_factor: 1,
-                width_in_blocks: 20,
-                height_in_blocks: 15,
-                width: 160,
-                height: 120,
-            },
-            JpegliComponentInfo {
-                id: 3,
-                quantization_table_index: 1,
-                dc_huffman_table_index: 1,
-                ac_huffman_table_index: 1,
-                horizontal_sampling_factor: 1,
-                vertical_sampling_factor: 1,
-                width_in_blocks: 20,
-                height_in_blocks: 15,
-                width: 160,
-                height: 120,
-            },
-        ]
+    fn create_test_components() -> Vec<ComponentInfo> {
+        let width = 320;
+        let height = 240;
+
+        let configs = vec![
+            JpegliComponentSettings::default(0).with_h_v_sampling(2, 2),
+            JpegliComponentSettings::default(1).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
+            JpegliComponentSettings::default(2).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
+        ];
+
+        ComponentDimensions::from_component_settings(width, height, &configs)
+        .into_iter()
+        .zip(configs)
+        .map(|(size, config)| ComponentInfo { size, config })
+        .collect()
     }
 
     #[test]
@@ -591,11 +572,11 @@ mod tests {
         let config = create_test_config(0);
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
-            &components,
+            components.as_slice(),
         );
         
         assert!(result.is_ok());
@@ -618,7 +599,7 @@ mod tests {
         let config = create_test_config(1);
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -642,7 +623,7 @@ mod tests {
         let config = create_test_config(1);
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -657,8 +638,8 @@ mod tests {
             if scan.comps_in_scan == 1 {
                 let sti = &scan_config.scan_token_info[i];
                 assert_eq!(sti.blocks_in_mcu, 1);
-                assert_eq!(sti.mcus_per_row, components[scan.component_index[0]].width_in_blocks);
-                assert_eq!(sti.mcu_rows_in_scan, components[scan.component_index[0]].height_in_blocks);
+                assert_eq!(sti.mcus_per_row, components[scan.component_index[0]].size.width_in_blocks);
+                assert_eq!(sti.mcu_rows_in_scan, components[scan.component_index[0]].size.height_in_blocks);
                 assert_eq!(sti.num_blocks, sti.mcus_per_row * sti.mcu_rows_in_scan);
                 break;
             }
@@ -670,7 +651,7 @@ mod tests {
         let config = create_test_config(0); // Sequential has multi-component scan
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -698,7 +679,7 @@ mod tests {
         let config = create_test_config(1);
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -726,7 +707,7 @@ mod tests {
         config.restart_interval = 100;
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -747,7 +728,7 @@ mod tests {
         config.restart_interval_in_rows = 5;
         let components = create_test_components();
         
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,
@@ -770,7 +751,7 @@ mod tests {
         let components = create_test_components();
         
         // Normal case should work
-        let result = process_compression_params_scans(
+        let result = ScanConfiguration::create(
             &config,
             320,
             240,

@@ -1,4 +1,4 @@
-use alloc::vec::Vec;
+
 //use core::num::NonZeroU16; // Likely not needed directly here anymore
 use std::f32;
 //use std::fmt::Write; // Not needed for core quant logic
@@ -7,7 +7,7 @@ use std::f32;
 use crate::jpegli::quant_constants::*;
 // Use path relative to src/lib.rs for ffi types if defined there or re-exported
 // use crate::{MAX_COMPONENTS}; // Assuming MAX_COMPONENTS is at crate root
-use crate::jpegli::structs::{JpegColorSpace, JpegliComponentInfo, Subsampling, SimplifiedTransferCharacteristics};
+use crate::jpegli::structs::{JpegColorSpace, SimplifiedTransferCharacteristics};
 
 use super::config::ComputedEncodeConfig;
 use super::structs::JpegliComponentSettings;

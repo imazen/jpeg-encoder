@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+You need to load in full the following: 
+
+[config.rs](mdc:src/jpegli/config.rs), [structs.rs](mdc:src/jpegli/structs.rs), [progressive_scan.rs](mdc:src/jpegli/progressive_scan.rs), [entropy_coding.rs](mdc:src/jpegli/entropy_coding.rs), [adaptive_quant.rs](mdc:src/jpegli/adaptive_quant.rs), [adaptive_quant_math.rs](mdc:src/jpegli/adaptive_quant_math.rs)
+[cms.rs](mdc:src/jpegli/cms.rs), [color_transform.rs](mdc:src/jpegli/color_transform.rs), [fdct_jpegli.rs](mdc:src/jpegli/fdct_jpegli.rs), [quant.rs](mdc:src/jpegli/quant.rs), [tf.rs](mdc:src/jpegli/tf.rs),  [writer.rs](mdc:src/writer.rs), [marker.rs](mdc:src/marker.rs), [huffman.rs](mdc:src/huffman.rs), [error.rs](mdc:src/error.rs), [xyb_transform.rs](mdc:src/jpegli/xyb_transform.rs)
+
+Go back and load the rest of the lines you missed in each file.
+
+

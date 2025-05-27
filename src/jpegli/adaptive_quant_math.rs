@@ -1010,8 +1010,7 @@ pub(crate)fn per_block_modulations<I, M>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f32::consts;
-    use arrayref;
+
 
     // Helper to compare f32x8 vectors with tolerance
     fn assert_vec_approx_eq(a: f32x8, b: f32x8, tol: f32) {
@@ -1143,7 +1142,7 @@ mod tests {
         let mut v2 = f32x8::new([4.0, 5.0, 3.0, 6.0, 1.0, 9.0, 0.0, 7.0]);
         let mut v3 = f32x8::new([2.0, 7.0, 1.0, 9.0, 0.0, 8.0, 6.0, 5.0]);
 
-        let mut all_vecs = [v0, v1, v2, v3];
+        let all_vecs = [v0, v1, v2, v3];
         // Perform a reference sort lane-wise
         let mut expected_arrays = [[0f32; 8]; 4];
         for i in 0..8 {

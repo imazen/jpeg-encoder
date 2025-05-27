@@ -1,6 +1,5 @@
 use serde_repr::Serialize_repr;
 use serde_repr::Deserialize_repr;
-use target_features::SimdType;
 
 use super::simd_width::SimdWidth;
 
@@ -70,22 +69,6 @@ pub(crate) enum SimplifiedTransferCharacteristics{
 }
 
 
-/// Represents component information needed for Jpegli encoding.
-#[derive(Clone, Debug)]
-pub struct JpegliComponentInfo {
-    pub id: u8,
-    pub quantization_table_index: u8,
-    pub dc_huffman_table_index: u8,
-    pub ac_huffman_table_index: u8,
-    pub horizontal_sampling_factor: u8,
-    pub vertical_sampling_factor: u8,
-    // Dimensions in blocks, useful for processing
-    pub width_in_blocks: usize,
-    pub height_in_blocks: usize,
-    // Component dimensions in pixels
-    pub width: usize,
-    pub height: usize,
-}
 
 
 #[derive(Clone, Debug, Copy)]
@@ -99,6 +82,10 @@ pub struct JpegliComponentSettings {
     pub vertical_sampling_factor: u8,
 }
 impl JpegliComponentSettings {
+
+    pub fn is_empty(&self) -> bool {
+        self.vertical_sampling_factor == 0
+    }
 
     pub const EMPTY: Self = JpegliComponentSettings { index: 0, letter: '\0', quantization_table_index: 0, dc_huffman_table_index: 0, ac_huffman_table_index: 0, horizontal_sampling_factor: 0, vertical_sampling_factor: 0 };
 
@@ -300,7 +287,6 @@ impl From<crate::old_encoder::OutputJpegColorType> for JpegColorSpace {
             crate::old_encoder::OutputJpegColorType::Ycbcr => Self::YCbCr,
             crate::old_encoder::OutputJpegColorType::Cmyk => Self::Cmyk,
             crate::old_encoder::OutputJpegColorType::Ycck => Self::Ycck,
-            _ => panic!("Invalid color type"),
         }
     }
 }
@@ -705,7 +691,7 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let stride = self.info().stride;
         let mut rest = &mut self.get_buffer_mut()[y_first * stride..];
         let mut row;
-        for y in y_first..=y_last{
+        for _ in y_first..=y_last{
             (row, rest) = rest.split_at_mut(stride);
             rows.push(row);
         }
@@ -724,7 +710,7 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let stride = self.info().stride;
         let mut rest = &self.get_buffer()[y_first * stride..];
         let mut row;
-        for y in y_first..=y_last{
+        for _ in y_first..=y_last{
             (row, rest) = rest.split_at(stride);
             rows.push(row);
         }

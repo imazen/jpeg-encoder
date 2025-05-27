@@ -1,6 +1,6 @@
 use crate::{Density, EncodingError};
 
-use super::{quant::{quality_to_distance, MAX_COMPONENTS}, structs::{JpegColorSpace, JpegliComponentInfo, JpegliComponentSettings, SimplifiedTransferCharacteristics, Subsampling}};
+use super::{quant::{quality_to_distance, MAX_COMPONENTS}, structs::{JpegColorSpace, JpegliComponentSettings, SimplifiedTransferCharacteristics, Subsampling}};
 
 const MAX_SAMP_FACTOR: u8 = 4;
 const JPEG_MAX_DIMENSION: usize = 65500;
@@ -45,6 +45,20 @@ pub(crate) struct ComponentDimensions{
     pub downsampled_height: usize,
     pub width_in_blocks: usize,
     pub height_in_blocks: usize,
+    pub h_factor: f32,
+    pub v_factor: f32,
+}
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ComponentInfo{
+    pub size: ComponentDimensions,
+    pub config: JpegliComponentSettings,
+
+}
+impl ComponentInfo{
+    pub const EMPTY: Self = ComponentInfo{
+        size: ComponentDimensions::EMPTY,
+        config: JpegliComponentSettings::EMPTY,
+    };
 }
 
 pub(crate) struct ComputedConfigDimensions{
@@ -53,14 +67,17 @@ pub(crate) struct ComputedConfigDimensions{
     pub total_i_mcu_rows: usize,
     pub total_i_mcu_cols: usize,
     pub num_components: usize,
-    pub component_dimensions: [ComponentDimensions; MAX_COMPONENTS],
-    pub component_settings: [JpegliComponentSettings; MAX_COMPONENTS],
-    pub h_factors: [f32; MAX_COMPONENTS],
-    pub v_factors: [f32; MAX_COMPONENTS],
+    pub components_fixed: [ComponentInfo; MAX_COMPONENTS],
     pub xsize_blocks: usize,
     pub ysize_blocks: usize,
     pub blocks_per_i_mcu_row: usize,
     pub progressive_mode: bool,
+}
+
+impl ComputedConfigDimensions{
+    pub fn components(&self) -> &[ComponentInfo]{
+        &self.components_fixed[..self.num_components]
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -157,7 +174,7 @@ impl ComputedEncodeConfig {
         if self.xyb_mode && self.subsampling != Subsampling::YCbCr444 {
             return Err(EncodingError::JpegliError("XYB mode requires YCbCr444 chroma subsampling".into()));
         }
-        if self.restart_interval > 65535u16 {
+        if self.restart_interval as usize > 65535 {
             return Err(EncodingError::JpegliError("Restart interval too big".into()));
         }
         if self.smoothing > 100 {
@@ -190,7 +207,7 @@ impl ComputedEncodeConfig {
             }
         }
         if self.restart_interval > 0 {
-            if self.restart_interval < 10 || self.restart_interval > 65535 {
+            if self.restart_interval < 10 || self.restart_interval as usize > 65535 {
                 return Err(EncodingError::JpegliError("Restart interval must be between 10 and 65535".into()));
             }
         }
@@ -241,32 +258,44 @@ impl ComputedConfigDimensions{
         let xsize_blocks = total_i_mcu_cols * cinfo.max_h_samp_factor as usize;
         let ysize_blocks = total_i_mcu_rows * cinfo.max_v_samp_factor as usize;
 
-        let mut h_factors = [0.0; MAX_COMPONENTS];
-        let mut v_factors = [0.0; MAX_COMPONENTS];
-    
+        let component_sizes = ComponentDimensions::from_component_settings(image_width, image_height, &cinfo.comp_params);
+        
+        let mut components = [ComponentInfo::EMPTY; MAX_COMPONENTS];
+       
         
         let mut blocks_per_i_mcu = 0;
         for (ix, comp) in cinfo.comp_params.iter().enumerate() {
-            h_factors[ix] = cinfo.max_h_samp_factor as f32 / comp.horizontal_sampling_factor as f32;
-            v_factors[ix] = cinfo.max_v_samp_factor as f32 / comp.vertical_sampling_factor as f32;
+            components[ix].size = component_sizes[ix];
+            components[ix].config = *comp;
+            
             blocks_per_i_mcu += comp.horizontal_sampling_factor * comp.vertical_sampling_factor;
         }
         let blocks_per_i_mcu_row = total_i_mcu_cols * blocks_per_i_mcu as usize;
 
         let component_dimension_vec = ComponentDimensions::from_component_settings
             (image_width, image_height, &cinfo.comp_params);
-        let fixed_component_dimensions = [
-            component_dimension_vec[0],
-            *component_dimension_vec.get(1).unwrap_or(&ComponentDimensions::EMPTY),
-            *component_dimension_vec.get(2).unwrap_or(&ComponentDimensions::EMPTY),
-            *component_dimension_vec.get(3).unwrap_or(&ComponentDimensions::EMPTY),
+
+
+
+        let components_fixed = [
+            ComponentInfo{
+                size: component_dimension_vec[0],
+                config: cinfo.comp_params[0],
+            },
+            ComponentInfo{
+                size: *component_dimension_vec.get(1).unwrap_or(&ComponentDimensions::EMPTY),
+                config: *cinfo.comp_params.get(1).unwrap_or(&JpegliComponentSettings::EMPTY),
+            },
+            ComponentInfo{
+                size: *component_dimension_vec.get(2).unwrap_or(&ComponentDimensions::EMPTY),
+                config: *cinfo.comp_params.get(2).unwrap_or(&JpegliComponentSettings::EMPTY),
+            },
+            ComponentInfo{
+                size: *component_dimension_vec.get(3).unwrap_or(&ComponentDimensions::EMPTY),
+                config: *cinfo.comp_params.get(3).unwrap_or(&JpegliComponentSettings::EMPTY),
+            },
         ];
-        let fixed_component_settings = [
-            cinfo.comp_params[0],
-            *cinfo.comp_params.get(1).unwrap_or(&JpegliComponentSettings::EMPTY),
-            *cinfo.comp_params.get(2).unwrap_or(&JpegliComponentSettings::EMPTY),
-            *cinfo.comp_params.get(3).unwrap_or(&JpegliComponentSettings::EMPTY),
-        ];
+        
         
         Ok(ComputedConfigDimensions {
             image_width,
@@ -274,10 +303,7 @@ impl ComputedConfigDimensions{
             total_i_mcu_rows,
             total_i_mcu_cols,
             num_components: cinfo.num_components,
-            component_dimensions: fixed_component_dimensions,
-            component_settings: fixed_component_settings,
-            h_factors,
-            v_factors,
+            components_fixed,
             xsize_blocks,
             ysize_blocks,
             blocks_per_i_mcu_row,
@@ -450,15 +476,18 @@ fn ceil_div(value: usize, div: usize) -> usize {
 
 impl ComponentDimensions{ 
 
-    pub const EMPTY: Self = ComponentDimensions { downsampled_width: 0, downsampled_height: 0, width_in_blocks: 0, height_in_blocks: 0 };    fn new(width: usize, height: usize, factor: (u8, u8), max_factor: (u8, u8)) -> ComponentDimensions{
+    pub const EMPTY: Self = ComponentDimensions { downsampled_width: 0, downsampled_height: 0, width_in_blocks: 0, height_in_blocks: 0, h_factor: 0.0, v_factor: 0.0 };
+    fn new(width: usize, height: usize, factor: (u8, u8), max_factor: (u8, u8)) -> ComponentDimensions{
         let downsampled_width = ceil_div(width * factor.0 as usize, max_factor.0 as usize);
         let downsampled_height = ceil_div(height * factor.1 as usize, max_factor.1 as usize);
         let width_in_blocks = ceil_div(downsampled_width, DCTSIZE as usize);
         let height_in_blocks = ceil_div(downsampled_height, DCTSIZE as usize);
-        ComponentDimensions { downsampled_width, downsampled_height, width_in_blocks, height_in_blocks }
+        let h_factor = max_factor.0 as f32 / factor.0 as f32;
+        let v_factor = max_factor.1 as f32 / factor.1 as f32;
+        ComponentDimensions { downsampled_width, downsampled_height, width_in_blocks, height_in_blocks, h_factor, v_factor }
     }
 
-    fn from_component_settings(width: usize, height: usize, components_settings: &[JpegliComponentSettings]) -> Vec<ComponentDimensions>{
+    pub(crate) fn from_component_settings(width: usize, height: usize, components_settings: &[JpegliComponentSettings]) -> Vec<ComponentDimensions>{
         let max_h = components_settings.iter().max_by_key(|s|s.horizontal_sampling_factor).unwrap().horizontal_sampling_factor;
         let max_v = components_settings.iter().max_by_key(|s|s.vertical_sampling_factor).unwrap().vertical_sampling_factor;
         

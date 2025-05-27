@@ -1,11 +1,9 @@
-use lcms2::{ColorSpaceSignature, Intent, PixelFormat, Profile, TagSignature, Transform, CIEXYZ, CIExyY, CIExyYTRIPLE, ToneCurve, ProfileClassSignature, Flags, Tag};
+use lcms2::{ColorSpaceSignature, Intent, PixelFormat, Profile, TagSignature, Transform,  CIExyY, CIExyYTRIPLE, ToneCurve, ProfileClassSignature, Flags, Tag};
 use std::eprintln;
-use std::ffi::c_void;
 use std::sync::{Mutex, Arc};
 use alloc::vec::Vec;
 use crate::error::EncodingError;
 use crate::jpegli::tf;
-use core::convert::TryInto;
 
 // Represents parsed information from an ICC profile relevant for our logic.
 #[derive(Debug, Clone, PartialEq)]
@@ -188,7 +186,7 @@ impl JxlCms {
                         (postprocess == tf::ExtraTF::kNone);
 
         let mut apply_hlg_ootf = false;
-        let mut hlg_ootf_luminances = None;
+        let hlg_ootf_luminances = None;
         let mut hlg_ootf_instance: Option<tf::hlg::HlgOotf> = None;
 
         if internal_in.transfer_function == TfType::HLG && internal_out.transfer_function != TfType::HLG {
@@ -286,7 +284,7 @@ impl JxlCms {
         tf::before_transform(self.preprocess, self.intensity_target, src_buffer)?;
 
         if let Some(transform_mutex) = &self.transform {
-            let mut transform = transform_mutex.lock().unwrap();
+            let transform = transform_mutex.lock().unwrap();
             let dst_buffer = &mut dst_guard[..expected_output_len];
             transform.transform_pixels(src_buffer, dst_buffer);
         } else if self.skip_lcms {
@@ -332,6 +330,7 @@ impl JxlCms {
     }
 }
 
+#[allow(irrefutable_let_patterns)]
 pub fn set_fields_from_icc(icc_data: &[u8]) -> Result<ColorEncodingInternal, EncodingError> {
     let profile = Profile::new_icc(icc_data)
         .map_err(|e| EncodingError::CmsError(format!("Failed to parse ICC profile: {}", e.to_string())))?;
@@ -385,6 +384,7 @@ pub fn set_fields_from_icc(icc_data: &[u8]) -> Result<ColorEncodingInternal, Enc
                 let r_xyz = *r_xyz_ref;
                 let g_xyz = *g_xyz_ref;
                 let b_xyz = *b_xyz_ref;
+                
                  if let (Ok(r_xyy), Ok(g_xyy), Ok(b_xyy)) = (CIExyY::try_from(r_xyz), CIExyY::try_from(g_xyz), CIExyY::try_from(b_xyz)) {
                      encoding.primaries = Some(lcms2::CIExyYTRIPLE {
                          Red: r_xyy,
@@ -568,18 +568,18 @@ mod tests {
         let srgb1 = ColorProfile::srgb()?; // Keep using generated for this specific skip test
         let srgb2 = ColorProfile::srgb()?;
         println!("ICC data identical for srgb1 and srgb2? {}", srgb1.icc() == srgb2.icc());
-        let mut cms = JxlCms::new(&srgb1, &srgb2, 100.0)?;
+        let cms = JxlCms::new(&srgb1, &srgb2, 100.0)?;
         assert!(cms.skip_lcms, "CMS transform should be skipped for identical generated sRGB profiles");
 
         // Test with linear sRGB (should also skip if identical)
         let linear1 = ColorProfile::linear_srgb()?; // Use actual linear sRGB
         let linear2 = ColorProfile::linear_srgb()?;
         println!("ICC data identical for linear1 and linear2? {}", linear1.icc() == linear2.icc());
-        let mut cms_linear = JxlCms::new(&linear1, &linear2, 100.0)?;
+        let cms_linear = JxlCms::new(&linear1, &linear2, 100.0)?;
         assert!(cms_linear.skip_lcms, "CMS transform should be skipped for identical generated linear sRGB profiles");
 
         // Test with different profiles (should not skip)
-        let mut cms_diff = JxlCms::new(&srgb1, &linear1, 100.0)?;
+        let cms_diff = JxlCms::new(&srgb1, &linear1, 100.0)?;
         assert!(!cms_diff.skip_lcms, "CMS transform should NOT be skipped for different profiles");
         Ok(())
     }
@@ -605,7 +605,7 @@ mod tests {
         // Run the transform using the internal lcms2::Transform
         // Check if transform exists before unwrapping and locking
         if let Some(transform_mutex) = &cms.transform {
-            let mut transform_guard = transform_mutex.lock().unwrap(); // Lock the mutex
+            let transform_guard = transform_mutex.lock().unwrap(); // Lock the mutex
             transform_guard.transform_pixels(&input_rgb, &mut output_linear);
         } else {
             return Err("Transform was unexpectedly skipped or None".into());
@@ -630,8 +630,8 @@ mod tests {
          let cms = cms_init(&linear1, &linear2, 255.0).unwrap();
          assert!(cms.skip_lcms);
 
-         let srgb1 = dummy_profile("srgb").unwrap();
-         let srgb2 = dummy_profile("srgb").unwrap();
+         let _srgb1 = dummy_profile("srgb").unwrap();
+         let _srgb2 = dummy_profile("srgb").unwrap();
          eprintln!("ICC data identical for linear1 and linear2? {}", linear1.icc == linear2.icc);
          let cms_linear_skip = cms_init(&linear1, &linear2, 255.0).unwrap();
          assert!(cms_linear_skip.skip_lcms);

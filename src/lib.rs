@@ -46,7 +46,6 @@ mod marker;
 mod old_quantization;
 mod writer;
 
-#[cfg(feature = "jpegli")]
 mod jpegli;
 
 pub use old_encoder::{ColorType, Encoder, OutputJpegColorType, SamplingFactor};
@@ -55,13 +54,9 @@ pub use image_buffer::{cmyk_to_ycck, rgb_to_ycbcr, ImageBuffer};
 pub use old_quantization::QuantizationTableType;
 pub use writer::{Density, JfifWrite};
 
-#[cfg(feature = "benchmark")]
-pub use old_fdct::fdct;
-#[cfg(all(feature = "benchmark", feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-pub use old_avx2::fdct_avx2;
 
-#[cfg(feature = "jpegli")]
-pub use jpegli::JpegliEncoder;
+
+
 
 #[cfg(test)]
 mod tests {

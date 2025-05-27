@@ -4,9 +4,8 @@
 
 use crate::error::EncodingError;
 use crate::jpegli::cms::TfType; // Import TfType
-use core::{f32, f64};
-#[cfg(feature = "std")]
-use std::println;
+use core::{f32};
+
 
 // Mirroring jxl_cms_internal.h
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -89,7 +88,7 @@ mod srgb_consts {
 // Hybrid Log-Gamma (HLG)
 pub mod hlg {
     use super::hlg_consts::*;
-    use core::f64::consts::LN_2; // Import natural log of 2 if needed for C constant
+    //use core::f64::consts::LN_2; // Import natural log of 2 if needed for C constant
 
     const A_F64: f64 = A;
     const B_F64: f64 = B;

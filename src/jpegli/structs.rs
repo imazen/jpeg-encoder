@@ -87,56 +87,52 @@ pub struct JpegliComponentInfo {
     pub height: usize,
 }
 
-// --- End Quantizer Input Parameters Struct ---
 
-// --- High-level Configuration Options (Now mostly optional) ---
-#[derive(Debug, Clone)]
-pub(crate) struct JpegliQuantConfigOptions {
-    // Quality/Distance (mutually exclusive)
-    pub quality: Option<u8>,
-    pub distance: Option<f32>,
-    // Flags mirroring cjpegli
-    pub xyb_mode: Option<bool>,
-    pub use_std_tables: Option<bool>,
-    pub use_adaptive_quantization: Option<bool>,
-    pub force_baseline: Option<bool>, 
-    pub chroma_subsampling: Option<Subsampling>,
-    pub jpeg_color_space: JpegColorSpace,
-    pub cicp_transfer_function: Option<SimplifiedTransferCharacteristics>,
-    pub add_two_chroma_tables: Option<bool>,
+#[derive(Clone, Debug, Copy)]
+pub struct JpegliComponentSettings {
+    pub index: u8,
+    pub letter: char,
+    pub quantization_table_index: u8,
+    pub dc_huffman_table_index: u8,
+    pub ac_huffman_table_index: u8,
+    pub horizontal_sampling_factor: u8,
+    pub vertical_sampling_factor: u8,
 }
+impl JpegliComponentSettings {
 
-// Implement Default to provide cjpegli-like defaults
-impl Default for JpegliQuantConfigOptions {
-    fn default() -> Self {
+    pub const EMPTY: Self = JpegliComponentSettings { index: 0, letter: '\0', quantization_table_index: 0, dc_huffman_table_index: 0, ac_huffman_table_index: 0, horizontal_sampling_factor: 0, vertical_sampling_factor: 0 };
+
+    pub fn new(index: u8, letter: char, quantization_table_index: u8, dc_huffman_table_index: u8, ac_huffman_table_index: u8, horizontal_sampling_factor: u8, vertical_sampling_factor: u8) -> Self {
+        Self { index, letter, quantization_table_index, dc_huffman_table_index, ac_huffman_table_index, horizontal_sampling_factor, vertical_sampling_factor }
+    }
+
+    pub fn default(index: u8) -> Self {
         Self {
-            quality: None, // Default quality (90) handled via distance default
-            distance: None, // Default distance (1.0) applied if both are None
-            xyb_mode: None,
-            use_std_tables: None,
-            use_adaptive_quantization: None,
-            force_baseline: None,
-            chroma_subsampling: None, // Default determined by distance later
-            jpeg_color_space: JpegColorSpace::YCbCr, // Placeholder, must be set
-            cicp_transfer_function: None, // Default to unknown/none
-            add_two_chroma_tables: None,
+            index,
+            letter: (index + 1) as char,
+            quantization_table_index: 0,
+            dc_huffman_table_index: 0,
+            ac_huffman_table_index: 0,
+            horizontal_sampling_factor: 1,
+            vertical_sampling_factor: 1,
         }
     }
-}
-impl JpegliQuantConfigOptions {
-    pub fn new_distance(
-        distance: Option<f32>,
-        color_type: JpegColorSpace,
-        cicp_transfer_function: Option<SimplifiedTransferCharacteristics>) -> Self {
-            Self {
-                distance: distance,
-                jpeg_color_space: color_type,
-                cicp_transfer_function: cicp_transfer_function,
-                add_two_chroma_tables: Some(true),
-                ..Default::default()
-            }
-        
+
+    pub fn with_letter(self, letter: char) -> Self {
+        Self { letter, ..self }
     }
+    pub fn with_quant_ix(self, quant_ix: u8) -> Self {
+        Self { quantization_table_index: quant_ix, ..self }
+    }
+    /// Set both the DC and AC Huffman tables to the same index
+    pub fn with_huff_ix(self, huff_ix: u8) -> Self {
+        Self { dc_huffman_table_index: huff_ix, ac_huffman_table_index: huff_ix, ..self }
+    }
+    pub fn with_h_v_sampling(self, h_sampling_factor: u8, v_sampling_factor: u8) -> Self {
+        Self { horizontal_sampling_factor: h_sampling_factor, vertical_sampling_factor: v_sampling_factor, ..self }
+    }
+    
+    
 }
 
 
@@ -232,12 +228,13 @@ impl Subsampling{
             Self::YCbCr420 => "420",
         }
     }
-    pub fn to_h_v_samp_factor(&self) -> (u8, u8){
+    pub fn to_luma_h_v_samp_factor(&self) -> (u8, u8){
         match self{
             Self::YCbCr444 => (1, 1),
             Self::YCbCr440 => (1, 2),
             Self::YCbCr422 => (2, 1),
             Self::YCbCr420 => (2, 2),
+            // Rare: 4:1:1 -> (4, 1)
         }
     }
 
@@ -296,13 +293,13 @@ impl TryFrom<i32> for JpegColorSpace {
         }
     }
 }
-impl From<crate::encoder::JpegColorType> for JpegColorSpace {
-    fn from(value: crate::encoder::JpegColorType) -> Self {
+impl From<crate::old_encoder::OutputJpegColorType> for JpegColorSpace {
+    fn from(value: crate::old_encoder::OutputJpegColorType) -> Self {
         match value{
-            crate::encoder::JpegColorType::Luma => Self::Grayscale,
-            crate::encoder::JpegColorType::Ycbcr => Self::YCbCr,
-            crate::encoder::JpegColorType::Cmyk => Self::Cmyk,
-            crate::encoder::JpegColorType::Ycck => Self::Ycck,
+            crate::old_encoder::OutputJpegColorType::Luma => Self::Grayscale,
+            crate::old_encoder::OutputJpegColorType::Ycbcr => Self::YCbCr,
+            crate::old_encoder::OutputJpegColorType::Cmyk => Self::Cmyk,
+            crate::old_encoder::OutputJpegColorType::Ycck => Self::Ycck,
             _ => panic!("Invalid color type"),
         }
     }
@@ -331,12 +328,12 @@ impl JpegColorSpace {
         }
     }
     /// What the output format is for the given imput format.
-    pub fn to_output_color_type(&self) -> crate::encoder::JpegColorType {
+    pub fn to_output_color_type(&self) -> crate::old_encoder::OutputJpegColorType {
         match self {
-            Self::Grayscale => crate::encoder::JpegColorType::Luma,
-            Self::Cmyk => crate::encoder::JpegColorType::Cmyk,
-            Self::Ycck => crate::encoder::JpegColorType::Ycck,
-            _ => crate::encoder::JpegColorType::Ycbcr,
+            Self::Grayscale => crate::old_encoder::OutputJpegColorType::Luma,
+            Self::Cmyk => crate::old_encoder::OutputJpegColorType::Cmyk,
+            Self::Ycck => crate::old_encoder::OutputJpegColorType::Ycck,
+            _ => crate::old_encoder::OutputJpegColorType::Ycbcr,
         }
     }
 
@@ -344,12 +341,22 @@ impl JpegColorSpace {
         match self{
             Self::Grayscale => 1,
             Self::Rgb => 3,
+            Self::ExtBgr => 3,
             Self::YCbCr => 3,
             Self::Cmyk => 4,
             Self::Ycck => 4,
             Self::ExtRgb => 3,
-            Self::ExtBgr => 3,
-            _ => panic!("Invalid color space"),
+            Self::ExtXbgr => 4,
+            Self::ExtXrgb => 4,
+            Self::ExtRgba => 4,
+            Self::ExtBgra => 4,
+            Self::ExtAbgr => 4,
+            Self::ExtArgb => 4,
+            Self::Rgb565 => 3,
+            Self::ExtBgrx => 4,
+            Self::ExtRgbx => 4,
+            Self::Unknown => panic!("Invalid color space JpegColorSpace::Unknown used with get_num_components"),
+            
         }
     }
 }
@@ -446,6 +453,7 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         (top_info, top, bottom_info, bottom)   
     }
 
+    /// Get a reference to a row of the windowed area.
     fn get_window_row(&self, y: usize) -> Option<&[T]>{
         let info = self.info();
         if info.is_window_empty(){ return None;}
@@ -453,6 +461,7 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let row_start = (y + info.padding_top) * info.stride + info.padding_left;
         buffer.get(row_start..row_start + info.window_width)
     }
+    /// Get a mutable reference to a row of the windowed area.
     fn get_window_row_mut(&mut self, y: usize) -> Option<&mut [T]>{
         let (info, buffer) = self.get_info_and_buffer_mut();
         let row_start = (y + info.padding_top) * info.stride + info.padding_left;
@@ -468,6 +477,32 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let row_start = y * info.stride;
         buffer.get_mut(row_start..row_start + info.full_width)
     }
+
+    fn get_padded_row_window_relative(&self, windowed_y: isize) -> Option<&[T]>{
+        let y_abs = windowed_y + self.info().padding_top as isize;
+        if y_abs < 0 || y_abs >= self.info().full_height as isize{
+            return None;
+        }
+        self.get_padded_row(y_abs as usize)
+    }
+    fn get_padded_row_window_relative_mut(&mut self, windowed_y: isize) -> Option<&mut [T]>{
+        let y_abs = windowed_y + self.info().padding_top as isize;
+        if y_abs < 0 || y_abs >= self.info().full_height as isize{
+            return None;
+        }
+        self.get_padded_row_mut(y_abs as usize)
+    }
+
+    #[deprecated(since = "0.1.0", note = "Use get_padded_row_mut instead")]
+    fn row_mut_old(&mut self, windowed_y: isize) -> Option<&mut [T]>{
+        self.get_padded_row_window_relative_mut(windowed_y)
+    }
+
+    #[deprecated(since = "0.1.0", note = "Use get_padded_row instead")]
+    fn row_old(&self, windowed_y: isize) -> Option<&[T]>{
+        self.get_padded_row_window_relative(windowed_y)
+    }
+    
     fn fill_full(&mut self, value: T, x: usize, y: usize, width: usize, height: usize){
         if x + width > self.info().full_width || y + height > self.info().full_height{
             panic!("fill_full: out of bounds");
@@ -627,25 +662,8 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         self.info().window_height
     }
 
-    #[deprecated(since = "0.1.0", note = "Use get_padded_row_mut instead")]
-    fn row_mut_old(&mut self, windowed_y: isize) -> Option<&mut [T]>{
-        let y_abs = windowed_y + self.info().padding_top as isize;
-        if y_abs < 0 || y_abs >= self.info().full_height as isize{
-            return None;
-        }
-        self.get_padded_row_mut(y_abs as usize)
-    }
 
-    #[deprecated(since = "0.1.0", note = "Use get_padded_row instead")]
-    fn row_old(&self, windowed_y: isize) -> Option<&[T]>{
-        let y_abs = windowed_y + self.info().padding_top as isize;
-        if y_abs < 0 || y_abs >= self.info().full_height as isize{
-            return None;
-        }
-        self.get_padded_row(y_abs as usize)
-    }
-
-    fn get_padded_row_and_two_neighbors(&mut self, windowed_y_center: isize) -> Option<(&mut [T], &mut [T], &mut [T])>{
+    fn get_padded_row_and_two_neighbors_mut(&mut self, windowed_y_center: isize) -> Option<(&mut [T], &mut [T], &mut [T])>{
         let y_first = windowed_y_center + self.info().padding_top as isize - 1 as isize;
         let y_last = windowed_y_center + self.info().padding_top as isize + 1 as isize;
         
@@ -659,7 +677,22 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let (c,_) = rest.split_at_mut(stride);
         Some((a,b,c))
     }
-    fn get_padded_row_and_neighbors(&mut self, windowed_y_center: isize, vertical_padding: usize) -> Option<Vec<&mut [T]>>{
+
+    fn get_padded_row_and_two_neighbors(&self, windowed_y_center: isize) -> Option<(&[T], &[T], &[T])>{
+        let y_first = windowed_y_center + self.info().padding_top as isize - 1 as isize;
+        let y_last = windowed_y_center + self.info().padding_top as isize + 1 as isize;
+        
+        if y_first < 0 || y_last >= self.info().full_height as isize{
+            return None;
+        }
+        let stride = self.info().stride;
+        let rest = &self.get_buffer()[y_first as usize * stride..];
+        let (a,rest) = rest.split_at(stride);
+        let (b,rest) = rest.split_at(stride);
+        let (c,_) = rest.split_at(stride);
+        Some((a,b,c))
+    }
+    fn get_padded_row_and_neighbors_mut(&mut self, windowed_y_center: isize, vertical_padding: usize) -> Option<Vec<&mut [T]>>{
         let y_first = windowed_y_center + self.info().padding_top as isize - vertical_padding as isize;
         let y_last = windowed_y_center + self.info().padding_top as isize + vertical_padding as isize;
         
@@ -674,6 +707,25 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         let mut row;
         for y in y_first..=y_last{
             (row, rest) = rest.split_at_mut(stride);
+            rows.push(row);
+        }
+        Some(rows)
+    }
+    fn get_padded_row_and_neighbors(&self, windowed_y_center: isize, vertical_padding: usize) -> Option<Vec<&[T]>>{
+        let y_first = windowed_y_center + self.info().padding_top as isize - vertical_padding as isize;
+        let y_last = windowed_y_center + self.info().padding_top as isize + vertical_padding as isize;
+        
+        if y_first < 0 || y_last >= self.info().full_height as isize{
+            return None;
+        }
+        let (y_first, y_last) = (y_first as usize, y_last as usize);
+
+        let mut rows = Vec::with_capacity(vertical_padding * 2 + 1);
+        let stride = self.info().stride;
+        let mut rest = &self.get_buffer()[y_first * stride..];
+        let mut row;
+        for y in y_first..=y_last{
+            (row, rest) = rest.split_at(stride);
             rows.push(row);
         }
         Some(rows)
@@ -708,6 +760,9 @@ impl RowBufferInfo {
     }
     pub fn has_padding(&self) -> bool{
         self.padding_left > 0 || self.padding_right > 0 || self.padding_top > 0 || self.padding_bottom > 0
+    }
+    pub fn padding_is(&self, value: usize) -> bool{
+        self.padding_left == value && self.padding_right == value && self.padding_top == value && self.padding_bottom == value
     }
     pub fn min_buffer_size(&self) -> usize{
         self.stride * self.full_height
@@ -761,6 +816,7 @@ impl<'a,T: Copy + 'a + SimdWidth> RowBufferRef<'a,T> {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct OwnedRowBuffer<T: Copy + Default> where T:SimdWidth {
     info: RowBufferInfo,
     offset: usize,

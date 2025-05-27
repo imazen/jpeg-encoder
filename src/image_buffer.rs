@@ -2,7 +2,7 @@
 
 use alloc::vec::Vec;
 
-use crate::encoder::JpegColorType;
+use crate::old_encoder::OutputJpegColorType;
 
 /// Conversion from RGB to YCbCr
 #[inline]
@@ -85,7 +85,7 @@ pub fn cmyk_to_ycck(c: u8, m: u8, y: u8, k: u8) -> (u8, u8, u8, u8) {
 /// ```
 pub trait ImageBuffer {
     /// The color type used in the image encoding
-    fn get_jpeg_color_type(&self) -> JpegColorType;
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType;
 
     /// Width of the image
     fn width(&self) -> u16;
@@ -108,8 +108,8 @@ pub trait ImageBuffer {
 pub(crate) struct GrayImage<'a>(pub &'a [u8], pub u16, pub u16);
 
 impl<'a> ImageBuffer for GrayImage<'a> {
-    fn get_jpeg_color_type(&self) -> JpegColorType {
-        JpegColorType::Luma
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+        OutputJpegColorType::Luma
     }
 
     fn width(&self) -> u16 {
@@ -150,8 +150,8 @@ macro_rules! ycbcr_image {
         pub(crate) struct $name<'a>(pub &'a [u8], pub u16, pub u16);
 
         impl<'a> ImageBuffer for $name<'a> {
-            fn get_jpeg_color_type(&self) -> JpegColorType {
-                JpegColorType::Ycbcr
+            fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+                OutputJpegColorType::Ycbcr
             }
 
             fn width(&self) -> u16 {
@@ -200,8 +200,8 @@ ycbcr_image!(BgraImage, 4, 2, 1, 0);
 pub(crate) struct YCbCrImage<'a>(pub &'a [u8], pub u16, pub u16);
 
 impl<'a> ImageBuffer for YCbCrImage<'a> {
-    fn get_jpeg_color_type(&self) -> JpegColorType {
-        JpegColorType::Ycbcr
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+        OutputJpegColorType::Ycbcr
     }
 
     fn width(&self) -> u16 {
@@ -236,8 +236,8 @@ impl<'a> ImageBuffer for YCbCrImage<'a> {
 pub(crate) struct CmykImage<'a>(pub &'a [u8], pub u16, pub u16);
 
 impl<'a> ImageBuffer for CmykImage<'a> {
-    fn get_jpeg_color_type(&self) -> JpegColorType {
-        JpegColorType::Cmyk
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+        OutputJpegColorType::Cmyk
     }
 
     fn width(&self) -> u16 {
@@ -267,8 +267,8 @@ impl<'a> ImageBuffer for CmykImage<'a> {
 pub(crate) struct CmykAsYcckImage<'a>(pub &'a [u8], pub u16, pub u16);
 
 impl<'a> ImageBuffer for CmykAsYcckImage<'a> {
-    fn get_jpeg_color_type(&self) -> JpegColorType {
-        JpegColorType::Ycck
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+        OutputJpegColorType::Ycck
     }
 
     fn width(&self) -> u16 {
@@ -312,8 +312,8 @@ impl<'a> ImageBuffer for CmykAsYcckImage<'a> {
 pub(crate) struct YcckImage<'a>(pub &'a [u8], pub u16, pub u16);
 
 impl<'a> ImageBuffer for YcckImage<'a> {
-    fn get_jpeg_color_type(&self) -> JpegColorType {
-        JpegColorType::Ycck
+    fn get_jpeg_color_type(&self) -> OutputJpegColorType {
+        OutputJpegColorType::Ycck
     }
 
     fn width(&self) -> u16 {

@@ -94,42 +94,9 @@ Based on analysis of the `jpeg-encoder` crate's source code (`lib.rs`, `encoder.
     *   Provides AVX2 optimized versions of integer FDCT (`avx2::fdct::fdct_avx2`) and RGB->YCbCr conversion (`avx2::ycbcr::*ImageAVX2`).
     *   The `AVX2Operations` struct implements `Operations` to select these AVX2 routines when the `simd` feature is enabled.
 
-## Current `src/` Structure Overview
+## Current `src/` Structure Overview - Partial
 
 This describes the current state of the source files based on recent analysis, without asserting completion status.
-
-*   **`src/lib.rs`:**
-    *   Crate root, defines modules (`encoder`, `error`, `fdct`, `huffman`, `image_buffer`, `marker`, `quantization`, `writer`).
-    *   Conditionally includes `avx2` and `jpegli` modules based on features.
-    *   Re-exports public API types (`Encoder`, `ColorType`, `EncodingError`, `QuantizationTableType`, `SamplingFactor`, etc.).
-    *   Contains extensive integration tests.
-
-*   **`src/encoder.rs`:**
-    *   Defines the main `Encoder` struct, holding configuration state (quality, quantization tables, Huffman tables, sampling factor, progressive settings, output writer).
-    *   Includes jpegli-specific configuration fields: `jpegli_distance`, `use_float_dct`, `use_adaptive_quantization`.
-    *   Provides public methods for configuration (`set_quality`, `set_jpegli_distance`, `set_float_dct`, `set_adaptive_quantization`, `set_sampling_factor`, etc.).
-    *   Contains the primary encoding entry points (`encode`, `encode_image`) and internal orchestration logic (`encode_image_internal`).
-    *   Dispatches to different encoding paths (`encode_image_interleaved`, `encode_image_sequential`, `encode_image_progressive`) based on settings.
-    *   Defines the `Operations` trait used for SIMD dispatch (currently for FDCT and quantization). The `DefaultOperations` struct provides scalar implementations.
-    *   Includes helper functions for color conversion setup (`init_components`), block processing (`encode_blocks`), Huffman table optimization (`optimize_huffman_table`), etc.
-    *   Contains jpegli-specific logic like `quality_to_distance`, `new_with_jpegli_distance`, `compute_zero_bias_tables`.
-
-*   **`src/image_buffer.rs`:**
-    *   Defines the `ImageBuffer` trait for abstracting image input. Key methods: `get_jpeg_color_type`, `width`, `height`, `fill_buffers` (provides one row of component data), `get_adaptive_quant_channel` (provides Luma/Y channel for AQ).
-    *   Provides implementations for common `&[u8]` slice formats (`GrayImage`, `RgbImage`, `RgbaImage`, `BgrImage`, `BgraImage`, `YCbCrImage`, `CmykImage`, `CmykAsYcckImage`, `YcckImage`).
-    *   Contains standard `rgb_to_ycbcr` and `cmyk_to_ycck` fixed-point conversion functions.
-    *   Implementations generally provide the `get_adaptive_quant_channel` method.
-
-*   **`src/quantization.rs`:**
-    *   Defines `QuantizationTableType` enum (Standard Annex K, Flat, other presets, `Custom`).
-    *   Defines the `QuantizationTable` struct holding the 64 `u16` values and precomputed reciprocals/corrections for faster quantization.
-    *   Provides `new_with_quality` constructor to scale a base table according to a 0-100 quality factor.
-    *   Contains the `quantize` method for standard DCT coefficient quantization.
-    *   Holds static arrays for various standard Luma and Chroma tables (`DEFAULT_LUMA_TABLES`, `DEFAULT_CHROMA_TABLES`).
-
-
-*   **`src/fdct.rs`:**
-    *   Contains the standard, portable integer Forward DCT implementation (`fdct`) based on the Loeffler/Ligtenberg/Moschytz algorithm (ported from libjpeg/mozjpeg).
 
 *   **`src/huffman.rs`:**
     *   Defines `HuffmanTable` struct holding lookup tables and raw table data.
@@ -151,20 +118,9 @@ This describes the current state of the source files based on recent analysis, w
 *   **`src/error.rs`:**
     *   Defines the `EncodingError` and `JpegError` enums for error handling.
 
-*   **`src/avx2.rs`:**
-    *   Root of the AVX2 SIMD module (conditional on `simd` feature).
-    *   Declares `fdct` and `ycbcr` submodules.
-    *   Defines `AVX2Operations` struct implementing the `Operations` trait, overriding `fdct` to use the AVX2 version.
-
-*   **`src/avx2/fdct.rs`:**
-    *   Contains AVX2-accelerated integer FDCT implementation (`fdct_avx2`) using intrinsics, ported from libjpeg-turbo/mozjpeg assembly.
-
-*   **`src/avx2/ycbcr.rs`:**
-    *   Contains AVX2-accelerated `ImageBuffer` implementations (`RgbImageAVX2`, etc.) providing faster `rgb_to_ycbcr` conversion using intrinsics.
-
 *   **`src/jpegli/mod.rs`:**
     *   Root of the Jpegli-specific module (conditional on `jpegli` feature).
-    *   Declares submodules: `adaptive_quant_math`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`.
+    *   Declares submodules: `adaptive_quant_math`, `color_transform`, `fdct_jpegli`, `quant`, `tf`, `xyb`, `cms`, etc.
 
 *   **`src/jpegli/adaptive_quantization.rs`:** (DELETED - Logic moved to `adaptive_quant.rs`)
 *   **`src/jpegli/adaptive_quant_math.rs`:**
@@ -189,23 +145,4 @@ This describes the current state of the source files based on recent analysis, w
         *   `scalar_ratio_of_derivatives<const INVERT: bool>(v_scalar: f32) -> f32`: Scalar version of ratio calculation.
         *   `compute_mask_scalar(out_val: f32) -> f32`: Scalar version of mask computation.
         *   `scalar_masking_sqrt(v: f32) -> f32`: Scalar version of masking sqrt.
-*   **`src/jpegli/adaptive_quant.rs`:**
-    *   Port of the main adaptive quantization logic from C++ `adaptive_quantization.cc`.
-    *   Uses helper functions from `adaptive_quant_math.rs`.
-    *   Requires actual `RowBuffer` and `JpegCompressor` types for full functionality.
-    *   Key public functions:
-        *   `compute_adaptive_quant_field(cinfo: &mut JpegCompressor)`: Computes the AQ field for one iMCU row.
-
-*   **`src/jpegli/fdct_jpegli.rs`:**
-    *   Contains the scalar Rust implementation of Jpegli's floating-point FDCT (`forward_dct_float`).
-    *   Uses a recursive approach (`DCT1DImplTrait`) and helper functions (`add_reverse`, `sub_reverse`, `multiply`, `b`, etc.).
-
-  **`src/jpegli/quant.rs`:**
-    *   Contains constants (e.g., default Jpegli tables, zero-bias values) and functions related to Jpegli's quantization logic, ported from C++. Handles quality-to-distance mapping and distance-based quantization table generation.
-
-*   **`src/jpegli/color_transform.rs`, `src/jpegli/tf.rs`, `src/jpegli/xyb.rs`, `src/jpegli/cms.rs`:**
-    *   **`color_transform.rs`**: Provides functions for basic color space conversions (Linear RGB <-> YCbCr, CMYK <-> YCCK, Gray -> RGB) operating on planar f32 data.
-    *   **`tf.rs`**: Implements transfer functions (sRGB, PQ, HLG) for converting between linear and encoded values. Provides `before_transform` and `after_transform` wrappers used by `cms.rs`.
-    *   **`xyb.rs`**: Implements the Opsin Absorbance (XYB) color transformation from linear RGB, including scaling.
-    *   **`cms.rs`**: The main Color Management System interface using `lcms2`. Defines `ColorProfile` (wrapping ICC data and parsed info), `JxlCms` (managing the LCMS transform and pre/post processing TFs), and `set_fields_from_icc` (parsing profiles).
-
+*   

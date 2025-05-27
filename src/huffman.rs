@@ -63,6 +63,7 @@ static DEFAULT_CHROMA_AC_VALUES: [u8; 162] = [
     0xF9, 0xFA,
 ];
 
+#[derive(Clone)]
 pub struct HuffmanTable {
     lookup_table: [(u8, u16); 256],
     length: [u8; 16],

@@ -620,15 +620,15 @@ pub(crate) fn compute_fuzzy_erosion_row(
     row_t: &[f32], // Assumed padded, length >= xsize + 2
     row_m: &[f32], // Assumed padded, length >= xsize + 2
     row_b: &[f32], // Assumed padded, length >= xsize + 2
-    xsize: usize,
-    tmp_out: &mut [f32],
+    unpadded_elements: usize,
+    out_unpadded: &mut [f32],
 ) {
     // Check lengths assuming padding is included
-    let required_len = xsize + 2;
+    let required_len = unpadded_elements + 2;
     assert!(row_t.len() >= required_len);
     assert!(row_m.len() >= required_len);
     assert!(row_b.len() >= required_len);
-    assert!(tmp_out.len() >= xsize);
+    assert!(out_unpadded.len() >= unpadded_elements);
 
     let mul0 = f32x8::splat(0.125);
     let mul1 = f32x8::splat(0.075);
@@ -636,7 +636,7 @@ pub(crate) fn compute_fuzzy_erosion_row(
     let mul3 = f32x8::splat(0.05);
 
     let vector_width = 8;
-    let limit = xsize.saturating_sub(vector_width - 1);
+    let limit = unpadded_elements.saturating_sub(vector_width - 1);
     let mut x = 0;
 
     // x loops 0..xsize-1 (output index)
@@ -664,12 +664,12 @@ pub(crate) fn compute_fuzzy_erosion_row(
         let v = (mul0 * min0) + (mul1 * min1) + (mul2 * min2) + (mul3 * min3);
 
         // Store result
-        tmp_out[x..x + vector_width].copy_from_slice(&v.to_array());
+        out_unpadded[x..x + vector_width].copy_from_slice(&v.to_array());
         x += vector_width;
     }
 
     // Handle remainder
-    while x < xsize {
+    while x < unpadded_elements {
         let current_x_idx = x + 1;
         let left_x_idx = x;
         let right_x_idx = x + 2;
@@ -696,7 +696,7 @@ pub(crate) fn compute_fuzzy_erosion_row(
         // Calculate linear combination
         let v_s = 0.125 * min0_s + 0.075 * min1_s + 0.06 * min2_s + 0.05 * min3_s;
 
-        tmp_out[x] = v_s;
+        out_unpadded[x] = v_s;
         x += 1;
     }
 }
@@ -706,12 +706,11 @@ pub(crate) fn compute_fuzzy_erosion_row(
 
 /// Port of C++ `ComputePreErosion`.
 /// Computes image of local pixel differences, subsampled by 4.
-fn compute_pre_erosion<I, E>(
-    input: &mut I, // Assumes input has necessary padding/borders
+pub(crate) fn compute_pre_erosion<I, E>(
+    input: &I, // Assumes input has necessary padding/borders
     xsize: usize,
     y0: usize,
     ylen: usize,
-    border: usize,
     diff_buffer: &mut [f32], // Temporary buffer, size >= xsize
     pre_erosion: &mut E,
 ) where I: RowBuffer<f32>, E: RowBuffer<f32> {
@@ -719,6 +718,15 @@ fn compute_pre_erosion<I, E>(
     let xsize_out = xsize / 4;
     let y0_out = y0 / 4;
 
+    if input.info().padding_left != 1{
+        eprintln!("Error: input should have padding left of exactly1");
+        return;
+    }
+    if input.info().padding_top < 1 || input.info().padding_bottom < 1 || input.info().padding_right < 1{
+        eprintln!("Error: input should have padding top, bottom, and right of at least 1");
+        return;
+    }
+    
     // Temporary storage for one row of diff_buffer results from previous iteration
     let mut prev_diff_row = vec![0.0f32; xsize];
 
@@ -737,7 +745,7 @@ fn compute_pre_erosion<I, E>(
             continue; // Skip this row if padding fails
         };
         // Check if input rows have sufficient length including padding
-        let required_len = xsize + 2 * border;
+        let required_len = xsize + 2;
          if row_t.len() < required_len || row_m.len() < required_len || row_b.len() < required_len {
             eprintln!("Error: Input rows for compute_pre_erosion lack sufficient padding at y={}", y);
             continue;
@@ -782,7 +790,7 @@ fn compute_pre_erosion<I, E>(
                         + current_diff_buffer_slice[x_in + 3];
                 row_d_out[x_out] = sum * 0.25;
             }
-            pre_erosion.pad_row_width_old(y_out, xsize_out, border);
+            pre_erosion.pad_row_full_width(y_out);
         }
     }
 }
@@ -791,15 +799,25 @@ fn compute_pre_erosion<I, E>(
 /// Port of C++ `FuzzyErosion`.
 /// Computes a linear combination of the 4 lowest values of the 3x3 neighborhood.
 /// Output (`aq_map`) is downsampled 2x relative to `pre_erosion`.
-fn fuzzy_erosion<E, T, M>(
-    pre_erosion: &mut E, // Assumes input has necessary padding/borders
+pub(crate) fn fuzzy_erosion<E, T, M>(
+    pre_erosion: &E, // Assumes input has necessary padding of 1,1,1,1
     yb0: usize, // Block row index
     yblen: usize, // Number of block rows to process
-    tmp: &mut T,    // Temporary buffer, same size as pre_erosion
+    tmp: &mut T,    // Temporary buffer, same size as pre_erosion, but no padding required.
     aq_map: &mut M, // Output buffer (quantization field)
 ) where E: RowBuffer<f32>, T: RowBuffer<f32>, M: RowBuffer<f32> {
-    let xsize_blocks = aq_map.xsize();
-    let xsize = pre_erosion.xsize(); // Width of pre_erosion and tmp buffers
+
+    if pre_erosion.info().padding_left != 1 || pre_erosion.info().padding_right < 1 || pre_erosion.info().padding_top < 1 
+    || pre_erosion.info().padding_bottom < 1{
+        panic!("Error: pre_erosion must have a left padding of exactly 1, and top, bottom, and right padding of at least 1");
+    }
+    if pre_erosion.info().window_width != tmp.info().window_width{
+        panic!("Error: pre_erosion and tmp must have the same width");
+    }
+    // make sure aq_map 
+    
+    let aq_width_blocks = aq_map.info().window_width;
+    let window_width = pre_erosion.info().window_width; // Width of pre_erosion and tmp buffers
 
     for iy in 0..(2 * yblen) {
         let y = 2 * yb0 + iy; // Row index in pre_erosion/tmp coordinates
@@ -812,45 +830,40 @@ fn fuzzy_erosion<E, T, M>(
         };
 
         // Check padding
-        let required_len = xsize + 2 * K_PRE_EROSION_BORDER;
+        let required_len = window_width + 2;
         if rowt.len() < required_len || rowm.len() < required_len || rowb.len() < required_len {
             eprintln!("Error: Input rows for fuzzy_erosion lack sufficient padding at y={}", y);
             continue;
         }
 
-        let tmp_row_out = tmp.row_mut_old(y as isize).unwrap();
-         if tmp_row_out.len() < xsize {
-             eprintln!("Error: tmp row too short at y={}", y);
-             continue;
-         }
-
+        let tmp_row_out = tmp.get_window_row_mut(y).unwrap();
         // Compute one row of the temporary buffer
         compute_fuzzy_erosion_row(
             rowt, // Pass full padded slice
             rowm,
             rowb,
-            xsize, // Compute 'xsize' elements
+            window_width, // Compute 'xsize' elements
             tmp_row_out,
         );
 
         // If this is an odd row (iy % 2 == 1), combine two rows from tmp into aq_map
         if iy % 2 == 1 {
-            let tmp_row0 = tmp.row_old((y - 1) as isize).unwrap(); // Row y-1 from tmp
-            let tmp_row1 = tmp.row_old(y as isize).unwrap();       // Row y from tmp (just computed)
+            let tmp_row0 = tmp.get_window_row(y - 1).unwrap(); // Row y-1 from tmp
+            let tmp_row1 = tmp.get_window_row(y).unwrap();       // Row y from tmp (just computed)
 
             let aq_map_y = yb0 + iy / 2;
-            let aq_out = aq_map.row_mut_old(aq_map_y as isize).unwrap();
+            let aq_out = aq_map.get_window_row_mut(aq_map_y).unwrap();
 
-            if tmp_row0.len() < xsize || tmp_row1.len() < xsize {
+            if tmp_row0.len() < window_width || tmp_row1.len() < window_width {
                  eprintln!("Error: tmp rows too short for averaging at y={}", y);
                  continue;
             }
-             if aq_out.len() < xsize_blocks {
+             if aq_out.len() < aq_width_blocks {
                  eprintln!("Error: aq_map row too short at aq_map_y={}", aq_map_y);
                  continue;
              }
 
-            for bx in 0..xsize_blocks {
+            for bx in 0..aq_width_blocks {
                 let x = bx * 2; // Top-left corner in tmp coordinates
                 // Sum 4 values (2x2 block) from tmp buffer rows
                 let sum = tmp_row1[x] + tmp_row1[x + 1] + tmp_row0[x] + tmp_row0[x + 1];
@@ -861,10 +874,39 @@ fn fuzzy_erosion<E, T, M>(
     }
 }
 
-
+// static const float kAcQuant = 0.841f;
+//   float base_level = 0.48f * kAcQuant;
+//   float kDampenRampStart = 9.0f;
+//   float kDampenRampEnd = 65.0f;
+//   float dampen = 1.0f;
+//   if (y_quant_01 >= kDampenRampStart) {
+//     dampen = 1.0f - ((y_quant_01 - kDampenRampStart) /
+//                      (kDampenRampEnd - kDampenRampStart));
+//     if (dampen < 0) {
+//       dampen = 0;
+//     }
+//   }
+//   const float mul = kAcQuant * dampen;
+//   const float add = (1.0f - dampen) * base_level;
+//   for (size_t iy = 0; iy < yblen; iy++) {
+//     const size_t yb = yb0 + iy;
+//     const size_t y = yb * 8;
+//     float* const JXL_RESTRICT row_out = aq_map->Row(yb);
+//     const HWY_CAPPED(float, 8) df;
+//     for (size_t ix = 0; ix < aq_map->xsize(); ix++) {
+//       size_t x = ix * 8;
+//       auto out_val = Set(df, row_out[ix]);
+//       out_val = ComputeMask(df, out_val);
+//       out_val = HfModulation(df, x, y, input, out_val);
+//       out_val = GammaModulation(df, x, y, input, out_val);
+//       // We want multiplicative quantization field, so everything
+//       // until this point has been modulating the exponent.
+//       row_out[ix] = FastPow2f(GetLane(out_val) * 1.442695041f) * mul + add;
+//     }
+//   }
 /// Port of C++ `PerBlockModulations`.
 /// Applies masking, HF, and gamma modulation block by block.
-fn per_block_modulations<I, M>(
+pub(crate)fn per_block_modulations<I, M>(
     y_quant_01: f32,
     input: &mut I, // XYB input buffer, needs padding for neighbors
     yb0: usize,
@@ -887,7 +929,7 @@ fn per_block_modulations<I, M>(
     let mul = K_AC_QUANT * dampen;
     let add = (1.0 - dampen) * base_level;
 
-    let xsize_blocks = aq_map.xsize();
+    let xsize_blocks = aq_map.info().window_width;
 
     for iy in 0..yblen {
         let yb = yb0 + iy;
@@ -912,8 +954,7 @@ fn per_block_modulations<I, M>(
             // Need 9 rows (y..y+8) and 9 columns (x..x+8) from input buffer
             // Assuming get_padded_rows provides rows with sufficient padding/width
              let Some(hf_input_rows_padded) = input.get_padded_row_and_neighbors(y as isize + 3, 4) else { // Center around y+3/4, get 9 rows total
-                eprintln!("Error getting padded rows for HF modulation at y={}", y);
-                continue;
+                panic!("Error getting padded rows for HF modulation at y={}", y);
             };
             // Check if slices are long enough for x..x+8 access
             // compute_hf_metric_8x8 expects slices starting at the logical 'x'

@@ -3,3 +3,4 @@ description: *.rs, for making loops fast
 globs: 
 alwaysApply: false
 ---
+Look at [adaptive_quant_math.rs](mdc:src/jpegli/adaptive_quant_math.rs) for how we port SIMD functions using the [wide-api.txt](mdc:external/wide-api.txt) wide crate.

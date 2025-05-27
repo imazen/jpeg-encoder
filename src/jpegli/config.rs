@@ -1,199 +1,477 @@
-use super::structs::{JpegColorSpace, SimplifiedTransferCharacteristics, Subsampling};
+use crate::{Density, EncodingError};
+
+use super::{quant::{quality_to_distance, MAX_COMPONENTS}, structs::{JpegColorSpace, JpegliComponentInfo, JpegliComponentSettings, SimplifiedTransferCharacteristics, Subsampling}};
+
+const MAX_SAMP_FACTOR: u8 = 4;
+const JPEG_MAX_DIMENSION: usize = 65500;
+const DCTSIZE: u8 = 8;
 
 
 // Define the configuration and state for Jpegli encoding
 #[derive(Debug, Clone)]
-pub(crate) struct ComputedConfig {
+pub(crate) struct ComputedEncodeConfig {
     pub distance: f32,
+    pub quality: Option<u8>,
     pub xyb_mode: bool,
     pub use_std_tables: bool,
     pub num_components: usize,
-    pub comp_params: Vec<JpegliComponentInfo>,
+    pub luma_component_index: usize,
+    pub comp_params: Vec<JpegliComponentSettings>,
+    pub max_h_samp_factor: u8,
+    pub max_v_samp_factor: u8,
     pub jpeg_color_space: JpegColorSpace,
-    pub cicp_transfer_function: u8,
-    pub force_baseline: bool,
+    pub optimize_coding: bool,
+    pub cicp_transfer_function: SimplifiedTransferCharacteristics,
+    // pub force_dct_bits_baseline: bool, We always have 8 bit dct. No point in implementing 12/16 bit when nobody can read it outside of medical.
+
     pub add_two_chroma_tables: bool,
     pub use_adaptive_quantization: bool,
     pub subsampling: Subsampling,
+    pub write_jfif_density: Option<Density>,
+    /// Adobe marker is only needed to distinguish CMYK and YCCK JPEGs.
+    pub write_adobe_ycck: bool,
+    pub icc_profile: Option<Vec<u8>>,
+    pub app_segments: Option<Vec<AppSegment>>,
+    pub smoothing: u8,
+    pub progressive_level: u8,
+    /// Ignored if restart_interval_in_rows is set.
+    pub restart_interval: u16,
+    /// Preferred over restart_interval.
+    pub restart_interval_in_rows: u16,
+}
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ComponentDimensions{
+    pub downsampled_width: usize,
+    pub downsampled_height: usize,
+    pub width_in_blocks: usize,
+    pub height_in_blocks: usize,
 }
 
+pub(crate) struct ComputedConfigDimensions{
+    pub image_width: usize,
+    pub image_height: usize,
+    pub total_i_mcu_rows: usize,
+    pub total_i_mcu_cols: usize,
+    pub num_components: usize,
+    pub component_dimensions: [ComponentDimensions; MAX_COMPONENTS],
+    pub component_settings: [JpegliComponentSettings; MAX_COMPONENTS],
+    pub h_factors: [f32; MAX_COMPONENTS],
+    pub v_factors: [f32; MAX_COMPONENTS],
+    pub xsize_blocks: usize,
+    pub ysize_blocks: usize,
+    pub blocks_per_i_mcu_row: usize,
+    pub progressive_mode: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct AppSegment{
+    marker: u8,
+    data: Vec<u8>,
+}
+impl AppSegment{
+    /// Appends a custom APPn segment to the JFIF file.
+    pub fn new(segment_nr: u8, data: Vec<u8>) -> Result<Self, EncodingError> {
+        if !(1..=15).contains(&segment_nr) { // APP0 is reserved for JFIF
+            Err(EncodingError::InvalidAppSegment(segment_nr))
+        } else if data.len() > 65533 {
+            Err(EncodingError::AppSegmentTooLarge(data.len()))
+        } else {
+            Ok(Self { marker: segment_nr, data })
+        }
+    }
+}
+
+/// The user-friendly configuration for encoding. .compute() will validate and convert to the internal config.
 #[derive(Debug, Clone)] 
 pub struct EncodeOptions{
-       // Quality/Distance (mutually exclusive)
-       pub quality: Option<u8>,
-       pub distance: Option<f32>,
-       // Flags mirroring cjpegli
-       pub xyb_mode: Option<bool>,
-       pub use_std_tables: Option<bool>,
-       pub use_adaptive_quantization: Option<bool>,
-       pub force_dct_bits_baseline: Option<bool>, 
-       pub chroma_subsampling: Option<Subsampling>,
-       pub jpeg_color_space: JpegColorSpace,
-       pub cicp_transfer_function: Option<SimplifiedTransferCharacteristics>,
-       pub add_two_chroma_tables: Option<bool>,
+    /// JPEG quality [1..100]. Mapped to the jpegli butteraugli distance. Default is None
+    pub quality: Option<u8>,
+    /// Distance. If set, quality is ignored. Default is 1.0.
+    pub distance: Option<f32>,
+    /// Progressive encoding level: 0=sequential, >0 progressive. Default is 2, the maximum.
+    /// Passed to `jpegli_set_progressive_level()`.
+    pub progressive_level: Option<u8>,
+    /// Smoothing factor 0..100. Used by `ApplyInputSmoothing()`.
+    pub smoothing: Option<u8>,
+
+    /// Enable XYB (butteraugli) mode. Uses a custom ICC profile, can add 1020% improvement. 
+    pub xyb_mode: Option<bool>,
+    /// Use the standard huffman tables, instead of the optimized ones. (default is false)
+    pub use_standard_tables: Option<bool>,
+    /// Use jpegli adaptive quantization (default is true).
+    pub use_adaptive_quantization: Option<bool>,
+
+    /// Default is true.
+    pub optimize_coding: Option<bool>,
+    /// Chroma subsampling. 420 is the default.
+    pub chroma_subsampling: Option<Subsampling>,
+    /// JPEG output color space. Default is YCbCr.
+    pub jpeg_color_space: Option<JpegColorSpace>,
+    /// CICP transfer function.
+    pub cicp_transfer_function: Option<SimplifiedTransferCharacteristics>,
+    /// Add two chroma tables (default is true).
+    pub add_two_chroma_tables: Option<bool>,
+    /// Write JFIF APP0 marker to communicate pixels per inch/centimeter information. 
+    pub jfif_density: Option<Density>,
+
+    /// Embed the given ICC profile. Not compatible with XYB mode.
+    pub icc_profile: Option<Vec<u8>>,
+
+    /// Embed the given APP segments.
+    pub app_segments: Option<Vec<AppSegment>>,
+    /// Restart interval in rows. Default is 0. Ignored if restart_interval is set.
+    pub restart_interval_in_rows: Option<u16>,
 }
 
-impl JpegliConfig {
-    /// Creates a basic JpegliConfig, computing initial tables.
-    /// More complex setup (like AQ) might happen later.
-    pub(crate) fn new(distance: f32, sampling_factor: crate::SamplingFactor, num_components: usize) -> Self {
-        // Initial computation based on distance and basic params
-        let force_baseline = false; // Assuming standard jpegli behavior
-        let is_yuv420 = sampling_factor == crate::SamplingFactor::F_2_2 || sampling_factor == crate::SamplingFactor::R_4_2_0;
+impl ComputedEncodeConfig { 
+    fn validate(&self) -> Result<(), EncodingError>{
+        if self.distance < 0.0 {
+            return Err(EncodingError::JpegliError("Distance must be non-negative".into()));
+        }
+        if self.num_components == 0 || self.num_components > MAX_COMPONENTS {
+            return Err(EncodingError::JpegliError("Invalid number of components".into()));
+        }
+        if self.comp_params.len() != self.num_components {
+            return Err(EncodingError::JpegliError("Component params length mismatch".into()));
+        }
+        if self.use_std_tables && self.xyb_mode {
+             return Err(EncodingError::JpegliError("Cannot use standard tables with XYB mode".into()));
+        }
+         if self.add_two_chroma_tables && self.num_components < 3 {
+             return Err(EncodingError::JpegliError("Cannot add two chroma tables with less than 3 components".into()));
+        }
+        if self.add_two_chroma_tables && self.jpeg_color_space == JpegColorSpace::Grayscale {
+             return Err(EncodingError::JpegliError("Adding two chroma tables is not supported for grayscale".into()));
+        }
+        for comp in &self.comp_params {
+             if comp.quantization_table_index >= 4 { 
+                 return Err(EncodingError::JpegliError("Invalid quantization table index".into()));
+             }
+        }
+        if self.xyb_mode && self.icc_profile.is_some() {
+            return Err(EncodingError::JpegliError("XYB mode does not support ICC profile".into()));
+        }
+        if self.xyb_mode && self.jpeg_color_space != JpegColorSpace::Rgb {
+            return Err(EncodingError::JpegliError("XYB mode requires RGB color space".into()));
+        }
+        if self.xyb_mode && self.subsampling != Subsampling::YCbCr444 {
+            return Err(EncodingError::JpegliError("XYB mode requires YCbCr444 chroma subsampling".into()));
+        }
+        if self.restart_interval > 65535u16 {
+            return Err(EncodingError::JpegliError("Restart interval too big".into()));
+        }
+        if self.smoothing > 100 {
+            return Err(EncodingError::JpegliError("Smoothing factor too big".into()));
+        }
 
-        // Determine quant_max based on force_baseline
-        let quant_max = if force_baseline { 255 } else { 32767 };
+        for (ix, comp) in self.comp_params.iter().enumerate() {
+            if comp.horizontal_sampling_factor == 0 || comp.vertical_sampling_factor == 0 {
+                return Err(EncodingError::JpegliError("Sampling factor must be non-zero".into()));
+            }
+            if comp.horizontal_sampling_factor > MAX_SAMP_FACTOR || comp.vertical_sampling_factor > MAX_SAMP_FACTOR {
+                return Err(EncodingError::JpegliError("Sampling factor too big".into()));
+            }
+            if comp.index != ix as u8 {
+                return Err(EncodingError::JpegliError("Component index mismatch".into()));
+            }
+            if comp.horizontal_sampling_factor % self.max_h_samp_factor != 0 || comp.vertical_sampling_factor % self.max_v_samp_factor != 0 {
+                return Err(EncodingError::JpegliError("Non-integral sampling ratios are not supported".into()));
+            }
+            if comp.horizontal_sampling_factor > self.max_h_samp_factor || comp.vertical_sampling_factor > self.max_v_samp_factor {
+                return Err(EncodingError::JpegliError("Sampling factor larger than max sampling factor".into()));
+            }
+        }
+        // if self.comp_params.unique_by(|a, b| a.component_id == b.component_id).count() != self.num_components {
+        //     return Err(EncodingError::JpegliError("Duplicate component id".into()));
+        // }
+        if self.num_components == 1 {
+            if self.comp_params[0].horizontal_sampling_factor != 1 || self.comp_params[0].vertical_sampling_factor != 1 {
+                return Err(EncodingError::JpegliError("Single component must have 1x1 sampling factor".into()));
+            }
+        }
+        if self.restart_interval > 0 {
+            if self.restart_interval < 10 || self.restart_interval > 65535 {
+                return Err(EncodingError::JpegliError("Restart interval must be between 10 and 65535".into()));
+            }
+        }
+        if self.use_adaptive_quantization {
+            match self.jpeg_color_space {
+                JpegColorSpace::YCbCr => {
+                    if self.comp_params[0].horizontal_sampling_factor != self.max_h_samp_factor ||
+                    self.comp_params[0].vertical_sampling_factor != self.max_v_samp_factor {
+                        return Err(EncodingError::JpegliError("With adaptive quantization, Luma (Y) component must have 1x1 sampling factor".into()));
+                    }
+                },
+                JpegColorSpace::Rgb => {
+                    if self.comp_params[1].horizontal_sampling_factor != self.max_h_samp_factor ||
+                    self.comp_params[1].vertical_sampling_factor != self.max_v_samp_factor {
+                        return Err(EncodingError::JpegliError("With adaptive quantization, Green(G) in RGB must have 1x1 sampling factor".into()));
+                    }
+                }
+                _ => {}
+            }
+        }
+        // progressive_level
+        if self.progressive_level > 2 {
+            return Err(EncodingError::JpegliError("Progressive level must be 0, 1, or 2".into()));
+        }
+        if self.progressive_level > 0 && !self.optimize_coding{
+            return Err(EncodingError::JpegliError("Optimize coding must be true for progressive encoding".into()));
+        }
+        Ok(())
+    }
+}
 
-        // Always use Jpegli computation path
-        // Note: Using constants directly from `quant` module for locality - NOW FROM quant_constants
-        let luma_table_raw = crate::jpegli::quant::compute_quant_table_values(
-            distance,
-            crate::jpegli::quant_constants::GLOBAL_SCALE_YCBCR, // Use quant_constants
-            // Slice the first 64 elements (Luma) from the YCbCr base matrix
-            crate::jpegli::quant_constants::BASE_QUANT_MATRIX_YCBCR[0..64]
-                .try_into()
-                .expect("Slice with incorrect length for Luma quant table"),
-            true, // non_linear_scaling = true for Jpegli
-            false, // is_chroma_420 = false for Luma
-            quant_max,
-        );
-        let chroma_table_raw = crate::jpegli::quant::compute_quant_table_values(
-            distance,
-            crate::jpegli::quant_constants::GLOBAL_SCALE_YCBCR, // Use quant_constants
-            // Slice the next 64 elements (Cb) from the YCbCr base matrix
-            crate::jpegli::quant_constants::BASE_QUANT_MATRIX_YCBCR[64..128]
-                .try_into()
-                .expect("Slice with incorrect length for Chroma quant table"),
-            true, // non_linear_scaling = true for Jpegli
-            is_yuv420, // is_chroma_420 depends on sampling factor
-            quant_max,
-        );
 
-        // Removed call to compute_zero_bias_tables - logic needs integration elsewhere
-        // Zero bias tables will be initialized later, likely within the encoder state
-        let zero_bias_offsets: Vec<[f32; 64]> = Vec::with_capacity(num_components);
-        let zero_bias_multipliers: Vec<[f32; 64]> = Vec::with_capacity(num_components);
+
+impl ComputedConfigDimensions{
+    pub(crate) fn new(cinfo: &ComputedEncodeConfig, image_width: usize, image_height: usize) -> Result<Self, EncodingError>{
+        cinfo.validate()?;
+        
+        if image_width < 1 || image_height < 1 {
+            return Err(EncodingError::JpegliError("Empty input image".into()));
+        }
+        if image_width > JPEG_MAX_DIMENSION || image_height > JPEG_MAX_DIMENSION{
+            return Err(EncodingError::JpegliError("Input image too big".into()));
+        }
+        let imcu_width = DCTSIZE * cinfo.max_h_samp_factor;
+        let imcu_height = DCTSIZE * cinfo.max_v_samp_factor;
+        let total_i_mcu_cols = ceil_div(image_width, imcu_width as usize);
+        let total_i_mcu_rows = ceil_div(image_height, imcu_height as usize);
+        let xsize_blocks = total_i_mcu_cols * cinfo.max_h_samp_factor as usize;
+        let ysize_blocks = total_i_mcu_rows * cinfo.max_v_samp_factor as usize;
+
+        let mut h_factors = [0.0; MAX_COMPONENTS];
+        let mut v_factors = [0.0; MAX_COMPONENTS];
+    
+        
+        let mut blocks_per_i_mcu = 0;
+        for (ix, comp) in cinfo.comp_params.iter().enumerate() {
+            h_factors[ix] = cinfo.max_h_samp_factor as f32 / comp.horizontal_sampling_factor as f32;
+            v_factors[ix] = cinfo.max_v_samp_factor as f32 / comp.vertical_sampling_factor as f32;
+            blocks_per_i_mcu += comp.horizontal_sampling_factor * comp.vertical_sampling_factor;
+        }
+        let blocks_per_i_mcu_row = total_i_mcu_cols * blocks_per_i_mcu as usize;
+
+        let component_dimension_vec = ComponentDimensions::from_component_settings
+            (image_width, image_height, &cinfo.comp_params);
+        let fixed_component_dimensions = [
+            component_dimension_vec[0],
+            *component_dimension_vec.get(1).unwrap_or(&ComponentDimensions::EMPTY),
+            *component_dimension_vec.get(2).unwrap_or(&ComponentDimensions::EMPTY),
+            *component_dimension_vec.get(3).unwrap_or(&ComponentDimensions::EMPTY),
+        ];
+        let fixed_component_settings = [
+            cinfo.comp_params[0],
+            *cinfo.comp_params.get(1).unwrap_or(&JpegliComponentSettings::EMPTY),
+            *cinfo.comp_params.get(2).unwrap_or(&JpegliComponentSettings::EMPTY),
+            *cinfo.comp_params.get(3).unwrap_or(&JpegliComponentSettings::EMPTY),
+        ];
+        
+        Ok(ComputedConfigDimensions {
+            image_width,
+            image_height,
+            total_i_mcu_rows,
+            total_i_mcu_cols,
+            num_components: cinfo.num_components,
+            component_dimensions: fixed_component_dimensions,
+            component_settings: fixed_component_settings,
+            h_factors,
+            v_factors,
+            xsize_blocks,
+            ysize_blocks,
+            blocks_per_i_mcu_row,
+            progressive_mode: cinfo.progressive_level > 0,
+        })
+    }
+}
+
+
+
+#[derive(Debug, Clone)] 
+pub struct InputImageInfo{
+    pub width: usize,
+    pub height: usize,
+    pub color_space: JpegColorSpace,
+}
+
+impl Default for EncodeOptions{
+    
+    fn default() -> Self{
 
         Self {
+            quality: None,
+            distance: None,
+            progressive_level: None,
+            smoothing: None,
+            xyb_mode: None,
+            use_standard_tables: None,
+            use_adaptive_quantization: None,
+            chroma_subsampling: None, // Appears to be ignored - always 4:2:0?
+            jpeg_color_space: None,
+            cicp_transfer_function: None,
+            add_two_chroma_tables: None,
+            jfif_density: None,
+            icc_profile: None,
+            optimize_coding: None,
+            restart_interval_in_rows: None,
+            app_segments: None,
+        }
+    }
+}
+impl EncodeOptions{
+
+    pub fn compute(&self) -> Result<ComputedEncodeConfig, EncodingError>{
+        let xyb_mode = self.xyb_mode.unwrap_or(false);
+        // 3. Determine Jpegli Output Color Space
+        let jpeg_color_space = if xyb_mode {
+            JpegColorSpace::Rgb 
+        } else {
+            self.jpeg_color_space.unwrap_or(JpegColorSpace::YCbCr)
+        };
+        let num_components = jpeg_color_space.get_num_components();
+        if num_components == 0 {
+            return Err(EncodingError::JpegliError("Cannot setup quantization for 0 components".into()));
+        }
+    
+       
+        let use_std_tables = self.use_standard_tables.unwrap_or(false);
+        let use_adaptive_quantization = self.use_adaptive_quantization.unwrap_or(true);
+
+    
+        // 1. Determine Distance (handles default and precedence)
+        let distance = match (self.quality, self.distance) {
+            (Some(q), None) => quality_to_distance(q.clamp(1, 100)), // Clamp quality
+            (None, Some(d)) => d,
+            (None, None) => 1.0, // Default distance 1.0
+            (Some(_), Some(_)) => return Err(EncodingError::JpegliError("Cannot specify both quality and distance".into())),
+        }.clamp(0.0, 25.0); // Clamp final distance
+
+        let add_two_chroma_tables = self.add_two_chroma_tables.unwrap_or(self.distance.is_some())
+                && jpeg_color_space != JpegColorSpace::Grayscale;
+
+        // 2. Validate and Determine Sampling Factor
+         // TODO: fix this to adapt based on distance/quality?
+        let subsampling= self.chroma_subsampling.unwrap_or(Subsampling::YCbCr444);
+        
+        
+        let num_components = jpeg_color_space.get_num_components();
+        // 4. Generate Initial Component Params
+        let (max_h_samp_factor, max_v_samp_factor) = subsampling.to_luma_h_v_samp_factor();
+        let mut comp_params: Vec<JpegliComponentSettings> = Vec::with_capacity(num_components);
+        let luma_component_index;
+        match jpeg_color_space {
+            JpegColorSpace::Rgb  => {
+                comp_params.push(JpegliComponentSettings::default(0).with_letter('R'));
+                comp_params.push(JpegliComponentSettings::default(1).with_letter('G'));
+                comp_params.push(JpegliComponentSettings::default(2).with_letter('B'));
+                if xyb_mode {
+                    comp_params[0] = comp_params[0].with_h_v_sampling(2, 2).with_quant_ix(0);
+                    comp_params[1] = comp_params[1].with_h_v_sampling(2, 2).with_quant_ix(1);
+                    comp_params[2] = comp_params[2].with_h_v_sampling(1, 1).with_quant_ix(2);
+                }
+                luma_component_index = 1;
+            }
+            JpegColorSpace::Grayscale => {
+                if num_components != 1 { return Err(EncodingError::JpegliError("Grayscale requires 1 component".into())); }
+                comp_params.push(JpegliComponentSettings::default(0));
+                luma_component_index = 0;
+            }
+            JpegColorSpace::Cmyk => {
+                // TODO: shouldn't we have different quant tables, at least for K?
+                comp_params.push(JpegliComponentSettings::default(0).with_letter('C'));
+                comp_params.push(JpegliComponentSettings::default(1).with_letter('M'));
+                comp_params.push(JpegliComponentSettings::default(2).with_letter('Y'));
+                comp_params.push(JpegliComponentSettings::default(3).with_letter('K'));
+                luma_component_index = 3;
+            }
+            JpegColorSpace::Ycck => {
+                // CC are lower res, Y/K are full. 
+                comp_params.push(JpegliComponentSettings::default(0).with_h_v_sampling(2, 2));
+                comp_params.push(JpegliComponentSettings::default(1).with_quant_ix(1).with_huff_ix(1));
+                comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(1).with_huff_ix(1));
+                comp_params.push(JpegliComponentSettings::default(3).with_h_v_sampling(2, 2));
+                luma_component_index = 0;
+            }
+            
+            JpegColorSpace::YCbCr => { // Handle Ycbcr explicitly
+                // Default is 4:2:0, where luma is full res, and chroma is half res both horizontally and vertically.
+                let (luma_h, luma_v) = self.chroma_subsampling.unwrap_or(Subsampling::YCbCr420).to_luma_h_v_samp_factor();
+                comp_params.push(JpegliComponentSettings::default(0).with_h_v_sampling(luma_h, luma_v));
+                comp_params.push(JpegliComponentSettings::default(1).with_quant_ix(1).with_huff_ix(1));
+                if add_two_chroma_tables {
+                    comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(2).with_huff_ix(1));
+                }else{
+                    comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(1).with_huff_ix(1));
+                }
+                luma_component_index = 0;
+            }
+            // Handle other cases (like Rgb input, treat as YCbCr components)
+            _ => panic!("Unsupported output color space - not RGB, CMYK, YCCK, or YCbCr"),
+        }
+
+        
+
+        let r = ComputedEncodeConfig {
             distance,
-            use_float_dct: true, // Default Jpegli behavior often uses float DCT
-            use_adaptive_quantization: true, // Default Jpegli behavior often uses AQ
-            luma_table_raw,
-            chroma_table_raw,
-            zero_bias_offsets,
-            zero_bias_multipliers,
-            adaptive_quant_field: None, // Computed later if needed
-        }
-    }
-
-    // Add methods to update use_float_dct and use_adaptive_quantization if needed
-    pub fn set_float_dct(&mut self, enable: bool) {
-        self.use_float_dct = enable;
-    }
-
-    pub fn set_adaptive_quantization(&mut self, enable: bool) {
-        self.use_adaptive_quantization = enable;
-        if !enable {
-            self.adaptive_quant_field = None; // Clear AQ field if disabled
-        }
+            quality: self.quality,
+            xyb_mode,
+            use_std_tables,
+            use_adaptive_quantization,
+            num_components,
+            comp_params,
+            subsampling,
+            optimize_coding: self.optimize_coding.unwrap_or(true),
+            smoothing: self.smoothing.unwrap_or(0),
+            progressive_level: self.progressive_level.unwrap_or(2),
+            write_jfif_density: self.jfif_density.clone(),
+            write_adobe_ycck: jpeg_color_space == JpegColorSpace::Ycck,
+            jpeg_color_space,
+            cicp_transfer_function: self.cicp_transfer_function.unwrap_or(SimplifiedTransferCharacteristics::Default),
+            add_two_chroma_tables,
+            max_h_samp_factor,
+            max_v_samp_factor,
+            restart_interval: 0,
+            restart_interval_in_rows: self.restart_interval_in_rows.unwrap_or(0),
+            luma_component_index,
+            icc_profile: self.icc_profile.clone(),
+            app_segments: self.app_segments.clone(),
+        };
+        r.validate()?;
+        Ok(r)
     }
 }
 
 
-// void jpegli_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace) {
-//     CheckState(cinfo, jpegli::kEncStart);
-//     cinfo->jpeg_color_space = colorspace;
-//     switch (colorspace) {
-//       case JCS_GRAYSCALE:
-//         cinfo->num_components = 1;
-//         break;
-//       case JCS_RGB:
-//       case JCS_YCbCr:
-//         cinfo->num_components = 3;
-//         break;
-//       case JCS_CMYK:
-//       case JCS_YCCK:
-//         cinfo->num_components = 4;
-//         break;
-//       case JCS_UNKNOWN:
-//         cinfo->num_components =
-//             std::min<int>(jpegli::kMaxComponents, cinfo->input_components);
-//         break;
-//       default:
-//         JPEGLI_ERROR("Unsupported jpeg colorspace %d", colorspace);
-//     }
-//     // Adobe marker is only needed to distinguish CMYK and YCCK JPEGs.
-//     cinfo->write_Adobe_marker = TO_JXL_BOOL(cinfo->jpeg_color_space == JCS_YCCK);
-//     if (cinfo->comp_info == nullptr) {
-//       cinfo->comp_info =
-//           jpegli::Allocate<jpeg_component_info>(cinfo, MAX_COMPONENTS);
-//     }
-//     memset(cinfo->comp_info, 0,
-//            jpegli::kMaxComponents * sizeof(jpeg_component_info));
-//     for (int c = 0; c < cinfo->num_components; ++c) {
-//       jpeg_component_info* comp = &cinfo->comp_info[c];
-//       comp->component_index = c;
-//       comp->component_id = c + 1;
-//       comp->h_samp_factor = 1;
-//       comp->v_samp_factor = 1;
-//       comp->quant_tbl_no = 0;
-//       comp->dc_tbl_no = 0;
-//       comp->ac_tbl_no = 0;
-//     }
-//     if (colorspace == JCS_RGB) {
-//       cinfo->comp_info[0].component_id = 'R';
-//       cinfo->comp_info[1].component_id = 'G';
-//       cinfo->comp_info[2].component_id = 'B';
-//       if (cinfo->master->xyb_mode) {
-//         // Subsample blue channel.
-//         cinfo->comp_info[0].h_samp_factor = cinfo->comp_info[0].v_samp_factor = 2;
-//         cinfo->comp_info[1].h_samp_factor = cinfo->comp_info[1].v_samp_factor = 2;
-//         cinfo->comp_info[2].h_samp_factor = cinfo->comp_info[2].v_samp_factor = 1;
-//         // Use separate quantization tables for each component
-//         cinfo->comp_info[1].quant_tbl_no = 1;
-//         cinfo->comp_info[2].quant_tbl_no = 2;
-//       }
-//     } else if (colorspace == JCS_CMYK) {
-//       cinfo->comp_info[0].component_id = 'C';
-//       cinfo->comp_info[1].component_id = 'M';
-//       cinfo->comp_info[2].component_id = 'Y';
-//       cinfo->comp_info[3].component_id = 'K';
-//     } else if (colorspace == JCS_YCbCr || colorspace == JCS_YCCK) {
-//       // Use separate quantization and Huffman tables for luma and chroma
-//       cinfo->comp_info[1].quant_tbl_no = 1;
-//       cinfo->comp_info[2].quant_tbl_no = 1;
-//       cinfo->comp_info[1].dc_tbl_no = cinfo->comp_info[1].ac_tbl_no = 1;
-//       cinfo->comp_info[2].dc_tbl_no = cinfo->comp_info[2].ac_tbl_no = 1;
-//       // Use chroma subsampling by default
-//       cinfo->comp_info[0].h_samp_factor = cinfo->comp_info[0].v_samp_factor = 2;
-//       if (colorspace == JCS_YCCK) {
-//         cinfo->comp_info[3].h_samp_factor = cinfo->comp_info[3].v_samp_factor = 2;
-//       }
-//     }
-//   }
 
-// if (!jpeg_settings.chroma_subsampling.empty()) {
-//     if (jpeg_settings.chroma_subsampling == "444") {
-//       cinfo.comp_info[0].h_samp_factor = 1;
-//       cinfo.comp_info[0].v_samp_factor = 1;
-//     } else if (jpeg_settings.chroma_subsampling == "440") {
-//       cinfo.comp_info[0].h_samp_factor = 1;
-//       cinfo.comp_info[0].v_samp_factor = 2;
-//     } else if (jpeg_settings.chroma_subsampling == "422") {
-//       cinfo.comp_info[0].h_samp_factor = 2;
-//       cinfo.comp_info[0].v_samp_factor = 1;
-//     } else if (jpeg_settings.chroma_subsampling == "420") {
-//       cinfo.comp_info[0].h_samp_factor = 2;
-//       cinfo.comp_info[0].v_samp_factor = 2;
-//     } else {
-//       return false;
-//     }
-//     for (int i = 1; i < cinfo.num_components; ++i) {
-//       cinfo.comp_info[i].h_samp_factor = 1;
-//       cinfo.comp_info[i].v_samp_factor = 1;
-//     }
-//   } else if (!jpeg_settings.xyb) {
-//     // Default is no chroma subsampling.
-//     cinfo.comp_info[0].h_samp_factor = 1;
-//     cinfo.comp_info[0].v_samp_factor = 1;
-//   }
+fn ceil_div(value: usize, div: usize) -> usize {
+    value / div + usize::from(value % div != 0)
+}
+
+impl ComponentDimensions{ 
+
+    pub const EMPTY: Self = ComponentDimensions { downsampled_width: 0, downsampled_height: 0, width_in_blocks: 0, height_in_blocks: 0 };    fn new(width: usize, height: usize, factor: (u8, u8), max_factor: (u8, u8)) -> ComponentDimensions{
+        let downsampled_width = ceil_div(width * factor.0 as usize, max_factor.0 as usize);
+        let downsampled_height = ceil_div(height * factor.1 as usize, max_factor.1 as usize);
+        let width_in_blocks = ceil_div(downsampled_width, DCTSIZE as usize);
+        let height_in_blocks = ceil_div(downsampled_height, DCTSIZE as usize);
+        ComponentDimensions { downsampled_width, downsampled_height, width_in_blocks, height_in_blocks }
+    }
+
+    fn from_component_settings(width: usize, height: usize, components_settings: &[JpegliComponentSettings]) -> Vec<ComponentDimensions>{
+        let max_h = components_settings.iter().max_by_key(|s|s.horizontal_sampling_factor).unwrap().horizontal_sampling_factor;
+        let max_v = components_settings.iter().max_by_key(|s|s.vertical_sampling_factor).unwrap().vertical_sampling_factor;
+        
+        let width_usize = width as usize;
+        let height_usize = height as usize;
+
+        let mut components = Vec::new();
+        for comp_settings in components_settings.iter() {
+            let factor = (comp_settings.horizontal_sampling_factor, comp_settings.vertical_sampling_factor);
+            let max_factor = (max_h, max_v);
+            components.push(ComponentDimensions::new(width_usize, height_usize, factor, max_factor));
+        }
+        components
+    }
+}
+

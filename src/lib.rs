@@ -37,31 +37,28 @@ extern crate lcms2;
 extern crate arrayref;
 
 
-#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-mod avx2;
-
-mod encoder;
+mod old_encoder;
 mod error;
-mod fdct;
+mod old_fdct;
 mod huffman;
 mod image_buffer;
 mod marker;
-mod quantization;
+mod old_quantization;
 mod writer;
 
 #[cfg(feature = "jpegli")]
 mod jpegli;
 
-pub use encoder::{ColorType, Encoder, JpegColorType, SamplingFactor};
+pub use old_encoder::{ColorType, Encoder, OutputJpegColorType, SamplingFactor};
 pub use error::EncodingError;
 pub use image_buffer::{cmyk_to_ycck, rgb_to_ycbcr, ImageBuffer};
-pub use quantization::QuantizationTableType;
+pub use old_quantization::QuantizationTableType;
 pub use writer::{Density, JfifWrite};
 
 #[cfg(feature = "benchmark")]
-pub use fdct::fdct;
+pub use old_fdct::fdct;
 #[cfg(all(feature = "benchmark", feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-pub use avx2::fdct_avx2;
+pub use old_avx2::fdct_avx2;
 
 #[cfg(feature = "jpegli")]
 pub use jpegli::JpegliEncoder;

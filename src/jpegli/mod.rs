@@ -16,6 +16,8 @@ pub mod xyb;
 pub mod structs;
 pub mod c_structs;
 pub mod config;
+pub mod entropy_coding;
+pub mod progressive_scan;
 
 pub mod jpegli_encoder;
 pub use jpegli_encoder::JpegliEncoder;

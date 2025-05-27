@@ -33,7 +33,7 @@ pub enum EncodingError {
 
     /// An unsupported color type was provided for Jpegli encoding
     #[cfg(feature = "jpegli")]
-    UnsupportedJpegliColorType(crate::JpegColorType),
+    UnsupportedJpegliColorType(crate::old_encoder::OutputJpegColorType),
 
     /// A Jpegli error occurred
     #[cfg(feature = "jpegli")]

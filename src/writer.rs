@@ -1,7 +1,7 @@
-use crate::encoder::Component;
+use crate::old_encoder::Component;
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::marker::{Marker, SOFType};
-use crate::quantization::QuantizationTable;
+use crate::old_quantization::QuantizationTable;
 use crate::EncodingError;
 
 /// Density settings

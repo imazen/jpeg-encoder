@@ -312,7 +312,7 @@ impl QuantizationTable {
 
 #[cfg(test)]
 mod tests {
-    use crate::quantization::{QuantizationTable, QuantizationTableType};
+    use crate::old_quantization::{QuantizationTable, QuantizationTableType};
 
     #[test]
     fn test_new_100() {

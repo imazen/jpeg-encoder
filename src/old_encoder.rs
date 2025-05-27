@@ -1,8 +1,8 @@
-use crate::fdct::fdct;
+use crate::old_fdct::fdct;
 use crate::huffman::{CodingClass, HuffmanTable};
 use crate::image_buffer::*;
 use crate::marker::Marker;
-use crate::quantization::{QuantizationTable, QuantizationTableType};
+use crate::old_quantization::{QuantizationTable, QuantizationTableType};
 use crate::writer::{JfifWrite, JfifWriter, ZIGZAG};
 use crate::{Density, EncodingError};
 
@@ -20,7 +20,7 @@ use std::path::Path;
 
 /// # Color types used in encoding
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum JpegColorType {
+pub enum OutputJpegColorType {
     /// One component grayscale colorspace
     Luma,
 
@@ -34,9 +34,9 @@ pub enum JpegColorType {
     Ycck,
 }
 
-impl JpegColorType {
+impl OutputJpegColorType {
     pub(crate) fn get_num_components(self) -> usize {
-        use JpegColorType::*;
+        use OutputJpegColorType::*;
 
         match self {
             Luma => 1,
@@ -419,39 +419,39 @@ impl<W: JfifWrite> Encoder<W> {
             });
         }
 
-        #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-        {
-            if std::is_x86_feature_detected!("avx2") {
-                use crate::avx2::*;
+        // #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+        // {
+        //     if std::is_x86_feature_detected!("avx2") {
+        //         use crate::old_avx2::*;
 
-                return match color_type {
-                    ColorType::Luma => self
-                        .encode_image_internal::<_, AVX2Operations>(GrayImage(data, width, height)),
-                    ColorType::Rgb => self.encode_image_internal::<_, AVX2Operations>(
-                        RgbImageAVX2(data, width, height),
-                    ),
-                    ColorType::Rgba => self.encode_image_internal::<_, AVX2Operations>(
-                        RgbaImageAVX2(data, width, height),
-                    ),
-                    ColorType::Bgr => self.encode_image_internal::<_, AVX2Operations>(
-                        BgrImageAVX2(data, width, height),
-                    ),
-                    ColorType::Bgra => self.encode_image_internal::<_, AVX2Operations>(
-                        BgraImageAVX2(data, width, height),
-                    ),
-                    ColorType::Ycbcr => self.encode_image_internal::<_, AVX2Operations>(
-                        YCbCrImage(data, width, height),
-                    ),
-                    ColorType::Cmyk => self
-                        .encode_image_internal::<_, AVX2Operations>(CmykImage(data, width, height)),
-                    ColorType::CmykAsYcck => self.encode_image_internal::<_, AVX2Operations>(
-                        CmykAsYcckImage(data, width, height),
-                    ),
-                    ColorType::Ycck => self
-                        .encode_image_internal::<_, AVX2Operations>(YcckImage(data, width, height)),
-                };
-            }
-        }
+        //         return match color_type {
+        //             ColorType::Luma => self
+        //                 .encode_image_internal::<_, AVX2Operations>(GrayImage(data, width, height)),
+        //             ColorType::Rgb => self.encode_image_internal::<_, AVX2Operations>(
+        //                 RgbImageAVX2(data, width, height),
+        //             ),
+        //             ColorType::Rgba => self.encode_image_internal::<_, AVX2Operations>(
+        //                 RgbaImageAVX2(data, width, height),
+        //             ),
+        //             ColorType::Bgr => self.encode_image_internal::<_, AVX2Operations>(
+        //                 BgrImageAVX2(data, width, height),
+        //             ),
+        //             ColorType::Bgra => self.encode_image_internal::<_, AVX2Operations>(
+        //                 BgraImageAVX2(data, width, height),
+        //             ),
+        //             ColorType::Ycbcr => self.encode_image_internal::<_, AVX2Operations>(
+        //                 YCbCrImage(data, width, height),
+        //             ),
+        //             ColorType::Cmyk => self
+        //                 .encode_image_internal::<_, AVX2Operations>(CmykImage(data, width, height)),
+        //             ColorType::CmykAsYcck => self.encode_image_internal::<_, AVX2Operations>(
+        //                 CmykAsYcckImage(data, width, height),
+        //             ),
+        //             ColorType::Ycck => self
+        //                 .encode_image_internal::<_, AVX2Operations>(YcckImage(data, width, height)),
+        //         };
+        //     }
+        // }
 
         match color_type {
             ColorType::Luma => self.encode_image(GrayImage(data, width, height))?,
@@ -470,13 +470,13 @@ impl<W: JfifWrite> Encoder<W> {
 
     /// Encode an image
     pub fn encode_image<I: ImageBuffer>(self, image: I) -> Result<(), EncodingError> {
-        #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-        {
-            if std::is_x86_feature_detected!("avx2") {
-                use crate::avx2::*;
-                return self.encode_image_internal::<_, AVX2Operations>(image);
-            }
-        }
+        // #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+        // {
+        //     if std::is_x86_feature_detected!("avx2") {
+        //         use crate::old_avx2::*;
+        //         return self.encode_image_internal::<_, AVX2Operations>(image);
+        //     }
+        // }
         self.encode_image_internal::<_, DefaultOperations>(image)
     }
 
@@ -503,12 +503,12 @@ impl<W: JfifWrite> Encoder<W> {
 
         self.writer.write_header(&self.density)?;
 
-        if jpeg_color_type == JpegColorType::Cmyk {
+        if jpeg_color_type == OutputJpegColorType::Cmyk {
             //Set ColorTransform info to "Unknown"
             let app_14 = b"Adobe\0\0\0\0\0\0\0";
             self.writer
                 .write_segment(Marker::APP(14), app_14.as_ref())?;
-        } else if jpeg_color_type == JpegColorType::Ycck {
+        } else if jpeg_color_type == OutputJpegColorType::Ycck {
             //Set ColorTransform info to YCCK
             let app_14 = b"Adobe\0\0\0\0\0\0\x02";
             self.writer
@@ -532,15 +532,15 @@ impl<W: JfifWrite> Encoder<W> {
         Ok(())
     }
 
-    fn init_components(&mut self, color: JpegColorType) {
+    fn init_components(&mut self, color: OutputJpegColorType) {
         let (horizontal_sampling_factor, vertical_sampling_factor) =
             self.sampling_factor.get_sampling_factors();
 
         match color {
-            JpegColorType::Luma => {
+            OutputJpegColorType::Luma => {
                 add_component!(self.components, 0, 0, 1, 1);
             }
-            JpegColorType::Ycbcr => {
+            OutputJpegColorType::Ycbcr => {
                 add_component!(
                     self.components,
                     0,
@@ -551,7 +551,7 @@ impl<W: JfifWrite> Encoder<W> {
                 add_component!(self.components, 1, 1, 1, 1);
                 add_component!(self.components, 2, 1, 1, 1);
             }
-            JpegColorType::Cmyk => {
+            OutputJpegColorType::Cmyk => {
                 add_component!(self.components, 0, 1, 1, 1);
                 add_component!(self.components, 1, 1, 1, 1);
                 add_component!(self.components, 2, 1, 1, 1);
@@ -563,7 +563,7 @@ impl<W: JfifWrite> Encoder<W> {
                     vertical_sampling_factor
                 );
             }
-            JpegColorType::Ycck => {
+            OutputJpegColorType::Ycck => {
                 add_component!(
                     self.components,
                     0,
@@ -1251,7 +1251,7 @@ impl Operations for DefaultOperations {}
 mod tests {
     use alloc::vec;
 
-    use crate::encoder::get_num_bits;
+    use crate::old_encoder::get_num_bits;
     use crate::writer::get_code;
     use crate::{Encoder, SamplingFactor};
 

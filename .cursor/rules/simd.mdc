@@ -1,0 +1,187 @@
+---
+description: 
+globs: *math.rs
+alwaysApply: false
+---
+
+Okay, I'll refine the guide with your specific requirements and insights.
+
+First, let's verify the load/store methods on `wide` types. I'll search for `::load` and `::store` in the `wide-api.txt`.
+
+Ran tool
+You are correct. The `grep_search` for `::load` or `::store` in `wide-api.txt` yielded no results. This confirms that `wide` types do **not** offer explicit `load`, `store`, `load_unaligned`, or `store_unaligned` methods directly on the types themselves.
+
+Data is moved into and out of `wide` SIMD types primarily through:
+
+1.  **`From<[T; N]>` / `cast([T;N])`**: Implemented by the `impl_from_a_for_b_with_cast!` macro you provided. This is the most direct way to get data from an array into a `wide` type.
+    *   `let my_simd_vec = f32x4::from([1.0, 2.0, 3.0, 4.0]);`
+    *   `let my_simd_vec: f32x4 = cast([1.0, 2.0, 3.0, 4.0]);` (since `From` uses `cast`)
+2.  **`to_array()` / `cast(simd_vec)`**: To get data out.
+    *   `let my_array: [f32; 4] = my_simd_vec.to_array();` (if `to_array` exists, which it commonly does)
+    *   `let my_array: [f32; 4] = cast(my_simd_vec);`
+3.  **`new(array: [T;N])`**: As shown in your `f32x4::new` example, this is a `const fn` constructor often implemented with `unsafe { core::mem::transmute(array) }`. This is a very direct way to create a SIMD vector from an array.
+
+Now, let's revise the guide.
+
+## Developer's Guide to Efficient SIMD Algorithm Implementation in `jpeg-encoder`
+
+**Version:** 1.2
+**Date:** 2023-10-27
+
+**Purpose:** This document provides essential information, API summaries, and strategies for leveraging Single Instruction, Multiple Data (SIMD) capabilities to implement efficient algorithms within the `jpeg-encoder` project. It covers the `wide` crate for portable SIMD abstractions, its key dependencies (`bytemuck`, `safe_arch`, `arrayref`), and the `multiversion` crate for runtime dispatch to CPU-specific optimized code paths. The project distributes pre-built binaries targeting a baseline for `x86_64` and `aarch64+neon`, with runtime dispatch for enhanced x86 features. Direct intrinsic use is minimized.
+
+---
+
+### 1. Core SIMD Abstraction: The `wide` Crate
+
+The `wide` crate ([docs.rs/wide](https://docs.rs/wide/)) is the primary tool for writing portable SIMD code.
+
+*   **Purpose & Benefits**: Portable SIMD API, abstracting low-level details, aiming for explicit SIMD or compiler auto-vectorization.
+*   **Common Types**: `f32xN`, `f64xN`, `i8xN`, `i16xN`, `i32xN`, `i64xN`, `u8xN`, `u16xN`, `u32xN`, `u64xN`.
+
+*   **Data Conversion to/from `wide` Types**:
+    *   **From Array**:
+        *   `let simd_val = wide_type::from(your_array);` (uses `bytemuck::cast` internally, via `impl_from_a_for_b_with_cast` macro).
+        *   `let simd_val = wide_type::new(your_array);` (often a `const fn` implemented with `unsafe { core::mem::transmute(your_array) }`). This is very efficient.
+    *   **From Slice (Manual Chunking & Conversion)**:
+        *   To process a slice `data_slice: &[T]`, iterate in chunks of `N` (SIMD width).
+        *   For each chunk, create a temporary array `[T; N]` from the slice data, then convert to the `wide` type.
+        *   The `arrayref` crate can be helpful here: `let arr_ref: &[T; N] = array_ref!(data_slice, offset, N); let simd_val = wide_type::from(*arr_ref);`
+    *   **To Array**:
+        *   `let array_val: [T; N] = bytemuck::cast(simd_val);` (via `impl_from_a_for_b_with_cast` macro).
+        *   Many `wide` types also implement a `to_array() -> [T; N]` method.
+    *   **To Slice (Manual Chunking & Conversion)**:
+        *   Convert the `wide` type to an array, then copy data to the output slice.
+    *   **`splat(value: T) -> Self`**: Creates a SIMD vector with all lanes set to `value`. Also available as `From<T>`.
+    *   **No Direct `load`/`store` Methods**: `wide` types do not have `load`, `store`, `load_unaligned`, or `store_unaligned` methods directly. Data movement occurs via array conversions as above.
+
+*   **API Summary (Organized by Functionality Group)**:
+    *(This is the section you previously provided, included verbatim, with the load/store clarification integrated above)*
+
+    **Group 1: Core SIMD Operations (All types: `f32xN`, `u8xN`, `u16xN`, `i16xN`, `i32xN`, `i64xN`, `f64xN`)**
+    *   **Constants:** `ONE`, `ZERO` (plus type-specific `MAX`, `MIN`, `BITS`, `LANES` for integers).
+    *   **Methods (Data Movement handled via `From<[T;N]>`, `cast`, `new`, `to_array()`):**
+        *   `as_array_mut`, `as_array_ref` (access underlying data representation if available, often an array).
+        *   `blend` (conditional select).
+        *   `max`, `min` (lanewise max/min - `u8xN` might be missing for some widths, check specific docs if needed).
+        *   Arithmetic: `add`, `sub` (and `add_assign`, `sub_assign`).
+        *   `mul` (and `mul_assign`) is available for `f32xN`, `f64xN`, `i16xN`, `u16xN`, `i32xN`, `i64xN`, `u32xN`, `u64xN`. It's *not* universally available for `u8xN` (needs verification for specific u8 types if critical).
+        *   Bitwise: `bitand`, `bitor`, `bitxor`, `not` (and `bitand_assign`, `bitor_assign`, `bitxor_assign`).
+        *   Comparisons: `cmp_eq` (return type can vary), `eq` (trait).
+        *   Standard Rust traits: `Clone`, `Copy`, `Debug`, `Default`, `Display`, `PartialEq`.
+        *   `all`, `any`, `none` (lanewise boolean checks).
+        *   `move_mask` (extracts the most significant bit of each lane into an integer).
+
+    **Group 2: Floating Point Specific Operations (`f32xN`, `f64xN`)**
+    *   **Constants:** Mathematical constants like `PI`, `E`, `LN_2`, etc.
+    *   **Methods:** `abs`, trigonometric functions (`sin`, `cos`, etc.), exponential/logarithmic (`exp`, `ln`, etc.), rounding/truncation (`floor`, `ceil`, etc.), power/root (`powf`, `sqrt`, etc.), sign/absolute value ops (`copysign`, `sign_bit`), special value checks (`is_finite`, `is_inf`, `is_nan`), fused multiply-add (`mul_add`, etc.), `reduce_add`, `transpose`, `from_i32xN`, `to_degrees`, `to_radians`, `fast_max`, `fast_min`.
+
+    **Group 3: Signed Integer Specific Operations (`i16xN`, `i32xN`, `i64xN`)**
+    *   **Methods:** `abs`, reductions (`reduce_add`, `reduce_max`, `reduce_min` - check specific type for full availability).
+
+    **Group 4: Integer Operations (Common to `u8xN`, `u16xN`, `i16xN`, `u32xN`, `i32xN`, `u64xN`, `i64xN` unless noted)**
+    *   **Methods:** `saturating_add`, `saturating_sub`, shift operations (`shl`, `shr`, and `*_assign`).
+
+    **Group 5: `i16xN` Specific/Notable**
+    *   **Methods:** `dot` (produces `i32x(N/2)`), `from_i8xN`, `mul_scale_round`, `mul_scale_round_n`.
+
+    **Group 6: `u8xN` Specific/Notable**
+    *   **Methods:** `narrow_i16xN`, `swizzle`, `swizzle_relaxed`, `unpack_high`, `unpack_low`.
+
+---
+
+### 2. Key Dependencies of `wide`
+
+*   **`bytemuck`** ([docs.rs/bytemuck/latest/bytemuck/](https://docs.rs/bytemuck/latest/bytemuck/)):
+    *   **Role**: Safe casting between POD types. `wide` types are `Pod` and `Zeroable`.
+    *   **Relevance**: Underpins `wide`'s `From<[T;N]>` and `From<Self> for [T;N]` conversions (via `cast`), enabling efficient data movement between arrays and SIMD vectors.
+    *   **API Highlights**: See previous detailed list (Traits: `Pod`, `Zeroable`, etc. Functions: `cast`, `bytes_of`, `from_bytes`, `zeroed`, etc. Derive macros).
+
+*   **`safe_arch`** ([docs.rs/safe_arch/latest/safe_arch/](https://docs.rs/safe_arch/latest/safe_arch/)):
+    *   **Role**: Safe wrappers for **x86/x86_64 specific CPU intrinsics**.
+    *   **Relevance**: Used by `wide` for its x86 backend. **Not used for AArch64**.
+    *   **API Highlights**: Provides named functions for SSE/AVX operations (e.g., `add_m128`, `load_unaligned_m128i`), newtypes for SIMD registers (`m128`, `m256i`).
+
+*   **`core::arch::aarch64` (stdarch NEON)**:
+    *   **Role**: Standard Rust module for direct access to AArch64 NEON intrinsics.
+    *   **Relevance**: Used by `wide` for its AArch64 backend.
+    *   **API Highlights**: Intrinsics like `vaddq_f32`, `vmulq_s16`, `vld1q_u8`, etc.
+
+*   **`arrayref`** ([docs.rs/arrayref/latest/arrayref/](https://docs.rs/arrayref/latest/arrayref/)):
+    *   **Role**: Macros for safe array references from slices.
+    *   **Relevance**: Useful for preparing chunks from input slices to be converted into `wide` vectors via `wide_type::from(*array_ref!(...))`.
+    *   **API Highlights**: `array_ref!`, `array_mut_ref!`, `array_refs!`, `mut_array_refs!`.
+
+---
+
+### 3. Function Multiversioning: The `multiversion` Crate
+
+The `multiversion` crate ([docs.rs/multiversion/latest/multiversion/](https://docs.rs/multiversion/latest/multiversion/)) is used for runtime dispatch to CPU-specific optimized function versions.
+
+*   **Key Attributes**:
+    *   `#[multiversion(targets(...))]`: Primary attribute for function multiversioning.
+        *   `targets`: List of "arch+feature" strings (e.g., `"x86_64+avx2"`, `"aarch64+neon"`). Defines specialized versions.
+        *   Dispatcher options (`default`, `static`, `indirect`, `direct`) control how the runtime selection occurs. `default` is generally suitable.
+    *   `#[target("arch+feature")]`: For manual specialization of helper functions.
+    *   `#[inherit_target]`: Allows helper functions to inherit the target features of their `multiversion`'d caller. **Crucial for ensuring helper functions are inlined and optimized within each specialized version of the main function.**
+*   **Usage in `jpeg-encoder`**:
+    *   Applied to performance-critical functions.
+    *   Target baseline `x86_64` (implicitly SSE2 or explicitly `"x86_64+sse2"`) and `"aarch64+neon"`.
+    *   Add further x86 tiers: `"x86_64+sse4.1"`, `"x86_64+avx"`, `"x86_64+avx2"`, `"x86_64+avx2+fma"`.
+    *   The `std` feature of `multiversion` should be enabled for runtime dispatch.
+*   **Important**: Since pre-built binaries are distributed, `RUSTFLAGS` are not used to force features on the end-user's machine. Runtime detection via `multiversion` is key.
+
+---
+
+### 4. Performance: Data Movement and Alignment for `wide` Types
+
+*   **Moving Data To/From Slices/Arrays with `wide`**:
+    1.  **Best Case (Loading from an existing array `[T;N]`)**:
+        *   `let simd_vec = wide_type::new(my_array);` (if `my_array` is already correctly typed and sized). This is often a `const fn` and can be very efficient (potentially a transmute).
+        *   `let simd_vec = wide_type::from(my_array);` (uses `bytemuck::cast`).
+    2.  **Processing Slices `&[T]` or `&mut [T]`**:
+        *   Iterate over the slice in chunks of `N` (the SIMD vector width).
+        *   For each chunk:
+            *   **Loading**:
+                *   If data alignment can be guaranteed for the chunk:
+                    1.  Obtain a pointer to the start of the chunk.
+                    2.  `unsafe { let array_ptr = chunk_ptr as *const [T; N]; let simd_vec = wide_type::new(*array_ptr); }` or `unsafe { let simd_vec = bytemuck::cast_ref::<_, wide_type>(&*(chunk_ptr as *const T)); }` (careful with lifetimes and safety). This is the fastest if alignment is met.
+                    3.  Alternatively, use `arrayref::array_ref!(slice, offset, N)` to get `&[T;N]`, then `wide_type::from(*arr_ref)`. This involves a copy if the slice isn't already an array reference but is safe.
+                *   If data is unaligned or alignment is uncertain (common case):
+                    1.  Safest: Create a temporary aligned array `let mut temp_array = [T::default(); N]; temp_array.copy_from_slice(&slice_chunk); let simd_vec = wide_type::from(temp_array);` This involves a copy.
+                    2.  If `T` is `Copy` and the source slice is appropriately sized, `arrayref` can provide a reference to an array, which `wide_type::from` can then use.
+            *   **Storing**:
+                *   Convert SIMD vector to array: `let output_array: [T; N] = bytemuck::cast(simd_vec);` or `simd_vec.to_array()`.
+                *   Copy `output_array` to the corresponding slice chunk: `output_slice_chunk.copy_from_slice(&output_array);`
+*   **When Does Alignment Matter?**
+    *   **Direct Memory Access (Intrinsics)**: Most SIMD instruction sets (SSE, AVX, NEON) have both aligned and unaligned load/store instructions.
+        *   **Aligned instructions** (e.g., `_mm_load_ps`, `vld1q_f32` on an aligned pointer) are generally faster. They require the memory address to be a multiple of the vector size (e.g., 16 bytes for 128-bit vectors, 32 bytes for 256-bit AVX vectors). Misaligned access with an aligned instruction will typically cause a general protection fault (crash).
+        *   **Unaligned instructions** (e.g., `_mm_loadu_ps`, `vld1q_u8` on any pointer) can handle any alignment but may be slower, potentially incurring multiple memory accesses or other penalties.
+    *   **`wide` Crate & `bytemuck::cast`**:
+        *   When you use `wide_type::from(array)` or `bytemuck::cast(array)`, where `array` is `[T; N]`, the array itself is on the stack (if locally defined) or heap, and its alignment is determined by Rust's layout rules for arrays (which usually align to the element type `T`, but the whole array might then be further aligned). The `cast` to a `wide` type (which is `#[repr(C)]` or `#[repr(transparent)]` over an intrinsic type, itself often `#[repr(simd)]` or aligned) relies on `bytemuck`'s safety checks. `bytemuck::cast` itself doesn't *perform* unaligned loads from arbitrary byte slices into a SIMD register; it reinterprets a suitably typed and sized (and implicitly, suitably aligned for its type) Rust array as the SIMD type.
+        *   The `wide_type::new(array)` implemented via `transmute` is `unsafe` and assumes the input array, when its bits are reinterpreted, forms a valid bit pattern for the SIMD type and meets any implicit alignment requirements the compiler might assume for that SIMD type if it were to then be passed to an intrinsic that expects an aligned register operand.
+    *   **Performance Implication**: If you are frequently creating SIMD vectors from slices, the method of copying slice data into a local, potentially stack-allocated (and thus likely well-aligned) array `[T;N]` before converting to a `wide` type is a common and safe pattern. The cost of this copy needs to be weighed against the loop's computation.
+    *   **For `jpeg-encoder`**: When processing image rows or blocks, if these blocks can be allocated or sub-sliced with guaranteed alignment matching the SIMD vector width (e.g., 16-byte for `f32x4`, 32-byte for `f32x8`), you could potentially use unsafe casts from pointers to these aligned chunks directly into `wide` types or pass these pointers to intrinsic functions that expect aligned data. However, this requires careful management of alignment throughout your data pipeline. The safer approach is usually to copy to a local aligned array.
+
+---
+
+### 5. General Strategy & Best Practices
+
+1.  **Profile First**: Identify true bottlenecks.
+2.  **Use `wide`**: For SIMD logic. Prioritize readability and portability.
+3.  **Function Encapsulation**: Isolate SIMD logic into functions.
+4.  **`#[multiversion]` for CPU-Specific Paths**:
+    *   Target baselines (`x86_64+sse2`, `aarch64+neon`) and enhanced tiers.
+    *   Use `#[inline(always)]` on all functions called by a `multiversion`'d function if they are part of the specialized path and intended to be inlined into each version. This includes helper functions marked with `#[inherit_target]`. This is crucial for the compiler to generate optimal code for each specialized version by inlining the specialized helpers.
+5.  **Conditional Logic**: Use `#[cfg(all(target_arch = "...", target_feature = "..."))]` inside `multiversion` functions or `#[target(...)]` on specialized helper functions.
+6.  **Data Handling**:
+    *   Prefer `wide_type::new(array)` or `wide_type::from(array)` for array-to-SIMD.
+    *   For slices, chunk and convert, potentially using `arrayref` for safe array sub-references. Be mindful of the copy overhead vs. computation.
+    *   If pursuing maximum performance with aligned data: ensure buffers are allocated with required alignment. This is an advanced optimization.
+7.  **Minimize Direct Intrinsic Use**: Fall back to `safe_arch` (for x86) or `core::arch` (for AArch64 or uncovered x86 needs) only when `wide` doesn't offer the necessary operation (e.g., very specific shuffles, or some low-level math routines like a custom reciprocal).
+8.  **Benchmark and Test Rigorously**: Verify performance gains and correctness across all targeted paths.
+
+---
+
+This guide should provide a more tailored and accurate reference for your project's specific needs and constraints.
+

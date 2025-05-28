@@ -1,0 +1,698 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Guide to rten-simd and rten-vecmath
+
+This document provides a guide to using the `rten-simd` library for portable SIMD operations in Rust, and a reference for the `rten-vecmath` library, which presumably uses `rten-simd` to implement various mathematical functions.
+
+## Part 1: Guide to `rten-simd`
+
+`rten-simd` is a Rust library that enables you to write vectorized code once and have it run efficiently on different architectures by dynamically selecting the best SIMD instruction set (e.g., AVX2, AVX-512, Arm Neon, WebAssembly SIMD) at runtime. This approach provides performance portability for your numerical computations.
+
+Reference: [rten-simd on docs.rs](https://docs.rs/rten-simd/latest/rten_simd/)
+
+### Key Concepts and Features
+
+1.  **Runtime Dispatch**: Unlike `std::simd` (which is compile-time), `rten-simd` detects CPU capabilities at runtime and dispatches to the most performant implementation available for the current hardware.
+2.  **Stable Rust**: Works on the stable Rust toolchain.
+3.  **Scalable Vector Width**: Operations adapt to the full SIMD vector width available on the target ISA (e.g., 4 f32 lanes on Neon, 16 on AVX-512), rather than using fixed-width vectors.
+4.  **Performance Portability**: Semantics are chosen to map well to hardware capabilities across different platforms. This might mean some edge case behaviors could differ, similar to WebAssembly Relaxed SIMD.
+5.  **Supported Architectures**:
+    *   AVX2
+    *   AVX-512 (requires nightly Rust and `avx512` feature)
+    *   Arm Neon
+    *   WebAssembly SIMD (including relaxed SIMD)
+    *   A generic fallback using 128-bit arrays is also provided, aiming for compiler autovectorization.
+
+### Core Abstractions
+
+*   **`SimdOp` Trait**:
+    *   Defines a vectorized operation. You implement this trait for a struct that holds the parameters of your operation.
+    *   It has an `eval<I: Isa>(self, isa: I) -> Self::Output` method where you define the SIMD logic.
+    *   The `dispatch()` method on your `SimdOp` implementation executes the operation using the best available ISA.
+
+*   **`Isa` Trait (Instruction Set Architecture)**:
+    *   An instance of an `Isa` implementation (e.g., for AVX2, Neon) is passed to `SimdOp::eval`.
+    *   It's the entry point for accessing SIMD operations for specific data types (e.g., `isa.f32()` for operations on SIMD vectors of `f32`s).
+    *   Types providing `Isa` can only be instantiated if the instruction set is supported, ensuring safety.
+
+*   **`NumOps` and Related Traits** (e.g., `FloatOps`, `IntOps`, `SignedIntOps`):
+    *   `NumOps` provides common operations (add, sub, mul, etc.) for all SIMD vectors.
+    *   Specialized traits like `FloatOps` provide operations specific to floating-point SIMD vectors (e.g., min, max, sqrt, fma).
+    *   These traits operate on SIMD vector types (platform-specific or wrappers).
+
+*   **`Simd` Trait**: Implemented by all SIMD vector types.
+*   **`Elem` Trait**: Implemented by supported element types (e.g., `f32`, `i32`).
+
+### Implementing a `SimdOp`
+
+Here's a conceptual example based on the `rten-simd` documentation for squaring elements in a slice:
+
+```rust
+// Make sure to add rten_simd to your Cargo.toml
+// use rten_simd::{Isa, SimdOp};
+// use rten_simd::ops::NumOps;
+// use rten_simd::functional::simd_map;
+
+struct Square<'a> {
+    xs: &'a mut [f32],
+}
+
+impl<'a> SimdOp for Square<'a> {
+    type Output = &'a mut [f32];
+
+    #[inline(always)] // Crucial for performance!
+    fn eval<I: Isa>(self, isa: I) -> Self::Output {
+        let ops = isa.f32(); // Get f32 operations for the current ISA
+        // simd_map applies a closure to each SIMD vector in the slice.
+        // The closure takes a SIMD vector (x) and returns a SIMD vector.
+        simd_map(ops, self.xs, #[inline(always)] |x| ops.mul(x, x))
+    }
+}
+
+// Usage:
+// let mut data: Vec<f32> = (0..100).map(|i| i as f32).collect();
+// let squared_data = Square { xs: &mut data }.dispatch();
+// `squared_data` now contains the squared values.
+```
+
+### Importance of Inlining (`#[inline(always)]`)
+
+*   It is **critical** to mark the `eval` method and any closures or functions called within it (especially those performing SIMD intrinsic operations) with `#[inline(always)]`.
+*   Failure to do so can lead to significant performance degradation due to function call overhead, as the compiler might not inline the platform-specific intrinsics otherwise. This is particularly important for ISAs like AVX2/AVX-512 where availability isn't guaranteed at compile time.
+*   If performance is lower than expected, use a profiler to check if intrinsics are being called directly or if there's function call overhead.
+
+### Working with Slices
+
+`rten-simd` provides utilities for common slice-based operations:
+
+*   **`SimdIterable` Trait**: Allows iterating over a slice in SIMD vector-sized chunks. It handles padding or masking for slices whose lengths aren't multiples of the vector size.
+    *   Example: `self.0.simd_iter(ops).fold(...)`
+*   **`functional` Module**:
+    *   `simd_map`: Applies a unary operation to elements of a slice (as shown in the `Square` example).
+    *   Other utilities for vectorized transforms.
+*   **`SliceWriter`**: Incrementally initializes a slice with results of SIMD operations, writing one vector at a time.
+*   **`SimdUnaryOp` Trait**: A convenient way to define unary operations on slices, similar to `Iterator::map`.
+
+### Generic Operations
+
+You can define `SimdOp`s that are generic over element types using the `GetNumOps` trait. This trait allows you to obtain the appropriate `NumOps` implementation for a given element type `T` from an `Isa`.
+
+Example from `rten-simd` docs (summing a slice of any supported element type):
+
+```rust
+// use std::iter::Sum;
+// use rten_simd::{Isa, Simd, SimdIterable, SimdOp};
+// use rten_simd::ops::{GetNumOps, NumOps};
+
+struct SimdSum<'a, T>(&'a [T]);
+
+impl<'a, T: GetNumOps + Sum> SimdOp for SimdSum<'a, T> {
+    type Output = T;
+
+    #[inline(always)]
+    fn eval<I: Isa>(self, isa: I) -> Self::Output {
+        let ops = T::num_ops(isa); // Get NumOps for type T
+        let partial_sums = self.0.simd_iter(ops).fold(
+            ops.zero(), // Get a zero vector of the appropriate type
+            |sum, x| ops.add(sum, x)
+        );
+        // Scalar sum of the elements in the final partial_sums vector
+        partial_sums.to_array().into_iter().sum()
+    }
+}
+
+// Usage:
+// assert_eq!(SimdSum(&[1.0f32, 2.0, 3.0]).dispatch(), 6.0);
+// assert_eq!(SimdSum(&[1i32, 2, 3]).dispatch(), 6);
+```
+
+## Part 2: Reference for `rten-vecmath`
+
+The `rten-vecmath` library presumably provides a collection of vectorized mathematical functions, leveraging `rten-simd` for hardware acceleration. While the specific implementations aren't directly browsable here, we can infer the purpose of its modules based on their names and how they would typically use `rten-simd`.
+
+Each module in `rten-vecmath` would likely define one or more structs implementing `SimdOp`. Inside the `eval` method of these ops, they would use the `Isa` object to get type-specific operations (e.g., `isa.f32()`) and then apply SIMD intrinsics or `rten-simd`'s high-level operations (like those in `NumOps`, `FloatOps`) to input data, often processed in chunks using `simd_iter` or helpers from the `functional` module.
+
+Below are the modules you listed and their probable functionalities:
+
+*   **`quantize.rs`**:
+        *   **Function**: Quantizes a slice of `f32` elements to `u8` using a scale and zero point.
+        *   Source: [quantize.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/quantize.rs)
+        *   **Details**: Implements the formula `y = saturate_u8(round_ties_even(x * inv_scale) + zero_point)`.
+        *   **`rten-simd` Usage**:
+            *   Defines `Quantize<'s, 'd, To>` struct, with `SimdOp` implemented for `To = u8`.
+            *   Input: `src: &[f32]`, `dest: &mut [MaybeUninit<u8>]`, `inv_scale: f32`, `zero_point: u8`.
+            *   The `eval` method uses `isa.f32()` (`src_ops`) and `isa.i32()` (`i32_ops`).
+            *   `inv_scale` is splatted to `scale_vec` (f32 SIMD) and `zero_point` to `zp_vec` (i32 SIMD).
+            *   It processes the `src` slice in chunks of `4 * f32_vector_length`.
+            *   For each chunk, `src_ops.load_many::<4>()` loads four `f32` SIMD vectors.
+            *   These four vectors are transformed in a `.map()` operation:
+                1.  `y = src_ops.mul(x, scale_vec)` (scale each f32 vector).
+                2.  `y = src_ops.to_int_round(y)` (round to i32 SIMD vector, ties to even).
+                3.  `quant_i32 = i32_ops.add(y, zp_vec)` (add zero point).
+            *   The resulting four `i32` SIMD vectors are narrowed to a single `u8` SIMD vector:
+                *   `quant_i16_low  = i32_ops.narrow_saturate(quant_i32[0], quant_i32[1])` (i32xN, i32xN -> i16xN).
+                *   `quant_i16_high = i32_ops.narrow_saturate(quant_i32[2], quant_i32[3])`.
+                *   `quant_u8 = isa.i16().narrow_saturate(quant_i16_low, quant_i16_high)` (i16xN, i16xN -> u8xN).
+            *   The `quant_u8` vector is written to the destination using `SliceWriter`.
+            *   A scalar loop handles the remainder.
+            *   The `eval` method is `#[inline(always)]`.
+
+*   **`ulp.rs` (Units in the Last Place)**:
+    *   **Purpose**: Provides utilities for calculating the Unit in the Last Place (ULP) for `f32` values and asserting ULP differences, primarily for testing and numerical precision analysis.
+        Source: [ulp.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/ulp.rs)
+    *   **Contents**:
+        *   **Trait `Ulp`**: Defines `ulp(self) -> Self` (size of ULP) and `diff_ulps(self, other: Self) -> Self` (difference in terms of `other.ulp()`).
+        *   **`impl Ulp for f32`**:
+            *   `ulp(self)`: Returns `f32::NAN` for NaN, `f32::INFINITY` for infinity, `f32::MIN` for zero. For `f32::MIN`/`f32::MAX`, it returns `2^104`. For other numbers, it calculates `abs(next_float - self)`.
+            *   `diff_ulps(self, other)`: Calculates `(self - other).abs() / other.ulp()`.
+        *   **Macro `assert_ulp_diff_le!`**: Asserts that `actual.diff_ulps(expected) <= max_diff`.
+    *   **`rten-simd` Usage**: This module does *not* implement any SIMD operations itself. Its purpose is to provide scalar host-side utilities for testing the precision of other SIMD-accelerated functions in `rten-vecmath`.
+
+*   **`tanh.rs` (Hyperbolic Tangent)**:
+    *   **Function**: Computes the hyperbolic tangent function (`tanh(x)`) for `f32` elements in a SIMD vector.
+        Source: [tanh.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/tanh.rs)
+    *   **`rten-simd` Usage**:
+        *   Defines a `Tanh {}` struct implementing `SimdUnaryOp`.
+        *   The `eval<I: Isa, S: Simd<Elem = f32>>(...)` method receives an `Isa` and an input SIMD vector `x`.
+        *   It uses `ops = isa.f32()` for floating-point SIMD operations.
+        *   Handles `x` based on its absolute value (`abs_x = ops.abs(x)`):
+            *   If `abs_x >= 9.02` (cutoff): result is `ops.splat(1.0)`.
+            *   If `abs_x <= 0.0004` (tiny): result is `abs_x` itself (since `tanh(x) ≈ x`).
+            *   If `abs_x <= 0.55` (small): Uses a 9th-degree polynomial approximation for `tanh(abs_x)` computed with `ops.mul_add` and predefined coefficients (`P1` to `P9`).
+            *   Otherwise (medium `abs_x`): Computes `(exp(2*abs_x) - 1) / (exp(2*abs_x) + 1)`. This involves:
+                *   `x2 = ops.mul(abs_x, ops.splat(2.0))`
+                *   `exp_2x = Exp::apply(isa, x2)` (delegates to an `Exp` SIMD operation from `crate::Exp`).
+                *   `ops.sub(exp_2x, ops.one())` and `ops.add(exp_2x, ops.one())`.
+                *   `ops.div(...)`.
+        *   `ops.select` is used to combine results from the different ranges based on masks derived from `x_cutoff`, `x_small`, and `x_tiny` comparisons.
+        *   The final sign is applied: if the original `x` was negative (`x_negative = ops.le(x, ops.zero())`), the result is negated (`ops.select(ops.neg(y), y, x_negative)`).
+        *   The method is `#[inline(always)]`.
+
+*   **`sum.rs`**:
+    *   **Functions**: Provides SIMD-accelerated sum operations for `f32` slices.
+        Source: [sum.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/sum.rs)
+    *   **Structs and `rten-simd` Usage**:
+        *   **`Sum<'a>`**: Computes the sum of elements.
+            *   `SimdOp::eval` uses `self.input.simd_iter(ops).fold_unroll::<4>(ops.zero(), ops.add, ops.add)`.
+            *   The result is a SIMD vector of partial sums, which is then summed horizontally (`vec_sum.to_array().into_iter().sum()`).
+        *   **`SumSquare<'a>`**: Computes the sum of squares (`sum(x*x)`).
+            *   `SimdOp::eval` uses `fold_unroll` with a step function `|sum, x| ops.mul_add(x, x, sum)` (computes `x*x + sum`).
+            *   The reduce function is `ops.add`.
+            *   Horizontal sum at the end.
+        *   **`SumSquareSub<'a>`**: Computes `sum((x - offset)^2)`.
+            *   Takes an additional `offset: f32`.
+            *   `SimdOp::eval` splats `offset` to `offset_vec`.
+            *   The step function for `fold_unroll` is `|sum, x| { let x_offset = ops.sub(x, offset_vec); ops.mul_add(x_offset, x_offset, sum) }`.
+            *   Horizontal sum at the end.
+        *   All `eval` methods are `#[inline(always)]` and use `ops = isa.f32()`.
+
+*   **`softmax.rs`**:
+    *   **Function**: Computes the softmax function for `f32` slices: `output = exp(input - max(input)) / sum(exp(input - max(input)))`.
+        Source: [softmax.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/softmax.rs)
+    *   **`rten-simd` Usage**:
+        *   Defines `Softmax<'src, 'dst>` struct implementing `SimdOp`.
+        *   Input: `src_dest: SrcDest<'src, 'dst, f32>` (can be separate src/dest or in-place).
+        *   The `eval` method uses `ops = isa.f32()`.
+        *   **Step 1: Find Global Maximum (`max_val`)**
+            *   `self.src_dest.src().simd_iter(ops).fold_unroll::<4>(ops.splat(f32::MIN), ops.max, ops.max)` finds the SIMD vector containing max values from chunks.
+            *   A scalar fold on this vector's array yields the overall `max_val`.
+        *   **Step 2: Compute `exp(x - max_val)` and its sum (`exp_sum`)**
+            *   This is done by a helper function `exp_sum_minus_max(isa, src_dest, max_val)`.
+            *   Inside this helper, `max_val` is splatted to a SIMD vector.
+            *   `simd_map` is used to iterate over `src_dest`:
+                *   For each input SIMD vector `x`, it computes `val = ops.sub(x, max_val_splatted)`.
+                *   `y = ReducedRangeExp::apply(isa, val)` computes `exp(val)`. `ReducedRangeExp` is used because `val` is guaranteed to be <= 0.
+                *   The result `y` is written to the destination slice (via `simd_map`).
+                *   A SIMD vector `current_exp_sum` accumulates `y` using `ops.add`.
+            *   The `exp_sum_minus_max` function handles potential issues with the sum in the last partial vector if lengths don't align, using `ops.select` with a mask.
+            *   A final scalar sum of `current_exp_sum.to_array()` gives the total `exp_sum`.
+            *   The helper returns the (now modified with `exp(x-max)`) destination slice and the scalar `exp_sum`.
+        *   **Step 3: Normalize**
+            *   `inv_exp_sum = ops.reciprocal(ops.splat(exp_sum))`.
+            *   `simd_apply(ops, dest, |v| ops.mul(v, inv_exp_sum))` multiplies each element in the destination slice (which contains `exp(x-max)`) by `inv_exp_sum`.
+        *   All key functions/closures are `#[inline(always)]`.
+
+*   **`normalize.rs`**:
+    *   **Function**: Normalizes `f32` elements in a slice based on mean/variance, with optional per-element scale and bias.
+        Source: [normalize.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/normalize.rs)
+    *   **Formula**: `output[i] = (input[i] - pre_scale_bias) * scale * element_scale[i] + bias + element_bias[i]`
+        (where `element_scale[i]` defaults to 1.0 and `element_bias[i]` to 0.0 if not provided).
+    *   **Structs**:
+        *   `NormalizeOptions<'a>`: Contains `pre_scale_bias: f32`, `scale: f32`, `element_scale: Option<&'a [f32]>`, `bias: f32`, `element_bias: Option<&'a [f32]>`.
+        *   `Normalize<'src, 'dst>`: Implements `SimdOp`. Holds `src_dest: SrcDest<'src, 'dst, f32>` and `opts: NormalizeOptions<'src>`.
+    *   **`rten-simd` Usage**:
+        *   The `eval` method (marked `#[inline(always)]`) uses `ops = isa.f32()`.
+        *   Constants `pre_scale_bias`, `scale`, `bias` from `opts` are splatted to SIMD vectors.
+        *   It uses `simd_map(ops, self.src_dest, map_fn)` to process the data.
+        *   The `map_fn(x, i)` (where `x` is an f32 SIMD vector, `i` is its start index in the slice):
+            1.  `val = ops.sub(x, pre_scale_bias_vec)`.
+            2.  `current_total_scale = scale_vec`.
+            3.  If `opts.element_scale` is `Some(es)`:
+                *   `el_scale_vec = ops.load(es.get_unchecked(i..))` (loads corresponding per-element scales).
+                *   `current_total_scale = ops.mul(current_total_scale, el_scale_vec)`.
+            4.  `val = ops.mul(val, current_total_scale)`.
+            5.  `current_total_bias = bias_vec`.
+            6.  If `opts.element_bias` is `Some(eb)`:
+                *   `el_bias_vec = ops.load(eb.get_unchecked(i..))`.
+                *   `current_total_bias = ops.add(current_total_bias, el_bias_vec)`.
+            7.  Returns `ops.add(val, current_total_bias)`.
+        *   Panics if input slice lengths in `NormalizeOptions` (if Some) don't match the main input/output slice length (checked by `simd_map` and `Normalize::new`).
+
+*   **`min_max.rs`**:
+    *   **Function**: Computes the minimum and maximum `f32` values in a slice.
+        Source: [min_max.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/min_max.rs)
+    *   **`rten-simd` Usage**:
+        *   Defines a `MinMax<'a>` struct that implements `SimdOp` for `&'a [f32]`, returning `(f32, f32)`.
+        *   In `eval(self, isa: I)`, it gets `f32` operations via `isa.f32()`.
+        *   Uses `input.simd_iter(ops).fold_n_unroll::<2, 4>(initial_values, step_fn, reduce_fn)`:
+            *   `initial_values`: `[ops.splat(f32::MAX), ops.splat(f32::MIN)]` (two SIMD vectors, one for min accumulation, one for max).
+            *   `step_fn`: For each input SIMD vector `x` and accumulator `[min_vec, max_vec]`, it computes `[ops.min(x, min_vec), ops.max(x, max_vec)]`.
+            *   `reduce_fn`: Combines two intermediate accumulator pairs `[min_a, max_a]` and `[min_b, max_b]` into `[ops.min(min_a, min_b), ops.max(max_a, max_b)]`.
+        *   The result of the fold is `[vec_min, vec_max]`, where `vec_min` and `vec_max` are SIMD vectors containing partial minimums and maximums.
+        *   A final scalar reduction is performed on the elements of `vec_min.to_array()` to get the true minimum, and similarly for `vec_max.to_array()` to get the true maximum.
+        *   The `eval` method and its closures are marked `#[inline(always)]`.
+
+*   **`extend_init.rs`**:
+    *   **Purpose**: Provides a utility trait `ExtendInit` for incrementally initializing the spare capacity of a buffer, with a specific implementation for `Vec<T>`. This is not a SIMD math operation itself but can be a helper for managing buffers used with SIMD operations.
+        Source: [extend_init.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/extend_init.rs)
+    *   **Contents**:
+        *   **Trait `ExtendInit`**: Generic over `Elem`.
+            *   Method `extend_init<F>(&mut self, f: F)` where `F` is a closure `FnOnce(&mut [MaybeUninit<Self::Elem>]) -> &[Self::Elem]`.
+            *   The closure `f` receives the uninitialized spare capacity and must return the sub-slice it has initialized.
+        *   **`impl<T> ExtendInit for Vec<T>`**:
+            *   The `extend_init` method gets `self.spare_capacity_mut()`.
+            *   Calls the provided closure `f` with this spare capacity.
+            *   Asserts that the returned initialized slice is a valid prefix of the spare capacity.
+            *   Updates the vector's length using `unsafe { self.set_len(...) }`.
+    *   **`rten-simd` Usage**: This module does *not* directly use `rten-simd`. It is a general-purpose utility for `Vec` initialization. It could be used in conjunction with SIMD operations when needing to fill a `Vec` that will be an input or output for a `SimdOp`, potentially being filled by scalar code or other non-SIMD means before/after SIMD processing.
+
+*   **`exp.rs` (Exponential and Related Functions)**:
+    *   **Functions**: Provides SIMD-accelerated exponential, sigmoid, SiLU, and Swish functions for `f32` SIMD vectors.
+        Source: [exp.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/exp.rs)
+    *   **Structs and `rten-simd` Usage** (all implement `SimdUnaryOp` for `f32` SIMD vectors and their `eval` methods are `#[inline(always)]`):
+        *   **`Exp {}`**: Computes `exp(x)`.
+            *   Uses Cody-Waite range reduction: `x = k * ln(2) + r`, where `k` is an integer and `|r| <= ln(2)/2`.
+            *   `k` is calculated as `rintf(x / ln(2))` (approximated as `rintf(x * INV_LOG2)`) using `ops.mul_add` with a `ROUNDING_MAGIC` constant, then `ops.to_int_trunc`.
+            *   `r` (the remainder) is `x - k * ln(2)`, computed using `LOG2_HI` and `LOG2_LO` (high and low parts of `ln(2)`) for precision via `ops.mul_add`.
+            *   `exp(r)` is approximated by a 6th-degree polynomial (coefficients `EXP_POLY_0` to `EXP_POLY_6`) using Horner's method (a series of `ops.mul_add`).
+            *   The final result `exp(r) * 2^k` is reconstructed. Scaling by `2^k` involves complex bit manipulations on `f32`s reinterpreted as `i32`s (using `isa.i32()` and `reinterpret_cast()`), with different paths for `k > 0` and `k <= 0` to extend the domain.
+            *   Handles overflow for `x >= 104.0` (to `f32::INFINITY`) and underflow for `x <= -104.0` (to `0.0`) using `ops.select`.
+        *   **`ReducedRangeExp {}`**: Computes `exp(x)` specifically for `x <= 0`.
+            *   Similar to `Exp {}`, but the range reduction and `2^k` scaling are simpler because `k` is always `<= 0`.
+            *   Handles underflow for `x < EXP_LOWER_CUTOFF` (approx -87.67) to `0.0`.
+            *   This is used internally by other functions like `Erf` and `Softmax` when the input to `exp` is known to be non-positive.
+        *   **`Sigmoid {}`**: Computes `1.0 / (1.0 + exp(-x))`.
+            *   Calculates `neg_x = ops.neg(x)`.
+            *   `exp_neg_x = Exp::apply(isa, neg_x)` (delegates to the main `Exp` op).
+            *   `denom = ops.add(ops.one(), exp_neg_x)`.
+            *   Result is `ops.reciprocal(denom)`.
+        *   **`Silu {}` (Sigmoid Linear Unit)**: Computes `x * sigmoid(x)`.
+            *   Result is `ops.mul(x, Sigmoid::apply(isa, x))` (delegates to `Sigmoid`).
+        *   **`Swish { beta: f32 }`**: Computes `x * sigmoid(beta * x)`.
+            *   `beta_vec = ops.splat(self.beta)`.
+            *   `arg_for_sigmoid = ops.mul(x, beta_vec)`.
+            *   Result is `ops.mul(x, Sigmoid::apply(isa, arg_for_sigmoid))` (delegates to `Sigmoid`).
+
+*   **`erf.rs` (Error Function and Related Functions)**:
+        *   **Functions**: Provides SIMD-accelerated error function (erf), GELU, and approximate GELU for `f32` SIMD vectors.
+        *   Source: [erf.rs on GitHub](https://raw.githubusercontent.com/robertknight/rten/refs/heads/main/rten-vecmath/src/erf.rs)
+        *   **Structs and `rten-simd` Usage** (all implement `SimdUnaryOp` for `f32` SIMD vectors and their `eval` methods are `#[inline(always)]`):
+            *   **`Erf {}`**: Computes `erf(x)` using an approximation from Abramowitz and Stegun.
+                *   It first computes `abs_x = ops.abs(x)` and stores a `neg_mask`.
+                *   `t = ops.reciprocal(ops.mul_add(abs_x, p, ops.one()))`, where `p` is a constant (0.3275911).
+                *   `at = ops.poly_eval(t, &[a0, ..., a4])` evaluates a polynomial in `t` with constant coefficients `a0` through `a4`.
+                *   `exp_mx2 = ReducedRangeExp::apply(isa, ops.neg(ops.mul(abs_x, abs_x)))` computes `exp(-abs_x^2)`, using `ReducedRangeExp` because the argument is non-positive.
+                *   `y = ops.sub(ops.one(), ops.mul(at, exp_mx2))` calculates `1.0 - at * exp(-abs_x^2)`, which is `erf(abs_x)`.
+                *   The original sign is restored using `ops.select(ops.neg(y), y, neg_mask)`.
+            *   **`Gelu {}` (Gaussian Error Linear Unit)**: Computes `0.5 * x * (1.0 + erf(x / sqrt(2.0)))`.
+                *   `half_x = ops.mul(x, ops.splat(0.5))`.
+                *   `arg_for_erf = ops.mul(x, ops.splat(SQRT_2_RCP))` (where `SQRT_2_RCP` is `1.0 / sqrt(2.0)`).
+                *   `erf_val = Erf::apply(isa, arg_for_erf)`.
+                *   `term_in_paren = ops.add(erf_val, ops.one())`.
+                *   Result: `ops.mul(half_x, term_in_paren)`.
+            *   **`ApproxGelu {}`**: Computes an approximate GELU: `0.5 * x * (1 + tanh(sqrt(2/pi) * (x + 0.044715 * x^3)))`.
+                *   `half_x = ops.mul(x, ops.splat(0.5))`.
+                *   `x_cubed = ops.mul(ops.mul(x, x), x)`.
+                *   `tanh_arg_factor = ops.mul_add(x_cubed, ops.splat(0.044715), x)` (calculates `x + 0.044715 * x^3`).
+                *   `tanh_arg = ops.mul(tanh_arg_factor, ops.splat(SQRT_2_PI))` (where `SQRT_2_PI` is `sqrt(2.0/PI)`).
+                *   `tanh_val = Tanh::apply(isa, tanh_arg)` (delegates to `crate::tanh::Tanh`).
+                *   `term_in_paren = ops.add(tanh_val, ops.one())`.
+                *   Result: `ops.mul(half_x, term_in_paren)`.
+
+### General `rten-vecmath` Implementation Pattern
+
+For each of these `rten-vecmath` functionalities, the general pattern would be:
+1.  Define a struct (e.g., `ErfOp<'a, T>`) holding input slice(s) and any parameters.
+2.  Implement `SimdOp` for this struct.
+3.  In the `eval` method:
+    *   Get the ISA-specific `NumOps` (e.g., `let float_ops = isa.f32();`).
+    *   Use `slice.simd_iter(float_ops)` or `simd_map` to process the data.
+    *   Within the loop/closure, apply the relevant SIMD math operations from `float_ops` (or `int_ops` etc.).
+    *   Ensure `#[inline(always)]` is used for the `eval` method and critical internal closures/functions.
+4.  Provide a simple public function that constructs the Op struct and calls `.dispatch()`.
+
+This combination of `rten-simd`'s portable SIMD abstraction and `rten-vecmath`'s specific mathematical routines would provide high-performance, cross-platform vector math for Rust applications. 
+
+## Part 3: Practical `rten-simd` Examples from `rten-vecmath`
+
+This section showcases concrete examples of how `rten-simd` is used within `rten-vecmath` to implement various functions. These examples are extracted directly from the `rten-vecmath` source code.
+
+### Example 1: Simple Summation (`Sum` from `sum.rs`)
+
+This example demonstrates a basic `SimdOp` that computes the sum of `f32` elements in a slice. It highlights the use of `SimdIterable::simd_iter` and `fold_unroll` for efficient reduction.
+
+```rust
+use rten_simd::{Isa, Simd, SimdIterable, SimdOp};
+use rten_simd::ops::NumOps; // For ops.zero(), ops.add()
+use std::iter::Sum; // For the final .sum() on the array
+
+/// Computes the sum of a sequence of numbers.
+///
+/// This is more efficient than `slice.iter().sum()` as it computes multiple
+/// partial sums in parallel using SIMD and then sums across the SIMD lanes at
+/// the end. This will produce very slightly different results because the
+/// additions are happening in a different order.
+pub struct Sum<'a> {
+    input: &'a [f32],
+}
+
+impl<'a> Sum<'a> {
+    /// Create a new `Sum` operation for the given slice.
+    pub fn new(input: &'a [f32]) -> Self {
+        Sum { input }
+    }
+}
+
+impl<'a> SimdOp for Sum<'a> {
+    type Output = f32;
+
+    #[inline(always)]
+    fn eval<I: Isa>(self, isa: I) -> Self::Output {
+        let ops = isa.f32();
+        let vec_sum = self
+            .input
+            .simd_iter(ops)
+            // Fold with an unroll factor of 4. This means we process 4 SIMD vectors
+            // per "outer" iteration of the fold, maintaining 4 separate accumulators
+            // that are then reduced at the end.
+            // The first closure is the step function: (accumulator, current_vector) -> new_accumulator
+            // The second closure is the reduce function: (accumulator_a, accumulator_b) -> combined_accumulator
+            .fold_unroll::<4>(
+                ops.zero(),              // Initial value for each accumulator
+                |sum, x| ops.add(sum, x), // Step function: add current vector to sum
+                |sum, x| ops.add(sum, x), // Reduce function: add partial sums together
+            );
+        // `vec_sum` is now a single SIMD vector holding the sum of all partial sums.
+        // Convert it to an array and sum its elements for the final scalar result.
+        vec_sum.to_array().into_iter().sum()
+    }
+}
+
+// How to use `Sum`:
+fn example_usage_sum() {
+    let my_data: Vec<f32> = (1..=100).map(|x| x as f32).collect();
+    let sum_op = Sum::new(&my_data);
+
+    // Dispatch the operation. rten-simd will pick the best ISA.
+    let total_sum: f32 = sum_op.dispatch();
+    println!("Sum of 1 to 100: {}", total_sum); // Expected: 5050.0
+
+    let empty_data: Vec<f32> = vec![];
+    let sum_empty_op = Sum::new(&empty_data);
+    let total_sum_empty: f32 = sum_empty_op.dispatch();
+    println!("Sum of empty slice: {}", total_sum_empty); // Expected: 0.0
+}
+```
+
+### Example 2: Hyperbolic Tangent (`Tanh` from `tanh.rs`)
+
+This example shows the `Tanh` struct implementing `SimdUnaryOp`. It demonstrates complex per-element logic within the `eval` method of the `SimdUnaryOp` trait, including polynomial approximation for certain ranges and conditional selection of results using `ops.select`. This is typical for implementing transcendental functions.
+
+```rust
+use rten_simd::{Isa, Simd, SimdUnaryOp};
+use rten_simd::ops::{FloatOps, NumOps}; // For various float and num ops
+
+// Assume `crate::exp::Exp` is a struct also implementing SimdUnaryOp,
+// similar to how Tanh is implemented.
+// For this example, we'll mock it slightly.
+mod mock_exp {
+    use rten_simd::{Isa, Simd, SimdUnaryOp};
+    use rten_simd::ops::NumOps;
+
+    pub struct Exp {}
+    impl<S: Simd<Elem = f32>> SimdUnaryOp<S> for Exp {
+        #[inline(always)]
+        fn eval<I: Isa>(&self, isa: I, x: S) -> S {
+            // A real Exp implementation is complex.
+            // This is a placeholder that might not be accurate for actual exp values.
+            // It just needs to return a SIMD vector of the same type.
+            let ops = isa.f32();
+            // Example: just return x for simplicity in this mock, or use isa.exp_ps(x) if available
+            // For a more realistic mock for testing Tanh, one might implement a simpler exp approx here.
+            ops.mul(x, ops.splat(1.1)) // Placeholder
+        }
+    }
+}
+
+
+// Relevant constants for the Tanh polynomial approximation
+const P1: f32 = 0.999999940395355224609375;
+const P3: f32 = -0.33332359790802001953125;
+const P5: f32 = 0.13310669362545013427734375;
+const P7: f32 = -5.21197654306888580322265625e-2;
+const P9: f32 = 1.5497927553951740264892578125e-2;
+
+/// Computes `tanh(x)` for each element in a SIMD vector.
+pub struct Tanh {}
+
+impl<S: Simd<Elem = f32>> SimdUnaryOp<S> for Tanh {
+    #[inline(always)]
+    fn eval<I: Isa>(&self, isa: I, x: S) -> S {
+        let ops = isa.f32();
+
+        let x_negative = ops.le(x, ops.zero());
+        let abs_x = ops.abs(x);
+
+        // Cutoff beyond which `f32::tanh(x)` saturates at +/- 1.0.
+        // tanh(9.02) is very close to 1.0.
+        let x_cutoff = ops.ge(abs_x, ops.splat(9.02));
+
+        // tanh(x) ~ x when |x| is very small.
+        // Using a threshold of 0.0004.
+        let x_tiny = ops.le(abs_x, ops.splat(0.0004));
+
+        // Threshold below which the (exp(2x) - 1) / (exp(2x) + 1) method
+        // might have precision issues or be slower than polynomial.
+        // Using 0.55 as in rten-vecmath.
+        let x_small = ops.le(abs_x, ops.splat(0.55));
+
+        // For small |x| (0.0004 < |x| <= 0.55), use polynomial approximation.
+        // P = fpminimax(f, [|1, 3, 5, 7, 9|], [|SG...|], [0, 0.6])
+        // This is tanh(abs_x) / abs_x, so we multiply by abs_x at the end.
+        let p1_v = ops.splat(P1);
+        let p3_v = ops.splat(P3);
+        let p5_v = ops.splat(P5);
+        let p7_v = ops.splat(P7);
+        let p9_v = ops.splat(P9);
+
+        let abs_x_sqr = ops.mul(abs_x, abs_x);
+        let mut poly_part = ops.mul_add(p9_v, abs_x_sqr, p7_v);
+        poly_part = ops.mul_add(poly_part, abs_x_sqr, p5_v);
+        poly_part = ops.mul_add(poly_part, abs_x_sqr, p3_v);
+        poly_part = ops.mul_add(poly_part, abs_x_sqr, p1_v);
+        let y_poly = ops.mul(poly_part, abs_x);
+
+        // For medium |x| (0.55 < |x| < 9.02), compute `tanh(x) = (exp(2*|x|) - 1) / (exp(2*|x|) + 1)`
+        // We use |x| and apply sign at the end.
+        let abs_x2 = ops.mul(abs_x, ops.splat(2.0));
+        // In real rten-vecmath, this calls `Exp::apply(isa, abs_x2)`
+        // `Exp::apply` would create `Exp{}` and call its `eval` method.
+        let exp_2abs_x = mock_exp::Exp{}.eval(isa, abs_x2); 
+        let exp_2abs_x_m1 = ops.sub(exp_2abs_x, ops.one());
+        let exp_2abs_x_p1 = ops.add(exp_2abs_x, ops.one());
+        let y_exp_formula = ops.div(exp_2abs_x_m1, exp_2abs_x_p1);
+
+        // Select output based on |x|:
+        // 1. If |x| >= 9.02, result is 1.0 (sign applied later).
+        // 2. Else if |x| <= 0.0004, result is |x| (sign applied later).
+        // 3. Else if |x| <= 0.55, result is y_poly.
+        // 4. Else (0.55 < |x| < 9.02), result is y_exp_formula.
+        
+        let mut y = ops.select(ops.one(), y_exp_formula, x_cutoff); // Large |x| vs Medium |x|
+        y = ops.select(y_poly, y, x_small);                 // Small |x| (poly) vs (Large or Medium)
+        y = ops.select(abs_x, y, x_tiny);                   // Tiny |x| vs (Small or Large or Medium)
+
+        // Apply original sign: if x was negative, result is -y, else y.
+        ops.select(ops.neg(y), y, x_negative).same_cast()
+    }
+}
+
+// How to use `Tanh` (as a SimdUnaryOp):
+// `SimdUnaryOp` is typically applied to slices using helpers from `rten_simd::functional`.
+use rten_simd::functional::simd_map_inplace;
+
+fn example_usage_tanh() {
+    let mut data: Vec<f32> = vec![-10.0, -1.0, -0.5, -0.0001, 0.0, 0.0001, 0.5, 1.0, 10.0];
+    
+    // Apply Tanh inplace
+    // simd_map_inplace takes an `Isa`, the slice, and the op.
+    // It internally calls `op.eval(isa, vector)` for each vector.
+    let isa = rten_simd::arch::dispatch_isa().unwrap(); // Get the current ISA
+    simd_map_inplace(isa, &mut data, Tanh{});
+
+    println!("Data after tanh: {:?}", data);
+    // Expected (approximate, using std::f32::tanh for reference):
+    // [-1.0, -0.76159, -0.46211, -0.0001, 0.0, 0.0001, 0.46211, 0.76159, 1.0]
+    // Actual values will depend on the mock_exp and polynomial precision.
+}
+
+```
+
+### Example 3: Quantization (`Quantize` from `quantize.rs`)
+
+This example illustrates the `Quantize` struct implementing `SimdOp`. It showcases handling multiple data types (`f32`, `i32`, `u8`), type conversions and narrowing (`to_int_round`, `narrow_saturate`), processing data in larger chunks (`load_many::<4>`), and writing results using `SliceWriter`.
+
+```rust
+use rten_simd::{Isa, SimdOp, SliceWriter};
+use rten_simd::ops::{FloatOps, IntOps, NarrowSaturate, NumOps}; // For various ops
+use std::mem::MaybeUninit;
+
+/// Quantizes a slice of `f32` numbers to `u8`.
+///
+/// The formula is `y = saturate_u8(round_ties_even(x * inv_scale) + zero_point)`.
+pub struct Quantize<'s, 'd> {
+    src: &'s [f32],
+    dest: &'d mut [MaybeUninit<u8>],
+    inv_scale: f32,
+    zero_point: u8,
+}
+
+impl<'s, 'd> Quantize<'s, 'd> {
+    /// Create a new `Quantize` operation.
+    ///
+    /// - `src`: Source slice of f32 values.
+    /// - `dest`: Destination slice for u8 values. Must have same length as `src`.
+    /// - `inv_scale`: Inverse of the scale factor.
+    /// - `zero_point`: Offset added after scaling.
+    pub fn new(
+        src: &'s [f32],
+        dest: &'d mut [MaybeUninit<u8>],
+        inv_scale: f32,
+        zero_point: u8,
+    ) -> Self {
+        assert_eq!(src.len(), dest.len(), "src and dest slices must have the same length");
+        Quantize {
+            src,
+            dest,
+            inv_scale,
+            zero_point,
+        }
+    }
+}
+
+impl<'s, 'd> SimdOp for Quantize<'s, 'd> {
+    type Output = &'d mut [u8];
+
+    #[inline(always)]
+    fn eval<I: Isa>(self, isa: I) -> Self::Output {
+        let src_ops = isa.f32();
+        let i32_ops = isa.i32();
+        let i16_ops = isa.i16(); // For narrowing i32 to i16
+        let u8_ops = isa.u8();   // For writing u8 vectors
+
+        let zp_vec_i32 = i32_ops.splat(self.zero_point as i32);
+        let scale_vec_f32 = src_ops.splat(self.inv_scale);
+
+        let f32_v_len = src_ops.len(); // Number of f32 elements per SIMD vector
+
+        // Process data in chunks. Each iteration handles `f32_v_len * 4` f32s
+        // and produces `f32_v_len` u8s (because 4xi32 -> 2xi16 -> 1xu8 vector).
+        let mut src_chunks = self.src.chunks_exact(f32_v_len * 4);
+        let mut dest_writer = SliceWriter::new(self.dest);
+
+        for src_chunk_4vec in src_chunks.by_ref() {
+            // Load 4 SIMD vectors of f32s.
+            let loaded_f32_vecs: [_; 4] = src_ops.load_many::<4>(src_chunk_4vec);
+            
+            // Apply scaling, rounding, and zero-point addition to each f32 vector,
+            // resulting in 4 i32 SIMD vectors.
+            let quant_i32_vecs: [_; 4] = loaded_f32_vecs.map(|x_f32_vec| {
+                let y_f32_vec = src_ops.mul(x_f32_vec, scale_vec_f32);
+                // Round f32 to i32, ties to nearest even.
+                let y_i32_vec = src_ops.to_int_round(y_f32_vec); 
+                i32_ops.add(y_i32_vec, zp_vec_i32)
+            });
+
+            // Narrow the 4 i32 vectors down to one u8 vector:
+            // 1. Narrow two pairs of i32 vectors to two i16 vectors, saturating.
+            //    (eg. i32_vec[0], i32_vec[1] -> i16_vec_low)
+            let quant_i16_low = i32_ops.narrow_saturate(quant_i32_vecs[0], quant_i32_vecs[1]);
+            let quant_i16_high = i32_ops.narrow_saturate(quant_i32_vecs[2], quant_i32_vecs[3]);
+            
+            // 2. Narrow the two i16 vectors to one u8 vector, saturating.
+            let quant_u8_vec = i16_ops.narrow_saturate(quant_i16_low, quant_i16_high);
+            
+            // Write the resulting u8 SIMD vector to the destination.
+            dest_writer.write_vec(u8_ops, quant_u8_vec);
+        }
+
+        // Handle any remaining elements at the end of the slice using a scalar loop.
+        let remainder_src = src_chunks.remainder();
+        for (i, src_val_ref) in remainder_src.iter().enumerate() {
+            let src_val = *src_val_ref;
+            // Perform scalar quantization consistent with SIMD path.
+            // `round_ties_even` is not a standard f32 method.
+            // A helper or `libm::roundf` could be used, or assume rten_simd provides a scalar equivalent.
+            // For this example, we'll use `f32::round` which rounds half away from zero.
+            let y_i32 = (src_val * self.inv_scale).round() as i32; 
+            let val_with_zp = y_i32 + self.zero_point as i32;
+            
+            // Clamp to u8 range.
+            let y_clamped_u8 = val_with_zp.clamp(u8::MIN as i32, u8::MAX as i32) as u8;
+            dest_writer.write_scalar(y_clamped_u8);
+        }
+        
+        // Return the initialized part of the destination slice.
+        dest_writer.into_mut_slice()
+    }
+}
+
+// How to use `Quantize`:
+fn example_usage_quantize() {
+    let src_data: Vec<f32> = vec![0.0, 10.0, 50.0, 100.0, 127.5, 150.0, 200.0, 255.0, 300.0];
+    let mut dest_data_uninit = Vec::with_capacity(src_data.len());
+    // Safety: Vec::with_capacity followed by set_len is safe if elements are MaybeUninit
+    // and we are writing to them. SliceWriter handles initialization.
+    unsafe {
+        dest_data_uninit.set_len(src_data.len());
+    }
+
+    let inv_scale = 1.0; // Scale factor of 1
+    let zero_point = 0;  // Zero point of 0
+
+    let quantize_op = Quantize::new(&src_data, &mut dest_data_uninit, inv_scale, zero_point);
+    let initialized_dest: &mut [u8] = quantize_op.dispatch();
+
+    println!("Quantized data (scale=1, zp=0): {:?}", initialized_dest);
+    // Expected: [0, 10, 50, 100, 128 (due to round_ties_even in SIMD, 127.5 might go to 128), 150, 200, 255, 255 (clamped)]
+    // Note: Scalar path uses .round() which rounds 127.5 to 128.
+
+    let inv_scale_2 = 0.5; // Effective scale of 2 (val / 2)
+    let zero_point_128 = 128;
+    
+    // Re-initialize dest_data_uninit or use a new one
+    let mut dest_data_uninit2 = vec![MaybeUninit::<u8>::uninit(); src_data.len()];
+
+    let quantize_op2 = Quantize::new(&src_data, &mut dest_data_uninit2, inv_scale_2, zero_point_128);
+    let initialized_dest2: &mut [u8] = quantize_op2.dispatch();
+    println!("Quantized data (inv_scale=0.5, zp=128): {:?}", initialized_dest2);
+    // Example: src_data[1] = 10.0.  (10.0 * 0.5).round() + 128 = 5 + 128 = 133.
+    // Expected for 10.0: 133
+    // Expected for 300.0: (300.0 * 0.5).round() + 128 = 150 + 128 = 278 -> clamped to 255.
+}
+
+```
+In the `Quantize::eval` example, the scalar tail loop uses `f32::round()`. The original `rten-vecmath` code often aims for `round_ties_even` behavior for consistency with SIMD `to_int_round`. Standard Rust's `f32::round` rounds halves away from zero. If precise `round_ties_even` is needed in scalar paths, a helper function (e.g., using `libm::roundf` and adjusting for ties, or a custom implementation) would be necessary. `rten-simd`'s `src_ops.to_int_round(vector)` typically implements round-ties-to-even. 

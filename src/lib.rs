@@ -55,6 +55,22 @@ pub use old_quantization::QuantizationTableType;
 pub use writer::{Density, JfifWrite};
 
 
+// let's make an internal pub use that includes key structs and enums
+pub(crate)mod internal {
+    pub(crate) use crate::jpegli::structs::*;
+    pub(crate) use crate::jpegli::config::*;
+    pub(crate) use crate::jpegli::quant::JpegliQuantData;
+    pub(crate) use crate::jpegli::consts::*;
+    pub(crate) use crate::jpegli::encode::*;
+    pub(crate) use crate::jpegli::simd_width::*;
+    pub(crate) use arrayref;
+    pub(crate) use wide;
+    pub(crate) use crate::error::*;
+    pub(crate) use crate::writer::{Density, JfifWrite};
+    pub(crate) use crate::huffman::HuffmanTable;
+    pub(crate) use crate::marker::*;
+    pub(crate) use crate::jpegli::quant::quality_to_distance;
+}
 
 
 

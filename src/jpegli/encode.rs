@@ -5,7 +5,7 @@ use super::{
     config::{ComputedEncodeConfig, ComputedConfigDimensions},
     structs::{ RowBuffer},
     adaptive_quant::{AdaptiveQuantState, compute_adaptive_quant_field},
-    quant::{JpegliQuantizerState},
+    quant::{JpegliQuantData},
     progressive_scan::{ScanConfiguration},
     fdct_jpegli::forward_dct_float,
     entropy_coding::{build_histograms, optimize_huffman_tables},
@@ -20,7 +20,17 @@ const DCTSIZE2: usize = DCTSIZE * DCTSIZE;
 const MAX_COMPONENTS: usize = 4; // Assuming max 4 components based on config.rs and encode.cc
 const MAX_SAMP_FACTOR: usize = 4; // Assuming max samp factor based on config.rs
 
+/// Buffers and state for DCT and quantization, used in `ComputeCoefficientsForiMCURow`.
+pub struct DctBuffers {
+    /// Scratch for pixel→DCT→quant pipeline.
+    pub dct_buffer: Vec<f32>, // Need 2 * DCTSIZE2
 
+    /// Temporary int32 workspace for compaction and symbol generation.
+    pub block_tmp: Vec<i32>, // Need DCTSIZE2 * 4
+
+    /// Last DC coefficient per component, mutated by streaming pipeline.
+    pub last_dc_coeff: [i32; 4],
+}
 pub(crate) struct JpegliEncoderState<W: JfifWrite> {
     // Configuration derived from EncodeOptions and image dimensions
     pub config: ComputedEncodeConfig,
@@ -34,16 +44,12 @@ pub(crate) struct JpegliEncoderState<W: JfifWrite> {
     raw_data: [Option<Box<dyn RowBuffer<f32>>>; MAX_COMPONENTS], // Example placeholder
 
     // Quantization state
-    quantizer_state: JpegliQuantizerState,
+    quantizer_state: JpegliQuantData,
 
     // Adaptive quantization state
     aq_state: Option<AdaptiveQuantState>,
 
-    // DCT scratch buffer
-    dct_buffer: Vec<f32>, // Need 2 * DCTSIZE2
-
-    // Block processing temp buffer
-    block_tmp: Vec<i32>, // Need DCTSIZE2 * 4
+    dct_buffers: DctBuffers,
 
     // Coefficient buffers (for non-streaming/optimization modes)
     // In C++, this is jvirt_barray_ptr*. Needs a Rust equivalent.
@@ -64,9 +70,6 @@ pub(crate) struct JpegliEncoderState<W: JfifWrite> {
     next_input_row: usize,
     next_i_mcu_row: usize,
     // Add other state variables as needed, e.g., for progressive scans, restarts, etc.
-
-    // DC prediction state
-    last_dc_coeff: [i32; MAX_COMPONENTS],
 }
 
 impl<W: JfifWrite> JpegliEncoderState<W> {
@@ -80,7 +83,7 @@ impl<W: JfifWrite> JpegliEncoderState<W> {
         let dims = ComputedConfigDimensions::new(&config, image_width, image_height)?;
 
         // Initialize quantization state
-        let quantizer_state = JpegliQuantizerState::new(&config).map_err(|e| EncodingError::JpegliError(e.into()))?;
+        let quantizer_state = JpegliQuantData::new(&config).map_err(|e| EncodingError::JpegliError(e.into()))?;
 
         // Initialize adaptive quantization state if enabled
         let aq_state = if config.use_adaptive_quantization {

@@ -9,7 +9,7 @@ use crate::huffman::HuffmanTable;
 use crate::error::EncodingError;
 
 
-use super::structs::JpegliComponentSettings;
+use crate::internal::*;
 
 /// Size of JPEG Huffman alphabet plus one sentinel.
 pub const HUFFMAN_ALPHABET_SIZE: usize = 257;
@@ -29,7 +29,7 @@ fn bit_width(x: u32) -> usize {
 /// - `ac_histograms[idx]` holds counts for AC run-length symbols.
 pub fn build_histograms(
     coefficients: &[Vec<[i16; 64]>],
-    components: &[JpegliComponentSettings],
+    components: &[ComponentConfig],
 ) -> (
     Vec<[u32; HUFFMAN_ALPHABET_SIZE]>,
     Vec<[u32; HUFFMAN_ALPHABET_SIZE]>,
@@ -113,7 +113,7 @@ pub fn optimize_huffman_tables(
 /// Each block in a vector is a quantized 8x8 DCT coefficient block.
 /// Returns a vector of (dc_table, ac_table) pairs for the number of tables actually in use (fewer than num_components, usually)
 pub fn optimize_entropy(
-    components: &[JpegliComponentSettings],
+    components: &[ComponentConfig],
     coefficients: &[Vec<[i16; 64]>],
 ) -> Result<Vec<(HuffmanTable, HuffmanTable)>, EncodingError> {
     let (dc_hist, ac_hist) = build_histograms(coefficients, components);

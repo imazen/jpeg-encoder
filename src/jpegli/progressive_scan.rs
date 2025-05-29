@@ -1,5 +1,4 @@
-use super::config::{ ComponentInfo, ComputedEncodeConfig};
-
+use crate::internal::*;
 /// Constants
 const DCTSIZE: usize = 8;
 const DCTSIZE2: usize = 64;
@@ -426,8 +425,6 @@ fn setup_scan_token_info(
 
 #[cfg(test)]
 mod tests {
-    use crate::jpegli::{config::{ComponentDimensions, EncodeOptions}, structs::JpegliComponentSettings};
-
     use super::*;
     
     
@@ -443,9 +440,9 @@ mod tests {
         let height = 240;
 
         let configs = vec![
-            JpegliComponentSettings::default(0).with_h_v_sampling(2, 2),
-            JpegliComponentSettings::default(1).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
-            JpegliComponentSettings::default(2).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
+            ComponentConfig::default(0).with_h_v_sampling(2, 2),
+            ComponentConfig::default(1).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
+            ComponentConfig::default(2).with_h_v_sampling(1, 1).with_quant_ix(1).with_huff_ix(1),
         ];
 
         ComponentDimensions::from_component_settings(width, height, &configs)

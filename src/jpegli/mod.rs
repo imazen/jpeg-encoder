@@ -18,7 +18,7 @@ pub mod config;
 pub mod entropy_coding;
 pub mod progressive_scan;
 pub mod encode;
-
+pub mod consts;
 
 // #[cfg(test)]
 // mod reference_tests;

@@ -1,11 +1,4 @@
-use crate::{Density, EncodingError};
-
-use super::{quant::{quality_to_distance, MAX_COMPONENTS}, structs::{JpegColorSpace, JpegliComponentSettings, SimplifiedTransferCharacteristics, Subsampling}};
-
-const MAX_SAMP_FACTOR: u8 = 4;
-const JPEG_MAX_DIMENSION: usize = 65500;
-const DCTSIZE: u8 = 8;
-
+use crate::internal::*;
 
 // Define the configuration and state for Jpegli encoding
 #[derive(Debug, Clone)]
@@ -16,14 +9,13 @@ pub(crate) struct ComputedEncodeConfig {
     pub use_std_tables: bool,
     pub num_components: usize,
     pub luma_component_index: usize,
-    pub comp_params: Vec<JpegliComponentSettings>,
+    pub comp_params: Vec<ComponentConfig>,
     pub max_h_samp_factor: u8,
     pub max_v_samp_factor: u8,
     pub jpeg_color_space: JpegColorSpace,
     pub optimize_coding: bool,
     pub cicp_transfer_function: SimplifiedTransferCharacteristics,
     // pub force_dct_bits_baseline: bool, We always have 8 bit dct. No point in implementing 12/16 bit when nobody can read it outside of medical.
-
     pub add_two_chroma_tables: bool,
     pub use_adaptive_quantization: bool,
     pub subsampling: Subsampling,
@@ -48,17 +40,21 @@ pub(crate) struct ComponentDimensions{
     pub h_factor: f32,
     pub v_factor: f32,
 }
+/// Offers .is_empty(), .new(), .default(), .with_letter(), .with_quant_ix(), .with_huff_ix(), .with_h_v_sampling(), ::EMPTY``
+#[derive(Clone, Debug, Copy)]
+pub struct ComponentConfig {
+    pub index: u8,
+    pub letter: char,
+    pub quantization_table_index: u8,
+    pub dc_huffman_table_index: u8,
+    pub ac_huffman_table_index: u8,
+    pub horizontal_sampling_factor: u8,
+    pub vertical_sampling_factor: u8,
+}
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct ComponentInfo{
     pub size: ComponentDimensions,
-    pub config: JpegliComponentSettings,
-
-}
-impl ComponentInfo{
-    pub const EMPTY: Self = ComponentInfo{
-        size: ComponentDimensions::EMPTY,
-        config: JpegliComponentSettings::EMPTY,
-    };
+    pub config: ComponentConfig,
 }
 
 pub(crate) struct ComputedConfigDimensions{
@@ -73,31 +69,11 @@ pub(crate) struct ComputedConfigDimensions{
     pub blocks_per_i_mcu_row: usize,
     pub progressive_mode: bool,
 }
-
-impl ComputedConfigDimensions{
-    pub fn components(&self) -> &[ComponentInfo]{
-        &self.components_fixed[..self.num_components]
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct AppSegment{
     marker: u8,
     data: Vec<u8>,
 }
-impl AppSegment{
-    /// Appends a custom APPn segment to the JFIF file.
-    pub fn new(segment_nr: u8, data: Vec<u8>) -> Result<Self, EncodingError> {
-        if !(1..=15).contains(&segment_nr) { // APP0 is reserved for JFIF
-            Err(EncodingError::InvalidAppSegment(segment_nr))
-        } else if data.len() > 65533 {
-            Err(EncodingError::AppSegmentTooLarge(data.len()))
-        } else {
-            Ok(Self { marker: segment_nr, data })
-        }
-    }
-}
-
 /// The user-friendly configuration for encoding. .compute() will validate and convert to the internal config.
 #[derive(Debug, Clone)] 
 pub struct EncodeOptions{
@@ -139,6 +115,32 @@ pub struct EncodeOptions{
     /// Restart interval in rows. Default is 0. Ignored if restart_interval is set.
     pub restart_interval_in_rows: Option<u16>,
 }
+impl ComponentInfo{
+    pub const EMPTY: Self = ComponentInfo{
+        size: ComponentDimensions::EMPTY,
+        config: ComponentConfig::EMPTY,
+    };
+}
+impl ComputedConfigDimensions{
+    pub fn components(&self) -> &[ComponentInfo]{
+        &self.components_fixed[..self.num_components]
+    }
+}
+
+impl AppSegment{
+    /// Appends a custom APPn segment to the JFIF file.
+    pub fn new(segment_nr: u8, data: Vec<u8>) -> Result<Self, EncodingError> {
+        if !(1..=15).contains(&segment_nr) { // APP0 is reserved for JFIF
+            Err(EncodingError::InvalidAppSegment(segment_nr))
+        } else if data.len() > 65533 {
+            Err(EncodingError::AppSegmentTooLarge(data.len()))
+        } else {
+            Ok(Self { marker: segment_nr, data })
+        }
+    }
+}
+
+
 
 impl ComputedEncodeConfig { 
     fn validate(&self) -> Result<(), EncodingError>{
@@ -185,7 +187,7 @@ impl ComputedEncodeConfig {
             if comp.horizontal_sampling_factor == 0 || comp.vertical_sampling_factor == 0 {
                 return Err(EncodingError::JpegliError("Sampling factor must be non-zero".into()));
             }
-            if comp.horizontal_sampling_factor > MAX_SAMP_FACTOR || comp.vertical_sampling_factor > MAX_SAMP_FACTOR {
+            if comp.horizontal_sampling_factor > MAX_SAMP_FACTOR_U8 || comp.vertical_sampling_factor > MAX_SAMP_FACTOR_U8 {
                 return Err(EncodingError::JpegliError("Sampling factor too big".into()));
             }
             if comp.index != ix as u8 {
@@ -251,8 +253,8 @@ impl ComputedConfigDimensions{
         if image_width > JPEG_MAX_DIMENSION || image_height > JPEG_MAX_DIMENSION{
             return Err(EncodingError::JpegliError("Input image too big".into()));
         }
-        let imcu_width = DCTSIZE * cinfo.max_h_samp_factor;
-        let imcu_height = DCTSIZE * cinfo.max_v_samp_factor;
+        let imcu_width = DCTSIZE_U8 * cinfo.max_h_samp_factor;
+        let imcu_height = DCTSIZE_U8 * cinfo.max_v_samp_factor;
         let total_i_mcu_cols = ceil_div(image_width, imcu_width as usize);
         let total_i_mcu_rows = ceil_div(image_height, imcu_height as usize);
         let xsize_blocks = total_i_mcu_cols * cinfo.max_h_samp_factor as usize;
@@ -284,15 +286,15 @@ impl ComputedConfigDimensions{
             },
             ComponentInfo{
                 size: *component_dimension_vec.get(1).unwrap_or(&ComponentDimensions::EMPTY),
-                config: *cinfo.comp_params.get(1).unwrap_or(&JpegliComponentSettings::EMPTY),
+                config: *cinfo.comp_params.get(1).unwrap_or(&ComponentConfig::EMPTY),
             },
             ComponentInfo{
                 size: *component_dimension_vec.get(2).unwrap_or(&ComponentDimensions::EMPTY),
-                config: *cinfo.comp_params.get(2).unwrap_or(&JpegliComponentSettings::EMPTY),
+                config: *cinfo.comp_params.get(2).unwrap_or(&ComponentConfig::EMPTY),
             },
             ComponentInfo{
                 size: *component_dimension_vec.get(3).unwrap_or(&ComponentDimensions::EMPTY),
-                config: *cinfo.comp_params.get(3).unwrap_or(&JpegliComponentSettings::EMPTY),
+                config: *cinfo.comp_params.get(3).unwrap_or(&ComponentConfig::EMPTY),
             },
         ];
         
@@ -312,6 +314,41 @@ impl ComputedConfigDimensions{
     }
 }
 
+
+impl ComponentConfig {
+
+    pub fn is_empty(&self) -> bool {
+        self.vertical_sampling_factor == 0
+    }
+    pub const EMPTY: Self = ComponentConfig { index: 0, letter: '\0', quantization_table_index: 0, dc_huffman_table_index: 0, ac_huffman_table_index: 0, horizontal_sampling_factor: 0, vertical_sampling_factor: 0 };
+    pub fn new(index: u8, letter: char, quantization_table_index: u8, dc_huffman_table_index: u8, ac_huffman_table_index: u8, horizontal_sampling_factor: u8, vertical_sampling_factor: u8) -> Self {
+        Self { index, letter, quantization_table_index, dc_huffman_table_index, ac_huffman_table_index, horizontal_sampling_factor, vertical_sampling_factor }
+    }
+    pub fn default(index: u8) -> Self {
+        Self {
+            index,
+            letter: (index + 1) as char,
+            quantization_table_index: 0,
+            dc_huffman_table_index: 0,
+            ac_huffman_table_index: 0,
+            horizontal_sampling_factor: 1,
+            vertical_sampling_factor: 1,
+        }
+    }
+    pub fn with_letter(self, letter: char) -> Self {
+        Self { letter, ..self }
+    }
+    pub fn with_quant_ix(self, quant_ix: u8) -> Self {
+        Self { quantization_table_index: quant_ix, ..self }
+    }
+    /// Set both the DC and AC Huffman tables to the same index
+    pub fn with_huff_ix(self, huff_ix: u8) -> Self {
+        Self { dc_huffman_table_index: huff_ix, ac_huffman_table_index: huff_ix, ..self }
+    }
+    pub fn with_h_v_sampling(self, h_sampling_factor: u8, v_sampling_factor: u8) -> Self {
+        Self { horizontal_sampling_factor: h_sampling_factor, vertical_sampling_factor: v_sampling_factor, ..self }
+    }
+}
 
 
 #[derive(Debug, Clone)] 
@@ -384,13 +421,13 @@ impl EncodeOptions{
         let num_components = jpeg_color_space.get_num_components();
         // 4. Generate Initial Component Params
         let (max_h_samp_factor, max_v_samp_factor) = subsampling.to_luma_h_v_samp_factor();
-        let mut comp_params: Vec<JpegliComponentSettings> = Vec::with_capacity(num_components);
+        let mut comp_params: Vec<ComponentConfig> = Vec::with_capacity(num_components);
         let luma_component_index;
         match jpeg_color_space {
             JpegColorSpace::Rgb  => {
-                comp_params.push(JpegliComponentSettings::default(0).with_letter('R'));
-                comp_params.push(JpegliComponentSettings::default(1).with_letter('G'));
-                comp_params.push(JpegliComponentSettings::default(2).with_letter('B'));
+                comp_params.push(ComponentConfig::default(0).with_letter('R'));
+                comp_params.push(ComponentConfig::default(1).with_letter('G'));
+                comp_params.push(ComponentConfig::default(2).with_letter('B'));
                 if xyb_mode {
                     comp_params[0] = comp_params[0].with_h_v_sampling(2, 2).with_quant_ix(0);
                     comp_params[1] = comp_params[1].with_h_v_sampling(2, 2).with_quant_ix(1);
@@ -400,35 +437,35 @@ impl EncodeOptions{
             }
             JpegColorSpace::Grayscale => {
                 if num_components != 1 { return Err(EncodingError::JpegliError("Grayscale requires 1 component".into())); }
-                comp_params.push(JpegliComponentSettings::default(0));
+                comp_params.push(ComponentConfig::default(0));
                 luma_component_index = 0;
             }
             JpegColorSpace::Cmyk => {
                 // TODO: shouldn't we have different quant tables, at least for K?
-                comp_params.push(JpegliComponentSettings::default(0).with_letter('C'));
-                comp_params.push(JpegliComponentSettings::default(1).with_letter('M'));
-                comp_params.push(JpegliComponentSettings::default(2).with_letter('Y'));
-                comp_params.push(JpegliComponentSettings::default(3).with_letter('K'));
+                comp_params.push(ComponentConfig::default(0).with_letter('C'));
+                comp_params.push(ComponentConfig::default(1).with_letter('M'));
+                comp_params.push(ComponentConfig::default(2).with_letter('Y'));
+                comp_params.push(ComponentConfig::default(3).with_letter('K'));
                 luma_component_index = 3;
             }
             JpegColorSpace::Ycck => {
                 // CC are lower res, Y/K are full. 
-                comp_params.push(JpegliComponentSettings::default(0).with_h_v_sampling(2, 2));
-                comp_params.push(JpegliComponentSettings::default(1).with_quant_ix(1).with_huff_ix(1));
-                comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(1).with_huff_ix(1));
-                comp_params.push(JpegliComponentSettings::default(3).with_h_v_sampling(2, 2));
+                comp_params.push(ComponentConfig::default(0).with_h_v_sampling(2, 2));
+                comp_params.push(ComponentConfig::default(1).with_quant_ix(1).with_huff_ix(1));
+                comp_params.push(ComponentConfig::default(2).with_quant_ix(1).with_huff_ix(1));
+                comp_params.push(ComponentConfig::default(3).with_h_v_sampling(2, 2));
                 luma_component_index = 0;
             }
             
             JpegColorSpace::YCbCr => { // Handle Ycbcr explicitly
                 // Default is 4:2:0, where luma is full res, and chroma is half res both horizontally and vertically.
                 let (luma_h, luma_v) = self.chroma_subsampling.unwrap_or(Subsampling::YCbCr420).to_luma_h_v_samp_factor();
-                comp_params.push(JpegliComponentSettings::default(0).with_h_v_sampling(luma_h, luma_v));
-                comp_params.push(JpegliComponentSettings::default(1).with_quant_ix(1).with_huff_ix(1));
+                comp_params.push(ComponentConfig::default(0).with_h_v_sampling(luma_h, luma_v));
+                comp_params.push(ComponentConfig::default(1).with_quant_ix(1).with_huff_ix(1));
                 if add_two_chroma_tables {
-                    comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(2).with_huff_ix(1));
+                    comp_params.push(ComponentConfig::default(2).with_quant_ix(2).with_huff_ix(1));
                 }else{
-                    comp_params.push(JpegliComponentSettings::default(2).with_quant_ix(1).with_huff_ix(1));
+                    comp_params.push(ComponentConfig::default(2).with_quant_ix(1).with_huff_ix(1));
                 }
                 luma_component_index = 0;
             }
@@ -487,7 +524,7 @@ impl ComponentDimensions{
         ComponentDimensions { downsampled_width, downsampled_height, width_in_blocks, height_in_blocks, h_factor, v_factor }
     }
 
-    pub(crate) fn from_component_settings(width: usize, height: usize, components_settings: &[JpegliComponentSettings]) -> Vec<ComponentDimensions>{
+    pub(crate) fn from_component_settings(width: usize, height: usize, components_settings: &[ComponentConfig]) -> Vec<ComponentDimensions>{
         let max_h = components_settings.iter().max_by_key(|s|s.horizontal_sampling_factor).unwrap().horizontal_sampling_factor;
         let max_v = components_settings.iter().max_by_key(|s|s.vertical_sampling_factor).unwrap().vertical_sampling_factor;
         

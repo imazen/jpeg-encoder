@@ -1,22 +1,64 @@
 use serde_repr::Serialize_repr;
 use serde_repr::Deserialize_repr;
-
 use super::simd_width::SimdWidth;
+
+
+/// OwnedRowBuffer is a buffer that is owned by the caller.
+/// implements RowBuffer trait
+/// Also offers new(window_width, window_height, padding, fill)
+/// and new_with_padding(window_width, window_height, padding_left, padding_right, padding_top, padding_bottom, fill)
+/// methods to create a new buffer.
+/// .as_ref() returns a RowBufferRef
+#[derive(Debug, Clone)]
+pub struct OwnedRowBuffer<T: Copy + Default> where T:SimdWidth {
+    info: RowBufferInfo,
+    offset: usize,
+    data: Vec<T>,
+}
+/// RowBufferRef is a reference to a buffer that is owned by the caller.
+/// implements RowBuffer trait
+/// .region_mut(x, y, window_width, window_height, padding_left, padding_right, padding_top, padding_bottom)
+/// returns a new RowBufferRef with the specified region.
+/// .region_mut_shrink_padding(padding_left, padding_right, padding_top, padding_bottom)
+/// returns a new RowBufferRef that keeps the window size, but adjusts the padding (as much as possible without reallocating)
+#[derive(Debug)]
+pub struct RowBufferRef<'a,T: Copy + 'a + SimdWidth>  {
+    info: RowBufferInfo,
+    data: &'a mut [T],
+}
+
+/// RowBufferInfo describes where the window (and padding) is located in the full buffer
+/// it offers methods: .is_valid(), .is_window_empty(), .is_empty(), .has_padding(), .padding_is(value), .min_buffer_size()
+#[derive(Debug,Clone,Copy)]
+pub struct RowBufferInfo {
+    pub full_width: usize,
+    pub full_height: usize,
+    pub window_width: usize,
+    pub window_height: usize,
+    pub padding_left: usize,
+    pub padding_right: usize,
+    pub padding_top: usize,
+    pub padding_bottom: usize,
+    pub stride: usize,
+}
 
 
 /// 444|422|420|440
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Subsampling{
-    /// 4:4:4
+    /// 4:4:4 - same ratio as 1:1:1/2:2:2 No subsampling; Cb/Cr full res.
     YCbCr444 = 1,
-    /// 4:2:2
+    /// 4:2:2 Chromas half width, full height.
     YCbCr422 = 2,
-    /// 4:2:0
+    /// 4:2:0 	Chromas half width and half height (both axes ×½). Most cameras, browsers.
     YCbCr420 = 3,   
-    /// 4:4:0
+    /// 4:4:0 	Chromas full width, half height.
     YCbCr440 = 4,
+    // 411 - Chromas quarter width, full height (rare outside DV).
 }
-
+/// A superset of input color spaces and output color spaces. Matches libjpeg-turbo
+/// .to_output_color_space() returns the output color space for the given input color space.
+/// .get_num_components() returns the number of components in the color space.
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone, Copy)]
 #[repr(i32)]
 pub enum JpegColorSpace {
@@ -70,98 +112,14 @@ pub(crate) enum SimplifiedTransferCharacteristics{
 
 
 
-
-#[derive(Clone, Debug, Copy)]
-pub struct JpegliComponentSettings {
-    pub index: u8,
-    pub letter: char,
-    pub quantization_table_index: u8,
-    pub dc_huffman_table_index: u8,
-    pub ac_huffman_table_index: u8,
-    pub horizontal_sampling_factor: u8,
-    pub vertical_sampling_factor: u8,
-}
-impl JpegliComponentSettings {
-
-    pub fn is_empty(&self) -> bool {
-        self.vertical_sampling_factor == 0
-    }
-
-    pub const EMPTY: Self = JpegliComponentSettings { index: 0, letter: '\0', quantization_table_index: 0, dc_huffman_table_index: 0, ac_huffman_table_index: 0, horizontal_sampling_factor: 0, vertical_sampling_factor: 0 };
-
-    pub fn new(index: u8, letter: char, quantization_table_index: u8, dc_huffman_table_index: u8, ac_huffman_table_index: u8, horizontal_sampling_factor: u8, vertical_sampling_factor: u8) -> Self {
-        Self { index, letter, quantization_table_index, dc_huffman_table_index, ac_huffman_table_index, horizontal_sampling_factor, vertical_sampling_factor }
-    }
-
-    pub fn default(index: u8) -> Self {
-        Self {
-            index,
-            letter: (index + 1) as char,
-            quantization_table_index: 0,
-            dc_huffman_table_index: 0,
-            ac_huffman_table_index: 0,
-            horizontal_sampling_factor: 1,
-            vertical_sampling_factor: 1,
-        }
-    }
-
-    pub fn with_letter(self, letter: char) -> Self {
-        Self { letter, ..self }
-    }
-    pub fn with_quant_ix(self, quant_ix: u8) -> Self {
-        Self { quantization_table_index: quant_ix, ..self }
-    }
-    /// Set both the DC and AC Huffman tables to the same index
-    pub fn with_huff_ix(self, huff_ix: u8) -> Self {
-        Self { dc_huffman_table_index: huff_ix, ac_huffman_table_index: huff_ix, ..self }
-    }
-    pub fn with_h_v_sampling(self, h_sampling_factor: u8, v_sampling_factor: u8) -> Self {
-        Self { horizontal_sampling_factor: h_sampling_factor, vertical_sampling_factor: v_sampling_factor, ..self }
-    }
-    
-    
-}
-
-
-// ITU-T H.273 / ISO 23091-2 Table 3 — TransferCharacteristics code points
-// Decimal	Identifier (canonical name)	Typical shorthand / common use-case
-// 0	reserved	―
-// 1	ITU-R BT.709	"bt709", Rec. 709 HDTV SDR gamma ≈ 2.4 (also reused for BT.601/2020 SDR) 
-// GitHub
-// 2	unspecified	encoder didn't signal – decoder must assume container defaults 
-// matroska.org
-// 3	reserved	―
-// 4	BT.470 System M	CRT gamma 2.2 (NTSC-M SDTV)
-// 5	BT.470 System BG	CRT gamma 2.8 (PAL/SECAM SDTV)
-// 6	SMPTE 170M	U.S. SDTV (identical OETF to 1)
-// 7	SMPTE 240M	early HDTV cameras (unused today)
-// 8	Linear	linear-light RGB (no OETF)
-// 9	Log 100	log transfer, 100:1 dynamic range
-// 10	Log Sqrt 100*√10	log transfer, 100 √10 : 1 range
-// 11	IEC 61966-2-4	xvYCC
-// 12	ITU-R BT.1361	"Extended Gamut" CRT system
-// 13	IEC 61966-2-1	sRGB / sYCC ("srgb")
-// 14	ITU-R BT.2020-10	Rec. 2020 SDR 10-bit (same curve as 1)
-// 15	ITU-R BT.2020-12	Rec. 2020 SDR 12-bit (same curve as 1)
-// 16	SMPTE ST 2084	Perceptual Quantisation (PQ, HDR10)
-// 17	SMPTE ST 428-1	Cinema D-CI X′ = E^(1/2.6)
-// 18	ARIB STD-B67	Hybrid-Log-Gamma (HLG)
-// All integers > 18 are currently undefined/reserved; do not use them in bit-streams. 
-// matroska.org
-// GitHub
-// Practical notes & decoder behaviour
-// Values 1 / 6 / 14 / 15 are mathematically identical; many tool-chains treat them as synonyms. 
-// W3C
-// HEVC/AV1, WebCodecs, GStreamer, FFmpeg/Libav and AVIF/JPEG-XL libraries fully parse the table above. Libjpeg/libjpeg-turbo ignore CICP because "legacy" JPEG has no carriage for it; color is assumed sRGB.
-
-// When a full ICC profile is present (e.g. in HEIF/AVIF), the CICP triplet is advisory and may be overridden.
-
-// For SDR JPEG workflows, signalling 1/13/6 (BT.709 primaries, sRGB TRC, BT.601 coeffs) mirrors the implicit assumptions of most JPEG decoders and avoids surprise gamut shifts.
-
-// Use only the enumerated values; anything else risks being rejected or silently mapped to 'unspecified'.
-
-
 /// Unspecified and reserved valus are not permitted in this enum
+/// From ITU-T H.273 / ISO 23091-2 Table 3 — TransferCharacteristics code points
+/// All integers > 18 are currently undefined/reserved; do not use them in bit-streams. 
+/// Values 1 / 6 / 14 / 15 are mathematically identical; many tool-chains treat them as synonyms.
+/// HEVC/AV1, WebCodecs, GStreamer, FFmpeg/Libav and AVIF/JPEG-XL libraries fully parse the table above. Libjpeg/libjpeg-turbo ignore CICP because "legacy" JPEG has no carriage for it; color is assumed sRGB.
+/// When a full ICC profile is present (e.g. in HEIF/AVIF), the CICP triplet is advisory and may be overridden.
+/// For SDR JPEG workflows, signalling 1/13/6 (BT.709 primaries, sRGB TRC, BT.601 coeffs) mirrors the implicit assumptions of most JPEG decoders and avoids surprise gamut shifts.
+/// Use only the enumerated values; anything else risks being rejected or silently mapped to 'unspecified'.
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum TransferCharacteristics{
     /// ITU-R BT.709 (default SDR), Rec. 709 HDTV SDR gamma ≈ 2.4 (also reused for BT.601/2020 SDR)
@@ -197,6 +155,7 @@ pub(crate) enum TransferCharacteristics{
     /// Arib Std-B67 (Hybrid-Log-Gamma, HLG)
     AribStdB67 = 18,
 }
+
 impl Subsampling{
     pub fn from_str(value: &str) -> Option<Self>{
         match value{
@@ -347,6 +306,13 @@ impl JpegColorSpace {
     }
 }
 
+/// Allows for accessing aligned buffers, although only the full width is aligned to the simd width.
+/// Offers methods for duplicating edge pixels into padding territory, 
+/// modifying which territory is padding, window, or stride excess, 
+/// splitting the buffer, accessing rowise, and with padding. 
+/// Some Function names: .region_mut(), .region_mut_shrink_padding(), .split_at_mut(), .row_mut(), .row_mut_with_padding(), .
+/// .is_aligned(), .is_optimally_aligned(), .is_window_aligned(), .is_window_optimally_aligned(), .get_buffer(), .get_info_and_buffer_mut(), .get_buffer_mut(), .get_info_and_buffer()
+/// .info() returns the RowBufferInfo
 pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
     fn info(&self) -> &RowBufferInfo;
     /// Should return the buffer, starting at 0,0 of the padded area.
@@ -363,8 +329,16 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
         T::simd_is_minimally_aligned(self.get_buffer()) &&
         self.info().stride % T::simd_min_alignment_in_elements() == 0
     }
+    fn is_window_aligned(&self) -> bool{
+        T::simd_is_minimally_aligned(&self.get_buffer()[self.info().padding_left..]) &&
+        self.info().stride % T::simd_min_alignment_in_elements() == 0
+    }
     fn is_optimally_aligned(&self) -> bool{
         T::simd_is_optimally_aligned(self.get_buffer()) &&
+        self.info().stride % T::simd_optimal_alignment_in_elements() == 0
+    }
+    fn is_window_optimally_aligned(&self) -> bool{
+        T::simd_is_optimally_aligned(&self.get_buffer()[self.info().padding_left..]) &&
         self.info().stride % T::simd_optimal_alignment_in_elements() == 0
     }
     /// Returns a new buffer that is a region of the current buffer, relative to the full buffer area including padding.
@@ -718,18 +692,7 @@ pub trait RowBuffer<T: Copy + SimdWidth + Sized> {
     }
 }
 
-#[derive(Debug,Clone,Copy)]
-pub struct RowBufferInfo {
-    pub full_width: usize,
-    pub full_height: usize,
-    pub window_width: usize,
-    pub window_height: usize,
-    pub padding_left: usize,
-    pub padding_right: usize,
-    pub padding_top: usize,
-    pub padding_bottom: usize,
-    pub stride: usize,
-}
+
 
 impl RowBufferInfo {
     pub fn is_valid(&self) -> bool {
@@ -753,12 +716,6 @@ impl RowBufferInfo {
     pub fn min_buffer_size(&self) -> usize{
         self.stride * self.full_height
     }
-}
-
-#[derive(Debug)]
-pub struct RowBufferRef<'a,T: Copy + 'a + SimdWidth>  {
-    info: RowBufferInfo,
-    data: &'a mut [T],
 }
 
 impl<'a,T: Copy + 'a + SimdWidth> RowBuffer<T> for RowBufferRef<'a,T> {
@@ -802,12 +759,6 @@ impl<'a,T: Copy + 'a + SimdWidth> RowBufferRef<'a,T> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct OwnedRowBuffer<T: Copy + Default> where T:SimdWidth {
-    info: RowBufferInfo,
-    offset: usize,
-    data: Vec<T>,
-}
 
 impl<T: Copy + Default> RowBuffer<T> for OwnedRowBuffer<T> where T:SimdWidth {
     fn info(&self) -> &RowBufferInfo{

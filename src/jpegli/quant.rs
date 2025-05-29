@@ -1,27 +1,43 @@
 
-//use core::num::NonZeroU16; // Likely not needed directly here anymore
 use std::f32;
-//use std::fmt::Write; // Not needed for core quant logic
-
-// Import constants from the dedicated module
 use crate::jpegli::quant_constants::*;
-// Use path relative to src/lib.rs for ffi types if defined there or re-exported
-// use crate::{MAX_COMPONENTS}; // Assuming MAX_COMPONENTS is at crate root
-use crate::jpegli::structs::{JpegColorSpace, SimplifiedTransferCharacteristics};
+use crate::internal::*;
 
-use super::config::ComputedEncodeConfig;
-use super::structs::JpegliComponentSettings;
 
-// Remove unresolved imports
-// use crate::{ffi, MAX_COMPONENTS};
+#[derive(Debug, Clone)] // Add Clone if needed
+pub(crate) struct JpegliQuantData {
+    // Raw DQT tables (u16, 0-32767 or 0-255)
+    pub raw_quant_tables: [Option<[u16; DCTSIZE2]>; MAX_COMPONENTS],
+    // Derived tables used during coefficient quantization
+    pub zero_bias_offsets: [[f32; DCTSIZE2]; MAX_COMPONENTS],
+    pub zero_bias_multipliers: [[f32; DCTSIZE2]; MAX_COMPONENTS],
+    pub quant_mul: [[f32; DCTSIZE2]; MAX_COMPONENTS],
+}
 
-// Constants
-// use crate::jpeg::MAX_COMPONENTS; // Removed this line
-// use crate::ffi::DCTSIZE2; // DCTSIZE2 is likely part of ffi module
+impl JpegliQuantData {
+    /// Creates a new quantizer state using validated parameters.
+    pub(crate) fn new(
+        params: &ComputedEncodeConfig, 
+    ) -> Result<Self, &'static str> {
+        
+        let computed_raw_tables = set_quant_matrices(&params)?;
 
-// --- Locally Defined Constants (replacing FFI) ---
-pub(crate) const MAX_COMPONENTS: usize = 4;
-pub(crate) const DCTSIZE2: usize = 64;
+        let (quant_mul, zb_mul, zb_offset) = init_quantizer(
+            &computed_raw_tables, 
+            &params, // Pass the validated params struct
+            QuantPass::NoSearch
+        )?;
+
+        Ok(Self {
+            raw_quant_tables: computed_raw_tables,
+            zero_bias_offsets: zb_offset,
+            zero_bias_multipliers: zb_mul,
+            quant_mul: quant_mul,
+        })
+    }
+}
+
+// --- End Quantizer State Struct ---
 
 // Enum mirroring C++ QuantPass
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -118,7 +134,7 @@ pub(crate) fn distance_to_linear_quality(distance: f32) -> f32 {
 pub(crate) fn quant_vals_to_distance(
     raw_quant_tables: &[Option<[u16; 64]>; 4],
     num_components: usize,
-    comp_info: &[JpegliComponentSettings], // Use Rust struct
+    comp_info: &[ComponentConfig], // Use Rust struct
     cicp_transfer_function: SimplifiedTransferCharacteristics,
     force_8bit_dct_baseline: bool,
 ) -> f32 {
@@ -200,7 +216,7 @@ pub(crate) fn quant_vals_to_distance(
 /// Computes quantization table values based on distance/settings.
 /// Corresponds to C++ SetQuantMatrices.
 /// Accepts validated JpegliQuantParams.
-pub(crate) fn set_quant_matrices(
+fn set_quant_matrices(
     // Accept the params struct (mutable because it might update quantization_table_index)
     params: &ComputedEncodeConfig,
 ) -> Result<[Option<[u16; 64]>; 4], &'static str> {
@@ -291,7 +307,7 @@ pub(crate) fn set_quant_matrices(
 /// Computes derived quantizer state (multipliers, zero-bias tables).
 /// Corresponds to C++ InitQuantizer.
 /// Accepts validated JpegliQuantParams.
-pub(crate) fn init_quantizer(
+fn init_quantizer(
     raw_quant_tables: &[Option<[u16; 64]>; 4],
     // Accept the params struct 
     params: &ComputedEncodeConfig,
@@ -400,40 +416,4 @@ pub(crate) fn init_quantizer(
 
     Ok((quant_mul, zero_bias_mul, zero_bias_offset))
 }
-
-// --- Quantizer State Struct ---
-#[derive(Debug, Clone)] // Add Clone if needed
-pub(crate) struct JpegliQuantizerState {
-    // Raw DQT tables (u16, 0-32767 or 0-255)
-    pub raw_quant_tables: [Option<[u16; DCTSIZE2]>; MAX_COMPONENTS],
-    // Derived tables used during coefficient quantization
-    pub zero_bias_offsets: [[f32; DCTSIZE2]; MAX_COMPONENTS],
-    pub zero_bias_multipliers: [[f32; DCTSIZE2]; MAX_COMPONENTS],
-    pub quant_mul: [[f32; DCTSIZE2]; MAX_COMPONENTS],
-}
-
-impl JpegliQuantizerState {
-    /// Creates a new quantizer state using validated parameters.
-    pub(crate) fn new(
-        params: &ComputedEncodeConfig, 
-    ) -> Result<Self, &'static str> {
-        
-        let computed_raw_tables = set_quant_matrices(&params)?;
-
-        let (quant_mul, zb_mul, zb_offset) = init_quantizer(
-            &computed_raw_tables, 
-            &params, // Pass the validated params struct
-            QuantPass::NoSearch
-        )?;
-
-        Ok(Self {
-            raw_quant_tables: computed_raw_tables,
-            zero_bias_offsets: zb_offset,
-            zero_bias_multipliers: zb_mul,
-            quant_mul: quant_mul,
-        })
-    }
-}
-
-// --- End Quantizer State Struct ---
 

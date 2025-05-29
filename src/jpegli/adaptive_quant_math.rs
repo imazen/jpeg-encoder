@@ -9,16 +9,12 @@
 
 #![allow(dead_code)] // TODO: Remove once integrated
 
+use crate::internal::*;
 use wide::*;
 use std::ops::*;
-// TODO: Add bytemuck dependency: cargo add bytemuck
 use bytemuck;
-use arrayref;
-use super::structs::RowBuffer;
 
-const K_PRE_EROSION_BORDER: usize = 1;
-const DCTSIZE: usize = 8; // Assuming DCTSIZE is 8x8
-// Extension trait for wide::f32x8
+
 trait WideF32x8Ext {
     fn reduce_max(self) -> f32;
 }

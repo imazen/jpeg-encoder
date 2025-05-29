@@ -30,17 +30,7 @@ pub struct AdaptiveQuantBuffers {
     pub quant_field: RowBuffer<f32>,
 }
 
-/// Buffers and state for DCT and quantization, used in `ComputeCoefficientsForiMCURow`.
-pub struct DctBuffers {
-    /// Scratch for pixel→DCT→quant pipeline.
-    pub dct_buffer: Vec<f32>,
 
-    /// Temporary int32 workspace for compaction and symbol generation.
-    pub block_tmp: Vec<i32>,
-
-    /// Last DC coefficient per component, mutated by streaming pipeline.
-    pub last_dc_coeff: [i32; 4],
-}
 
 /// Huffman and entropy coding data, set up in `CopyHuffmanTables` and
 /// optimized in `OptimizeHuffmanCodes`, packed by `InitEntropyCoder`.
@@ -70,17 +60,3 @@ pub struct TokenBuffers {
     pub refinement_bits: Vec<u8>,
 }
 
-/// Bit writer state, mutated by `WriteBlock()` and `JumpToByteBoundary()`.
-pub struct BitWriterBuffer {
-    /// Packed bits with JPEG byte stuffing.
-    pub data: Vec<u8>,
-
-    /// Current write position in `data`.
-    pub pos: usize,
-
-    /// Number of free bits left in the 64-bit put_buffer.
-    pub free_bits: i32,
-
-    /// Pending buffer for bit assembly (internal).
-    pub put_buffer: u64,
-} 

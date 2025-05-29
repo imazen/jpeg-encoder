@@ -7,7 +7,7 @@
 //! Uses helper functions from `adaptive_quant_math.rs`.
 
 use crate::jpegli::adaptive_quant_math::*;
-use crate::jpegli::quant::JpegliQuantizerState;
+use crate::jpegli::quant::JpegliQuantData;
 
 
 use super::config::ComputedConfigDimensions;
@@ -30,7 +30,7 @@ pub struct AdaptiveQuantState {
 
 /// Port of C++ `ComputeAdaptiveQuantField`.
 /// Main entry point for computing the adaptive quantization field for an iMCU row.
-pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: &mut T, state: &mut AdaptiveQuantState, quantizer: &JpegliQuantizerState, config: &ComputedEncodeConfig, dims: &ComputedConfigDimensions) {
+pub fn compute_adaptive_quant_field<T: RowBuffer<f32>>(luma_plane_padded_input: &mut T, state: &mut AdaptiveQuantState, quantizer: &JpegliQuantData, config: &ComputedEncodeConfig, dims: &ComputedConfigDimensions) {
 
     if !config.use_adaptive_quantization {
         return;

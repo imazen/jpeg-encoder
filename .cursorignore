@@ -1,5 +1,5 @@
 !external
-!jpegli
+!jpegli/lib/
 *.json
 *.png
 *.jpg
@@ -9,3 +9,6 @@
 *.gif
 *.tiff
 *.testdata
+target/
+
+
